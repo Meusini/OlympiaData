@@ -199,14 +199,17 @@
     return JSON.parse(new TextDecoder().decode(plain));
   }
 
-  $('unlock').addEventListener('submit', async e => {
-    e.preventDefault();
-    $('err').textContent = 'Bezig…';
+  // The password is kept in sessionStorage (this tab only) so Statistiek opens without asking again.
+  async function unlock(pw, quiet) {
+    if (!quiet) $('err').textContent = 'Bezig…';
     let data;
-    try { data = await decrypt($('pw').value); }
-    catch (err) { $('err').textContent = 'Fout wachtwoord.'; return; }
+    try { data = await decrypt(pw); }
+    catch (err) { try { sessionStorage.removeItem('olympia_pw'); } catch (e) {} if (!quiet) $('err').textContent = 'Fout wachtwoord.'; return; }
+    try { sessionStorage.setItem('olympia_pw', pw); } catch (e) {}
     render(data);   // outside the try: a page bug must not look like a wrong password
-  });
+  }
+  $('unlock').addEventListener('submit', e => { e.preventDefault(); unlock($('pw').value); });
+  { let saved = null; try { saved = sessionStorage.getItem('olympia_pw'); } catch (e) {} if (saved) unlock(saved, true); }
 
   // Age bands follow the match formats: 3v3, 6v6, 8v8, 11v11.
   const BANDS = [['U7–U8', a => a >= 7 && a <= 8], ['U9', a => a === 9], ['U10–U12', a => a >= 10 && a <= 12],
