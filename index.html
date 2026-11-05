@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
 <title>Clubs en teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -158,11 +161,100 @@
   .method h3 { color:var(--text); font-size:14px; margin:16px 0 4px; }
   .method ol, .method ul { margin:4px 0; padding-left:20px; }
   .method p { margin:4px 0; }
-  @media (max-width: 600px) { header, main, .filterbar { padding-left:16px; padding-right:16px; } header { position:static; } #v-sterkte .hide-sm { display:none; } }
+  @media (max-width: 600px) { header, main, .filterbar { padding-left:16px; padding-right:16px; } #v-sterkte .hide-sm { display:none; } }
+
+  /* ===== Design layer (2026-11-05): layout, Olympia colour, type scale, bars, mobile. Content untouched. ===== */
+  :root { --ol:#ffb86b; --ol-bg:rgba(255,184,107,.11); --ol-line:rgba(255,184,107,.55); --wrap:1360px;
+    --gut:max(20px, calc((100vw - var(--wrap)) / 2 + 20px)); --bar:rgba(58,163,255,.17); }
+  html,body { font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  table { font-variant-numeric:normal; } td:not(.l):not(.st-team), .kpi .v { font-variant-numeric:tabular-nums; }
+  body { background:radial-gradient(1200px 500px at 50% -200px, rgba(58,163,255,.06), transparent 70%), var(--bg); background-attachment:fixed; }
+  /* 2. one centred width for every view; header, filters and content share the same edges */
+  header { padding:12px var(--gut); background:rgba(23,26,33,.92); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .filterbar { padding:16px var(--gut) 0; }
+  main { max-width:none; padding:18px var(--gut) 64px; }
+  main:has(#v-map:not([hidden])) { max-width:none; }
+  #v-sterkte, #v-clubstr, .charts, #ov-fields, #ov-fees { max-width:none; }
+  /* 3. brand */
+  header .brand { height:34px; width:34px; border-radius:9px; background:#fff; padding:3px; object-fit:contain; flex:none; }
+  header h1 { font-size:18px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 10px; }
+  header h1 .sub { margin-left:0; font-size:12.5px; }
+  .lock { max-width:380px; margin:14vh auto; padding:32px 28px 26px; text-align:center; border-radius:16px;
+    background:linear-gradient(180deg, #1b1f28, var(--panel)); box-shadow:0 20px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.02) inset; }
+  .lock .lockimg { width:64px; height:64px; border-radius:16px; background:#fff; padding:6px; object-fit:contain; display:block; margin:0 auto 14px; }
+  .lock h2 { font-size:17px; margin-bottom:4px; } .lock .lsub { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .lock input { padding:10px 12px; } .lock button { padding:10px 16px; background:var(--accent); color:#0b1320; border-color:var(--accent); font-weight:600; }
+  /* 9. type scale and rhythm */
+  h2.sec, .chart h2.sec { font-size:12px; font-weight:600; letter-spacing:.7px; color:var(--muted); text-transform:uppercase; margin:30px 0 10px; }
+  .chart h2.sec { margin:2px 0 10px; }
+  .navlabel { font-size:10.5px; letter-spacing:.8px; }
+  .tabs { border-radius:10px; } .tabs button { padding:6px 12px; font-weight:500; } .tabs button:hover { color:var(--text); }
+  .tabs button.active { box-shadow:0 1px 6px rgba(58,163,255,.35); }
+  input, button, select { border-radius:8px; }
+  .filters, .filterbar { gap:8px; } .stbar { gap:10px 12px; }
+  .card, .chart, .kpi, .clubblock { border-radius:12px; }
+  .chart { padding:16px 18px; }
+  th { font-size:11.5px; font-weight:600; letter-spacing:.2px; }
+  th, td { padding:7px 8px; }
+  .note { font-size:12px; line-height:1.5; }
+  /* 1. Olympia: one colour everywhere */
+  tr.st-ours td, #clubstr tr.st-ours td, #fee-clubs tr.st-ours td, #fee-cats tr.st-ours td { background-color:var(--ol-bg) !important; font-weight:600; }
+  tr.st-ours td:first-child { box-shadow:inset 3px 0 0 var(--ol); }
+  tr.st-ours td.st-team, tr.st-ours td:nth-child(2) { color:var(--ol); }
+  tbody tr.st-ours:hover td { background-color:rgba(255,184,107,.18) !important; }
+  .clubblock.ours { border-color:var(--ol-line); background:var(--ol-bg); }
+  /* 4. secondary columns calmer */
+  td.sec2 { color:var(--muted); font-size:12.5px; }
+  /* 5. inline bars behind key numbers */
+  td.bar, #clubs td.bar, #clubstr td.bar { background-image:linear-gradient(90deg, var(--bar) var(--w), transparent var(--w)); background-size:calc(100% - 12px) 60%; background-position:6px 50%; background-repeat:no-repeat; }
+  tr.st-ours td.bar, #clubs tr.st-ours td.bar, #clubstr tr.st-ours td.bar { background-image:linear-gradient(90deg, rgba(255,184,107,.32) var(--w), transparent var(--w)); }
+  /* 6. map: monochrome base so the bubbles carry the colour */
+  #map .leaflet-tile-pane { filter:invert(1) hue-rotate(180deg) grayscale(1) brightness(.62) contrast(1.15); }
+  #map { border-radius:12px; }
+  .sizes { border-radius:10px; }
+  /* 10. KPI tiles, pills, source links */
+  .kpi { padding:14px 16px; background:linear-gradient(180deg, #1a1e26, var(--panel)); }
+  .kpi .v { font-size:24px; font-weight:700; letter-spacing:-.01em; }
+  .kpi .v.pos { color:var(--accent2); } .kpi .v.neg { color:var(--bad); }
+  #ledenkpis .kpi:first-child, #ledenkpis .kpi:nth-child(2) { border-color:rgba(255,184,107,.35); }
+  #ledenkpis .kpi:nth-child(2) .v { color:var(--ol); }
+  .ty { padding:1px 8px; line-height:17px; font-weight:600; border:none; }
+  .ty-hoog { background:rgba(122,223,176,.15); } .ty-middel { background:rgba(58,163,255,.16); }
+  .ty-laag { background:rgba(139,147,163,.16); } .ty-geen { background:transparent; }
+  a.src { color:var(--accent); text-decoration:none; font-size:12px; padding:1px 8px; border-radius:999px; background:rgba(58,163,255,.12); }
+  a.src:hover { background:rgba(58,163,255,.24); }
+  /* 7. evolution chart: names readable, other clubs quiet */
+  .chart svg text.lb { paint-order:stroke; stroke:var(--panel); stroke-width:3px; }
+  /* 8. phone */
+  .card { background:
+      linear-gradient(90deg, var(--panel) 30%, rgba(23,26,33,0)) left / 28px 100% no-repeat local,
+      linear-gradient(270deg, var(--panel) 30%, rgba(23,26,33,0)) right / 28px 100% no-repeat local,
+      linear-gradient(90deg, rgba(0,0,0,.45), transparent) left / 12px 100% no-repeat scroll,
+      linear-gradient(270deg, rgba(0,0,0,.45), transparent) right / 12px 100% no-repeat scroll,
+      var(--panel); }
+  @media (max-width: 720px) {
+    header { padding:10px 16px; gap:8px; position:sticky; }
+    header h1 { font-size:16px; flex:1 1 0; min-width:0; } header h1 .sub { font-size:11.5px; } header .brand { height:30px; width:30px; }
+    header .grow { display:none; }
+    .navs { width:100%; flex-wrap:nowrap; overflow-x:auto; gap:12px; padding-bottom:2px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .navs::-webkit-scrollbar { display:none; }
+    .navgroup { flex:none; } .navgroup .tabs { flex-wrap:nowrap; } .tabs button { white-space:nowrap; padding:6px 10px; }
+    .filterbar { padding:12px 16px 0; }
+    .filters { display:grid; grid-template-columns:1fr 1fr; width:100%; gap:6px; }
+    .filters select, .filterbar input { width:100%; font-size:13px; padding:7px 9px; }
+    .filterbar input { margin-top:0; }
+    main { padding:14px 16px 48px; }
+    #clubs td:nth-child(2), #clubs th:nth-child(2), #clubstr td:nth-child(2), #clubstr th:nth-child(2), #fee-clubs td:first-child, #fee-clubs th:first-child {
+      position:sticky; left:0; z-index:1; background-color:var(--panel); box-shadow:6px 0 8px -6px rgba(0,0,0,.6); }
+    #clubs tr.ghead th:nth-child(2), #clubstr tr.ghead th:nth-child(2) { position:static; box-shadow:none; }
+    tr.st-ours td:nth-child(2) { background-color:#2a2620 !important; }
+    .lock { margin:8vh auto; }
+  }
 </style>
 </head>
 <body>
 <header>
+  <img class="brand" src="olympia-logo.png" alt="HC Olympia" onerror="this.style.display='none'" />
   <h1>Clubs en teams <span class="sub" id="sub">België · outdoor</span></h1>
   <div class="grow"></div>
   <nav class="navs" id="tabs" hidden>
@@ -173,7 +265,9 @@
 <div class="filterbar" id="filterbar" hidden><div class="filters" id="filters"></div><input id="q" type="search" placeholder="Zoek club…" hidden /></div>
 <main id="main">
   <div class="lock">
+    <img class="lockimg" src="olympia-logo.png" alt="" onerror="this.style.display='none'" />
     <h2>Beveiligde pagina</h2>
+    <p class="lsub">HC Olympia · clubs en teams</p>
     <form id="unlock"><input id="pw" type="password" placeholder="Wachtwoord" autocomplete="current-password" autofocus /><button>Open</button></form>
     <div class="err" id="err"></div>
   </div>
@@ -411,7 +505,7 @@
         '<td class="' + signClass(t.gd) + '">' + signed(t.gd) + '</td>' +
         '<td class="hide-sm ' + signClass(t.gd) + '">' + signed1(t.perGame) + '</td>' +
         '<td class="hide-sm ' + signClass(t.dominance) + '">' + signed1(t.dominance) + '</td>' +
-        '<td class="hide-sm">' + t.percentile + '</td>' +
+        '<td class="hide-sm bar" style="--w:' + (+t.percentile || 0) + '%">' + t.percentile + '</td>' +
         '<td>' + bandChip(t.band) + '</td></tr>').join('');
       $('st-main').innerHTML = shown.length ? '<div class="card"><table><thead><tr>' +
         '<th>#</th><th class="st-team">Team</th><th class="l">Divisie</th><th>In poule</th>' +
@@ -693,7 +787,7 @@
         [fmt(Math.round(sum(c => c.youthP))), 'waarvan jeugd'],
         ...(showNC() ? [[fmt(Math.round(sum(c => c.members))), 'leden incl. non-competitie (schatting)']] : []),
         (() => { const sc = rows.map(c => clubType(c.club).score).filter(s => s !== undefined);
-          return [sc.length ? (sc.reduce((a, b) => a + b, 0) / sc.length).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–', 'gem. competitiviteitsscore (' + sc.length + ' clubs)']; })()].map(([v, l]) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>').join('');
+          return [sc.length ? (sc.reduce((a, b) => a + b, 0) / sc.length).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–', 'gem. competitiviteitsscore (' + sc.length + ' clubs)']; })()].map(([v, l]) => '<div class="kpi"><div class="v' + (/^\+/.test(v) ? ' pos' : /^[−-]\d/.test(v) ? ' neg' : '') + '">' + v + '</div><div class="l">' + l + '</div></div>').join('');
       if (levelView()) {
         // Rows: boys / girls, and per age when a group spans several ages.
         const lv = usedLevels(), G = [['M', 'jongens'], ['F', 'meisjes'], ['', 'gemengd']], v = $('f-age').value;
@@ -743,10 +837,11 @@
     }
     function drawMap() {
       layer.clearLayers();
-      const placed = rows.filter(c => D.geo[c.club]).sort((a, b) => b.players - a.players);  // big first, small on top
+      const placed = rows.filter(c => D.geo[c.club]).sort((a, b) => (a.club === 'Olympia') - (b.club === 'Olympia') || b.players - a.players);  // big first, small on top
       for (const c of placed) {
         const [lat, lon, prec] = D.geo[c.club], col = c.club === 'Olympia' ? '#ffb86b' : '#3aa3ff';
-        L.circleMarker([lat, lon], { radius: radius(c.players), color: col, weight: 1.2, fillColor: col, fillOpacity: 0.4 })
+        L.circleMarker([lat, lon], c.club === 'Olympia' ? { radius: radius(c.players), color: '#fff', weight: 2, fillColor: col, fillOpacity: 0.9 }
+          : { radius: radius(c.players), color: '#7cc2ff', weight: 1, opacity: 0.8, fillColor: col, fillOpacity: 0.28 })
           .bindTooltip(esc(c.club) + ' · ' + fmt(Math.round(c.players)))
           .bindPopup(popup(c, prec)).addTo(layer);
       }
@@ -805,7 +900,8 @@
       return v[0] ? v.map(x => x / v[0] * 100) : null;
     };
     function lineChart(id, labels, clubSeries, avg, ol, dashLast) {
-      const W = 900, H = 440, L = 42, R = 170, T = 14, B = 34, svg = $(id);
+      const W = 900, H = Math.max(440, Math.round((clubSeries.length + 2) * 12.5 + 48)), L = 42, R = 170, T = 14, B = 34, svg = $(id);
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
       // Scale on the youth points only when the last point is the adults total, else it flattens the curve.
       const scaled = v => dashLast ? v.slice(0, -1) : v;
       // Scale to the 90th percentile of the club points (plus average and Olympia) so a few small
@@ -835,13 +931,13 @@
       if (ol) ends.push({ name: 'Olympia', col: '#ffb86b', v: ol.vals[ol.vals.length - 1], w: 700, bold: true });
       ends.forEach(e => e.y0 = y(e.v));
       ends.sort((a, b) => a.y0 - b.y0);
-      const gap = Math.min(11, (H - T - B) / Math.max(ends.length, 1));
+      const gap = Math.min(12.5, (H - T - B) / Math.max(ends.length, 1));
       ends.forEach((e, k) => e.ly = Math.max(e.y0, k ? ends[k - 1].ly + gap : T + 4));
       const over = ends.length ? ends[ends.length - 1].ly - (H - B) : 0;   // pushed below the plot: shift the stack up
       if (over > 0) { for (let k = ends.length - 1; k >= 0; k--) { const lim = k === ends.length - 1 ? H - B : ends[k + 1].ly - gap; ends[k].ly = Math.min(ends[k].ly, lim); } }
       const xe = x(labels.length - 1), xl = W - R + 14;
       const label = e => '<line x1="' + (xe + 4) + '" y1="' + e.y0 + '" x2="' + (xl - 3) + '" y2="' + e.ly + '" stroke="' + e.col + '" stroke-opacity=".45" stroke-width=".8"/>' +
-        '<text class="lb" x="' + xl + '" y="' + (e.ly + 3.5) + '" font-size="' + (e.bold ? 11.5 : 10) + '" font-weight="' + e.w + '" fill="' + e.col + '">' + esc(e.name) + '</text>';
+        '<text class="lb" x="' + xl + '" y="' + (e.ly + 3.5) + '" fill-opacity="' + (e.bold ? 1 : .75) + '" font-size="' + (e.bold ? 12 : 10.5) + '" font-weight="' + e.w + '" fill="' + e.col + '">' + esc(e.name) + '</text>';
 
       clubSeries.forEach((c, i) => {
         const e = ends.find(e => e.i === i);
@@ -1022,7 +1118,7 @@
       const tot = L[L.length - 1], jeugd = L.find(r => r.name === 'Jeugd in teams'), sen = L.find(r => r.name === 'Senioren totaal'), oly = L[0], s2h = L[1];
       $('ledenkpis').innerHTML = [[fmt(Math.round(tot.est)), 'schatting op basis van de bond'], [fmt(tot.real), 'leden volgens Olympia (' + D.leden.season + ')'],
         [dlt(tot.real - tot.est), 'verschil'], [fmt(oly.real), 'Olympiaantjes, niet in de bondcijfers'], [fmt(s2h.real), 'Start to Hockey, niet in de bondcijfers'], [dlt(jeugd.real - jeugd.est), 'jeugd in teams t.o.v. schatting'], [dlt(sen.real - sen.est), 'senioren t.o.v. schatting']]
-        .map(([v, l]) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>').join('');
+        .map(([v, l]) => '<div class="kpi"><div class="v' + (/^\+/.test(v) ? ' pos' : /^[−-]\d/.test(v) ? ' neg' : '') + '">' + v + '</div><div class="l">' + l + '</div></div>').join('');
       $('ledennote').textContent = 'Bron: ' + D.leden.source + ', tegenover teams × kerngrootte uit de bondcompetities. ' +
         'Olympiaantjes zijn jonger dan 6 en spelen geen competitie. Trimmers = DI/DO-trimmers die geen ander team spelen; trimmers die ook Gents of Junior Ladies spelen, tellen daar. ' +
         'Wie in twee teams staat, telt bij het eerstgenoemde: "Heren 3, Gents 1" (2 spelers) bij Heren, "U19B, Heren 1" bij U19. ' +
@@ -1162,7 +1258,8 @@
         '<th colspan="3" class="grp-sterkte gstart">Sterkte eerste team (0–100)' + helpBtn('first') + '</th></tr>' +
         '<tr>' + STR_COLS.map(([k, t, cl], i) => '<th data-k="' + k + '" class="' + (cl || '') + ' ' + gcls(k, i) + '">' + t + (k === strKey ? (strDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
       $('clubstr').tBodies[0].innerHTML = list.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' +
-        STR_COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + ' ' + gcls(k, i) + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
+        STR_COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
+          (k === 's1A' && isFinite(+firstTeamOf(c.club, k)) && firstTeamOf(c.club, k) !== null ? ' bar" style="--w:' + Math.max(0, Math.min(100, Math.round(+firstTeamOf(c.club, k)))) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
     }
     $('str-tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { strSub = b.dataset.s; syncStr(); drawStrength(); } });
     $('str-base').addEventListener('change', e => { strBase = e.target.value; drawStrength(); });
@@ -1282,7 +1379,7 @@
       $('fee-clubs').tBodies[0].innerHTML = rowsF.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' + FEE_COLS.map(([k, , cl]) => {
         if (k === 'club') return '<td class="l">' + esc(c.club) + (c.out ? ' *' : '') + '</td>';
         if (k === 'season') return '<td class="l">' + esc(c.season || '?') + '</td>';
-        if (k === 'source') return '<td class="l">' + (c.source ? '<a href="' + esc(c.source) + '" target="_blank" rel="noopener" style="color:var(--accent)">link</a>' : '–') + '</td>';
+        if (k === 'source') return '<td class="l">' + (c.source ? '<a class="src" href="' + esc(c.source) + '" target="_blank" rel="noopener">link ↗</a>' : '–') + '</td>';
         return '<td>' + feeNum(c[k]) + '</td>'; }).join('') + '</tr>').join('');
       $('fee-note').textContent = D.fees.length + ' van 111 clubs publiceren hun lidgeld. Bedrag = gewoon competitielid, aan het vroegboektarief als de club twee tarieven heeft. Verplichte jaarlijkse bijdragen zijn opgeteld (Antwerp 140, Dragons 90, Oree 135). ' +
         'Niet inbegrepen: eenmalige instapgelden, waarborgen, barkrediet, indoor, enkel-trainingsleden, G-hockey, studenten en niet-spelende leden. Jeugdbedragen zijn het gemiddelde over de leeftijden. Topjeugd = apart tarief voor eerste of performance-teams. ' +
@@ -1322,6 +1419,7 @@
       $('f-age').disabled = v === 'flow' || v === 'leden' || v === 'clubstr';   // the curves and the member check span all ages by design
       $('f-prov').disabled = v === 'leden';                  // Olympia only
       for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('active', b.dataset.v === v);
+      const act = $('tabs').querySelector('button.active'); if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       flowView = v === 'flow'; ledenView = v === 'leden';
       if (v === 'leden') drawLeden();
       if (v === 'stats') openStatsFrame();
@@ -1355,8 +1453,11 @@
       $('clubs').tHead.innerHTML = '<tr class="ghead">' + spans.map((s, i) => '<th colspan="' + s.n + '" class="grp-' + s.g + (i ? ' gstart' : '') + '">' + GROUP_LABEL[s.g] + '</th>').join('') + '</tr>' +
         '<tr>' + COLS.map(([k, t, cl, title], i) => '<th data-k="' + k + '" class="' + (cl || '') + ' ' + gcls(k, i) + '"' + (title ? ' title="' + title + '"' : '') + '>' + t +
         (k === sortKey ? (sortDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
-      $('clubs').tBodies[0].innerHTML = list.map(c => '<tr class="club" data-c="' + esc(c.club) + '">' +
-        COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'players' ? ' total' : '') + ' ' + gcls(k, i) + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
+      const barMax = Math.max(1, ...list.map(c => +sortVal(c, 'members') || 0));
+      const barW = c => Math.round((+sortVal(c, 'members') || 0) / barMax * 100);
+      $('clubs').tBodies[0].innerHTML = list.map(c => '<tr class="club' + (c.club === 'Olympia' ? ' st-ours' : '') + '" data-c="' + esc(c.club) + '">' +
+        COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'players' ? ' total' : '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
+          (k === 'members' ? ' bar" style="--w:' + barW(c) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
     }
     $('clubs').addEventListener('click', e => {
       if (e.target.closest('tr.detail')) return;
