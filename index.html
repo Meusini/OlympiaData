@@ -163,13 +163,11 @@
 </head>
 <body>
 <header>
-  <a href="https://meusini.github.io/OlympiaCalendar/" style="text-decoration:none;color:var(--text);font-size:13px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)">◀ Kalender</a>
-  <a href="statistiek.html" style="text-decoration:none;color:var(--text);font-size:13px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)">Statistiek ▶</a>
   <h1>Clubs en teams <span class="sub" id="sub">België · outdoor</span></h1>
   <div class="grow"></div>
   <nav class="navs" id="tabs" hidden>
     <div class="navgroup"><span class="navlabel">All clubs</span><div class="tabs"><button data-v="table" class="active">Club Overview</button><button data-v="clubstr">Club Strength</button><button data-v="sterkte">Team Strength</button><button data-v="map">Map</button></div></div>
-    <div class="navgroup"><span class="navlabel">Olympia</span><div class="tabs"><button data-v="flow">Evolution</button><button data-v="leden">Actuals</button></div></div>
+    <div class="navgroup"><span class="navlabel">Olympia</span><div class="tabs"><button data-v="flow">Evolution</button><button data-v="stats">Statistiek</button><button data-v="leden">Actuals</button></div></div>
   </nav>
 </header>
 <div class="filterbar" id="filterbar" hidden><div class="filters" id="filters"></div><input id="q" type="search" placeholder="Zoek club…" hidden /></div>
@@ -646,6 +644,7 @@
       '<div id="v-map" hidden><div id="map"></div><div class="note" id="mapnote"></div></div>' +
       '<div id="v-leden" hidden><div class="kpis" id="ledenkpis"></div><div class="card"><table id="ledent"></table></div><div class="note" id="ledennote"></div></div>' +
       '<div id="v-sterkte" hidden></div>' +
+      '<div id="v-stats" hidden><iframe id="stats-frame" title="Statistiek" style="width:100%;min-height:70vh;border:0;display:block"></iframe></div>' +
       '<div id="v-clubstr" hidden><div class="stbar" style="margin-bottom:14px"><div class="tabs" id="str-tabs"><button data-s="table" class="active">Tabel</button><button data-s="chart">Grafiek</button><button data-s="evo">Evolution</button></div>' +
         '<select id="str-base" title="Sterkte eerste team vergelijken met"><option value="first">Tegenover eerste teams</option><option value="all">Tegenover alle teams</option></select>' +
         '<select id="str-type" title="Type club" hidden><option value="">Alle types</option><option value="hoog">Hoog competitief</option><option value="middel">Middel competitief</option><option value="laag">Laag competitief</option></select></div>' +
@@ -1300,10 +1299,23 @@
     window.addEventListener('resize', () => { if (!$('v-table').hidden && ovSub === 'fields') drawFieldChart(); });
 
     let drawSterkte = null;
+    // Statistiek is its own page (statistiek.html, rebuilt daily); shown here in a frame. It opens
+    // with the password this page saved in sessionStorage, and the frame grows with its content.
+    function openStatsFrame() {
+      const f = $('stats-frame');
+      if (f.src) return;
+      f.addEventListener('load', () => {
+        const doc = f.contentDocument;
+        if (!doc) return;
+        const fit = () => { f.style.height = doc.documentElement.scrollHeight + 'px'; };
+        new ResizeObserver(fit).observe(doc.body); fit();
+      });
+      f.src = 'statistiek.html?embed=1';
+    }
     function showView(v) {
       $('v-table').hidden = v !== 'table'; $('v-map').hidden = v !== 'map'; $('v-flow').hidden = v !== 'flow'; $('v-leden').hidden = v !== 'leden'; $('q').hidden = v !== 'table' && v !== 'clubstr';
-      $('v-sterkte').hidden = v !== 'sterkte'; $('v-clubstr').hidden = v !== 'clubstr';
-      $('filterbar').hidden = v === 'sterkte' || (v === 'clubstr' && strSub === 'evo');   // Team Strength has its own age and gender selectors
+      $('v-sterkte').hidden = v !== 'sterkte'; $('v-clubstr').hidden = v !== 'clubstr'; $('v-stats').hidden = v !== 'stats';
+      $('filterbar').hidden = v === 'sterkte' || v === 'stats' || (v === 'clubstr' && strSub === 'evo');   // Team Strength has its own age and gender selectors
       strView = v === 'clubstr';
       if (strView) drawStrength();
       $('f-gender').disabled = v === 'clubstr' && strSub === 'table';
@@ -1312,6 +1324,7 @@
       for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('active', b.dataset.v === v);
       flowView = v === 'flow'; ledenView = v === 'leden';
       if (v === 'leden') drawLeden();
+      if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
       if (v === 'flow') drawFlow();
       if (v === 'table' && ovSub === 'fields') drawFieldChart();
