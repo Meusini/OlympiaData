@@ -251,7 +251,7 @@
     .lock { margin:8vh auto; }
   }
   /* Phone layout (2026-11-15, Bart: "too much selector, almost half of a phone"). */
-  .st-meta { display:none; }
+  .st-meta, .st-sm { display:none; }
   @media (max-width: 600px) {
     header { padding:8px 16px; gap:6px; }
     header h1 { font-size:15px; } header h1 .sub { font-size:11px; } header .brand { height:26px; width:26px; }
@@ -267,7 +267,10 @@
     #st-main { margin-top:8px; }
     #v-sterkte td.st-team { white-space:nowrap; }
     .st-meta { display:block; color:var(--muted); font-size:11.5px; font-weight:400; margin-top:1px; }
-    #v-sterkte td, #v-sterkte th { padding-top:7px; padding-bottom:7px; }
+    #v-sterkte td, #v-sterkte th { padding:7px 5px; }
+    #v-sterkte .st-sm { display:inline; }
+    #v-sterkte .band { min-width:0; padding:2px 6px; font-size:11.5px; }
+    #v-sterkte td.st-nr, #v-sterkte th:first-child { padding-left:8px; }
     #clubstr .c-town, #clubstr .c-prov, #clubstr .c-type { display:none; }
     #clubstr tr.ghead th { font-size:10px; letter-spacing:.3px; white-space:nowrap; }
     #clubstr td, #clubstr th { padding-left:6px; padding-right:6px; }
@@ -549,18 +552,18 @@
       const shown = q ? list.filter(t => String(t.team).toLowerCase().includes(q)) : list;
       const rows = shown.map(t => '<tr class="' + (t.clubs.includes(OUR_CLUB) ? 'st-ours' : '') + '">' +
         '<td class="st-nr">' + t.pos + '</td>' +
-        '<td class="st-team">' + esc(t.team) + '<span class="st-meta">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + ' · <span class="' + signClass(t.gd) + '">' + signed(t.gd) + '</span></span></td>' +
+        '<td class="st-team"><span class="hide-sm">' + esc(t.team) + '</span><span class="st-sm">' + esc(String(t.team).replace(/\s+U\d+\s*[A-Z]*\s*-?\s*(\d+)$/, ' $1')) + '</span><span class="st-meta">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + ' · <span class="' + signClass(t.gd) + '">' + signed(t.gd) + '</span></span></td>' +
         '<td class="l hide-sm">' + esc(short(t.division)) + ' · ' + esc(t.group) + '</td>' +
         '<td class="hide-sm">' + t.rank + '/' + t.poolSize + '</td>' +
         '<td class="hide-sm">' + t.played + '</td>' +
         '<td class="hide-sm ' + signClass(t.gd) + '">' + signed(t.gd) + '</td>' +
-        '<td class="hide-sm ' + signClass(t.gd) + '">' + signed1(t.perGame) + '</td>' +
+        '<td class="' + signClass(t.gd) + '">' + signed1(t.perGame) + '</td>' +
         '<td class="hide-sm ' + signClass(t.dominance) + '">' + signed1(t.dominance) + '</td>' +
         '<td class="hide-sm bar" style="--w:' + (+t.percentile || 0) + '%">' + t.percentile + '</td>' +
         '<td>' + bandChip(t.band) + '</td></tr>').join('');
       $('st-main').innerHTML = shown.length ? '<div class="card"><table><thead><tr>' +
         '<th>#</th><th class="st-team">Team</th><th class="l hide-sm">Divisie</th><th class="hide-sm">In poule</th>' +
-        '<th class="hide-sm">Gesp.</th><th class="hide-sm">Doelsaldo</th><th class="hide-sm">Per match</th>' +
+        '<th class="hide-sm">Gesp.</th><th class="hide-sm">Doelsaldo</th><th><span class="hide-sm">Per match</span><span class="st-sm">/match</span></th>' +
         '<th class="hide-sm" title="Doelsaldo per match, in spreidingen boven het gemiddelde van de eigen poule">Dominantie</th>' +
         '<th class="hide-sm">Percentiel</th><th>Groep</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
         : '<div class="note">Geen teams gevonden.</div>';
