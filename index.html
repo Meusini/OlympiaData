@@ -250,6 +250,36 @@
     tr.st-ours td:nth-child(2) { background-color:#2a2620 !important; }
     .lock { margin:8vh auto; }
   }
+  /* Phone layout (2026-11-15, Bart: "too much selector, almost half of a phone"). */
+  .st-meta { display:none; }
+  @media (max-width: 600px) {
+    header { padding:8px 16px; gap:6px; }
+    header h1 { font-size:15px; } header h1 .sub { font-size:11px; } header .brand { height:26px; width:26px; }
+    .navlabel { display:none; }
+    .navs { gap:6px; }
+    .tabs { padding:2px; gap:2px; } .tabs button { padding:5px 9px; font-size:13px; }
+    main { padding-top:10px; }
+    #v-sterkte .stbar { gap:8px; }
+    #st-filters { display:grid; grid-template-columns:auto auto 1fr; gap:6px; width:100%; }
+    #st-filters select, #st-filters input { font-size:13px; padding:6px 8px; min-width:0; width:100%; }
+    #v-sterkte .note { margin-top:6px; font-size:11.5px; }
+    #st-main { margin-top:8px; }
+    #v-sterkte td.st-team { white-space:nowrap; }
+    .st-meta { display:block; color:var(--muted); font-size:11.5px; font-weight:400; margin-top:1px; }
+    #v-sterkte td, #v-sterkte th { padding-top:7px; padding-bottom:7px; }
+    #clubstr .c-town, #clubstr .c-prov, #clubstr .c-type { display:none; }
+    #clubstr tr.ghead th { font-size:10px; letter-spacing:.3px; white-space:nowrap; }
+    #clubstr td, #clubstr th { padding-left:6px; padding-right:6px; }
+    #clubstr { font-size:13px; }
+    #clubstr td.l { white-space:nowrap; max-width:104px; overflow:hidden; text-overflow:ellipsis; }
+    #clubstr td.rk, #clubstr th.rk { padding-left:4px; padding-right:2px; }
+    .filterbar { padding-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .filters { display:contents; }
+    .filters select, .filterbar input { font-size:12.5px; padding:6px 8px; margin:0; }
+    #v-clubstr > .stbar { flex-wrap:nowrap; gap:6px; margin-bottom:10px !important; }
+    #v-clubstr > .stbar .tabs { flex-wrap:nowrap; flex:none; }
+    #v-clubstr > .stbar select { min-width:0; flex:1 1 auto; font-size:12.5px; padding:6px; }
+  }
 </style>
 </head>
 <body>
@@ -518,18 +548,18 @@
       const shown = q ? list.filter(t => String(t.team).toLowerCase().includes(q)) : list;
       const rows = shown.map(t => '<tr class="' + (t.clubs.includes(OUR_CLUB) ? 'st-ours' : '') + '">' +
         '<td class="st-nr">' + t.pos + '</td>' +
-        '<td class="st-team">' + esc(t.team) + '</td>' +
-        '<td class="l">' + esc(short(t.division)) + '<span class="hide-sm"> · ' + esc(t.group) + '</span></td>' +
-        '<td>' + t.rank + '/' + t.poolSize + '</td>' +
+        '<td class="st-team">' + esc(t.team) + '<span class="st-meta">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + ' · <span class="' + signClass(t.gd) + '">' + signed(t.gd) + '</span></span></td>' +
+        '<td class="l hide-sm">' + esc(short(t.division)) + ' · ' + esc(t.group) + '</td>' +
+        '<td class="hide-sm">' + t.rank + '/' + t.poolSize + '</td>' +
         '<td class="hide-sm">' + t.played + '</td>' +
-        '<td class="' + signClass(t.gd) + '">' + signed(t.gd) + '</td>' +
+        '<td class="hide-sm ' + signClass(t.gd) + '">' + signed(t.gd) + '</td>' +
         '<td class="hide-sm ' + signClass(t.gd) + '">' + signed1(t.perGame) + '</td>' +
         '<td class="hide-sm ' + signClass(t.dominance) + '">' + signed1(t.dominance) + '</td>' +
         '<td class="hide-sm bar" style="--w:' + (+t.percentile || 0) + '%">' + t.percentile + '</td>' +
         '<td>' + bandChip(t.band) + '</td></tr>').join('');
       $('st-main').innerHTML = shown.length ? '<div class="card"><table><thead><tr>' +
-        '<th>#</th><th class="st-team">Team</th><th class="l">Divisie</th><th>In poule</th>' +
-        '<th class="hide-sm">Gesp.</th><th>Doelsaldo</th><th class="hide-sm">Per match</th>' +
+        '<th>#</th><th class="st-team">Team</th><th class="l hide-sm">Divisie</th><th class="hide-sm">In poule</th>' +
+        '<th class="hide-sm">Gesp.</th><th class="hide-sm">Doelsaldo</th><th class="hide-sm">Per match</th>' +
         '<th class="hide-sm" title="Doelsaldo per match, in spreidingen boven het gemiddelde van de eigen poule">Dominantie</th>' +
         '<th class="hide-sm">Percentiel</th><th>Groep</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
         : '<div class="note">Geen teams gevonden.</div>';
@@ -650,8 +680,8 @@
       return TYPE_LABEL[k.type] + ' · #' + k.rank + ' van ' + k.of + ' · score ' + k.score.toLocaleString('nl-BE', { maximumFractionDigits: 2 }) +
         ' · U10+: ' + fmt1(k.nat) + ' nationaal, ' + fmt1(k.r1) + ' R1, ' + fmt1(k.low) + ' R2–R3';
     };
-    $('sub').textContent = 'België · outdoor ' + D.season + ' · clubs stand ' + new Date(D.generated).toLocaleDateString('nl-BE')
-      + (D.strengthAsOf ? ' · sterkte stand ' + new Date(D.strengthAsOf).toLocaleDateString('nl-BE') : '');
+    $('sub').textContent = 'Outdoor ' + D.season + ' · clubs ' + new Date(D.generated).toLocaleDateString('nl-BE')
+      + (D.strengthAsOf ? ' · sterkte ' + new Date(D.strengthAsOf).toLocaleDateString('nl-BE') : '');
     const { teams: rankedTeams, GROUPS: rankedGroups } = rankTeams(D.standings);
     const firstTeam = firstTeamMetric(rankedTeams, rankedGroups);
     let strBase = 'first';   // Club Strength: first-team strength against first teams or against all teams
@@ -761,7 +791,7 @@
       '<div id="v-sterkte" hidden></div>' +
       '<div id="v-stats" hidden><iframe id="stats-frame" title="Statistiek" style="width:100%;min-height:70vh;border:0;display:block"></iframe></div>' +
       '<div id="v-clubstr" hidden><div class="stbar" style="margin-bottom:14px"><div class="tabs" id="str-tabs"><button data-s="table" class="active">Tabel</button><button data-s="chart">Grafiek</button><button data-s="evo">Evolution</button></div>' +
-        '<select id="str-base" title="Sterkte eerste team vergelijken met"><option value="first">Tegenover eerste teams</option><option value="all">Tegenover alle teams</option></select>' +
+        '<select id="str-base" title="Sterkte eerste team vergelijken met"><option value="first">T.o.v. eerste teams</option><option value="all">T.o.v. alle teams</option></select>' +
         '<select id="str-type" title="Type club" hidden><option value="">Alle types</option><option value="hoog">Hoog competitief</option><option value="middel">Middel competitief</option><option value="laag">Laag competitief</option></select></div>' +
         '<div id="str-table"><div class="card"><table id="clubstr"><thead></thead><tbody></tbody></table></div></div>' +
         '<div id="str-evo" hidden></div>' +
@@ -1163,8 +1193,8 @@
       first: ['Sterkte eerste team (0–100)', [
         'Meet hoe sterk het eerste team van een club is tegenover de eerste teams van de andere clubs.',
         'Eerste team = het sterkste team van de club in die leeftijd. Meestal is dat Team 1.',
-        'Tegenover eerste teams: per leeftijd (U10, U11, U12, U14, U16, U19) telt het percentiel binnen de eerste teams. 100 is het beste eerste team, 50 een gemiddeld eerste team.',
-        'Tegenover alle teams: het percentiel telt ook tweede en derde teams mee, dus een gemiddeld eerste team scoort hoger dan 50.',
+        'T.o.v. eerste teams: per leeftijd (U10, U11, U12, U14, U16, U19) telt het percentiel binnen de eerste teams. 100 is het beste eerste team, 50 een gemiddeld eerste team.',
+        'T.o.v. alle teams: het percentiel telt ook tweede en derde teams mee, dus een gemiddeld eerste team scoort hoger dan 50.',
         'Score = gemiddelde over de 6 leeftijden, apart voor jongens en meisjes. Een leeftijd zonder team telt als 0.',
         'J+M = gemiddelde van jongens en meisjes, enkel voor clubs met beide. Anders staat er –.',
         'Percentielen gelden binnen het eigen geslacht: een hogere score bij meisjes betekent een betere relatieve plaats, niet beter hockey dan de jongens.',
@@ -1274,12 +1304,14 @@
       sorted.forEach((c, i) => { c.rank = i + 1; });
       const list = sorted.filter(c => !q || c.club.toLowerCase().includes(q) || (c.town || '').toLowerCase().includes(q));
       const gcls = (k, i) => 'grp-' + colGroup(k) + (i && colGroup(STR_COLS[i - 1][0]) !== colGroup(k) ? ' gstart' : '');
-      $('clubstr').tHead.innerHTML = '<tr class="ghead"><th colspan="4" class="grp-club"></th>' +
-        '<th colspan="2" class="grp-comp gstart">Competitieniveau' + helpBtn('level') + '</th>' +
-        '<th colspan="3" class="grp-sterkte gstart">Sterkte eerste team (0–100)' + helpBtn('first') + '</th></tr>' +
-        '<tr>' + STR_COLS.map(([k, t, cl], i) => '<th data-k="' + k + '" class="' + (cl || '') + ' ' + gcls(k, i) + '">' + t + (k === strKey ? (strDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
+      const narrow = matchMedia('(max-width: 600px)').matches;   // phones: no town, province or type; short labels
+      const NARROW_T = { s1M: 'J', s1F: 'M' };
+      $('clubstr').tHead.innerHTML = '<tr class="ghead"><th colspan="' + (narrow ? 2 : 4) + '" class="grp-club"></th>' +
+        '<th colspan="' + (narrow ? 1 : 2) + '" class="grp-comp gstart">' + (narrow ? 'Niveau' : 'Competitieniveau') + helpBtn('level') + '</th>' +
+        '<th colspan="3" class="grp-sterkte gstart">' + (narrow ? 'Sterkte' : 'Sterkte eerste team (0–100)') + helpBtn('first') + '</th></tr>' +
+        '<tr>' + STR_COLS.map(([k, t, cl], i) => '<th data-k="' + k + '" class="c-' + k + ' ' + (cl || '') + ' ' + gcls(k, i) + '">' + (narrow && NARROW_T[k] || t) + (k === strKey ? (strDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
       $('clubstr').tBodies[0].innerHTML = list.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' +
-        STR_COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
+        STR_COLS.map(([k, , cl], i) => '<td class="c-' + k + ' ' + (cl || '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
           (k === 's1A' && isFinite(+firstTeamOf(c.club, k)) && firstTeamOf(c.club, k) !== null ? ' bar" style="--w:' + Math.max(0, Math.min(100, Math.round(+firstTeamOf(c.club, k)))) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
     }
     $('str-tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { strSub = b.dataset.s; syncStr(); drawStrength(); } });
