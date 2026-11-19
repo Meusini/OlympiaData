@@ -21,8 +21,7 @@
   header { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:14px 20px;
     background:var(--panel); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
   header h1 { margin:0; font-size:18px; font-weight:600; }
-  header h1 .sub { color:var(--muted); font-weight:400; margin-left:8px; font-size:13px; }
-  header .grow { flex:1; }
+  header .sub { color:var(--muted); font-weight:400; font-size:12.5px; }
   input, button, select { background:var(--panel2); color:var(--text); border:1px solid var(--line);
     border-radius:8px; padding:7px 11px; font:inherit; min-width:0; }
   button { cursor:pointer; } button:hover { border-color:var(--accent); }
@@ -42,8 +41,6 @@
   th { color:var(--muted); font-weight:500; font-size:12px; position:sticky; top:0; background:var(--panel); cursor:pointer; user-select:none; }
   th.l, td.l { text-align:left; }
   tbody tr:hover td { background:var(--hl); }
-  tr.club { cursor:pointer; }
-  tr.detail td { background:var(--panel2); text-align:left; white-space:normal; }
   .mxwrap { display:flex; flex-wrap:wrap; gap:14px 28px; padding:6px 0 4px; }
   .mxh { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin-bottom:4px; }
   table.mx { width:auto; }
@@ -98,11 +95,8 @@
   @media (max-width: 600px) { .charts { grid-template-columns:1fr; } }
   .filters select.on { border-color:var(--accent); color:var(--accent); }
   .tabs { display:flex; flex-wrap:wrap; gap:4px; background:var(--panel2); border-radius:10px; padding:3px; border:1px solid var(--line); }
-  .tabs button { background:transparent; border:none; padding:6px 12px; border-radius:7px; color:var(--muted); }
-  .tabs button.active { background:var(--accent); color:#0b1320; font-weight:600; }
-  .navs { display:flex; flex-wrap:wrap; gap:8px 18px; } .navs[hidden] { display:none; }
-  .navgroup { display:flex; align-items:center; gap:8px; }
-  .navlabel { color:var(--muted); font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+  .tabs a { display:block; padding:6px 12px; border-radius:7px; color:var(--muted); text-decoration:none; white-space:nowrap; }
+  .tabs a.active { background:var(--accent); color:#0b1320; font-weight:600; }
   #map { height:calc(100vh - 170px); min-height:420px; border-radius:10px; border:1px solid var(--line); background:var(--panel); }
   main:has(#v-map:not([hidden])) { max-width:none; }
   #map .leaflet-tile-pane { filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.6); }
@@ -114,8 +108,8 @@
   .sizes { background:var(--panel); color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:11px; }
   .sizes svg { display:block; }
   #v-sterkte { max-width:1100px; }
-  #v-sterkte th { position:static; cursor:default; }
-  #v-sterkte td.pos { color:var(--accent2); } #v-sterkte td.neg { color:var(--bad); }
+  #v-sterkte th, #v-olteams th, #v-club th { position:static; cursor:default; }
+  #v-sterkte td.pos, #v-olteams td.pos, #v-club td.pos { color:var(--accent2); } #v-sterkte td.neg, #v-olteams td.neg, #v-club td.neg { color:var(--bad); }
   .stbar { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
   #st-main { margin-top:14px; }
   th.st-team, td.st-team { text-align:left; white-space:normal; width:100%; }
@@ -157,11 +151,7 @@
   .helpbody ul { margin:0; padding-left:18px; } .helpbody li { margin:6px 0; }
   #helpx { position:absolute; top:10px; right:10px; width:28px; height:28px; padding:0; }
   .pick { display:flex; align-items:center; gap:10px; margin:22px 0 14px; color:var(--muted); }
-  .method { margin-top:28px; color:var(--muted); font-size:13px; max-width:820px; }
-  .method h3 { color:var(--text); font-size:14px; margin:16px 0 4px; }
-  .method ol, .method ul { margin:4px 0; padding-left:20px; }
-  .method p { margin:4px 0; }
-  @media (max-width: 600px) { header, main, .filterbar { padding-left:16px; padding-right:16px; } #v-sterkte .hide-sm { display:none; } }
+  @media (max-width: 600px) { header, main, .filterbar { padding-left:16px; padding-right:16px; } .hide-sm { display:none; } }
 
   /* ===== Design layer (2026-11-05): layout, Olympia colour, type scale, bars, mobile. Content untouched. ===== */
   :root { --ol:#ffb86b; --ol-bg:rgba(255,184,107,.11); --ol-line:rgba(255,184,107,.55); --wrap:1360px;
@@ -177,8 +167,8 @@
   #v-sterkte, #v-clubstr, .charts, #ov-fields, #ov-fees { max-width:none; }
   /* 3. brand */
   header .brand { height:34px; width:34px; border-radius:9px; background:#fff; padding:3px; object-fit:contain; flex:none; }
-  header h1 { font-size:18px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 10px; }
-  header h1 .sub { margin-left:0; font-size:12.5px; }
+  header h1 { font-size:18px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
+  header h1 a { color:inherit; text-decoration:none; }
   .lock { max-width:380px; margin:14vh auto; padding:32px 28px 26px; text-align:center; border-radius:16px;
     background:linear-gradient(180deg, #1b1f28, var(--panel)); box-shadow:0 20px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.02) inset; }
   .lock .lockimg { width:64px; height:64px; border-radius:16px; background:#fff; padding:6px; object-fit:contain; display:block; margin:0 auto 14px; }
@@ -187,9 +177,8 @@
   /* 9. type scale and rhythm */
   h2.sec, .chart h2.sec { font-size:12px; font-weight:600; letter-spacing:.7px; color:var(--muted); text-transform:uppercase; margin:30px 0 10px; }
   .chart h2.sec { margin:2px 0 10px; }
-  .navlabel { font-size:10.5px; letter-spacing:.8px; }
-  .tabs { border-radius:10px; } .tabs button { padding:6px 12px; font-weight:500; } .tabs button:hover { color:var(--text); }
-  .tabs button.active { box-shadow:0 1px 6px rgba(58,163,255,.35); }
+  .tabs { border-radius:10px; } .tabs a { font-weight:500; } .tabs a:hover { color:var(--text); }
+  .tabs a.active { color:#0b1320; font-weight:600; box-shadow:0 1px 6px rgba(58,163,255,.35); }
   input, button, select { border-radius:8px; }
   .filters, .filterbar { gap:8px; } .stbar { gap:10px 12px; }
   .card, .chart, .kpi, .clubblock { border-radius:12px; }
@@ -234,11 +223,11 @@
       var(--panel); }
   @media (max-width: 720px) {
     header { padding:10px 16px; gap:8px; position:sticky; }
-    header h1 { font-size:16px; flex:1 1 0; min-width:0; } header h1 .sub { font-size:11.5px; } header .brand { height:30px; width:30px; }
-    header .grow { display:none; }
-    .navs { width:100%; flex-wrap:nowrap; overflow-x:auto; gap:12px; padding-bottom:2px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
-    .navs::-webkit-scrollbar { display:none; }
-    .navgroup { flex:none; } .navgroup .tabs { flex-wrap:nowrap; } .tabs button { white-space:nowrap; padding:6px 10px; }
+    header h1 { font-size:16px; flex:1 1 0; min-width:0; } header .brand { height:30px; width:30px; }
+    #secnav, #subnav { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    #secnav { flex:1 1 100%; }
+    #secnav::-webkit-scrollbar, #subnav::-webkit-scrollbar { display:none; }
+    .tabs a { padding:6px 10px; }
     .filterbar { padding:12px 16px 0; }
     .filters { display:grid; grid-template-columns:1fr 1fr; width:100%; gap:6px; }
     .filters select, .filterbar input { width:100%; font-size:13px; padding:7px 9px; }
@@ -254,23 +243,21 @@
   .st-meta, .st-sm { display:none; }
   @media (max-width: 600px) {
     header { padding:8px 16px; gap:6px; }
-    header h1 { font-size:15px; } header h1 .sub { font-size:11px; } header .brand { height:26px; width:26px; }
-    .navlabel { display:none; }
-    .navs { gap:6px; }
-    .tabs { padding:2px; gap:2px; } .tabs button { padding:5px 9px; font-size:13px; }
+    header h1 { font-size:15px; } header .brand { height:26px; width:26px; }
+    .tabs { padding:2px; gap:2px; } .tabs a { padding:5px 9px; font-size:13px; }
     main { padding-top:10px; }
     #v-sterkte .stbar { gap:8px; }
     #st-filters { display:grid; grid-template-columns:auto auto 1fr; gap:6px; width:100%; }
     #st-filters select, #st-filters input { font-size:13px; padding:6px 8px; min-width:0; width:100%; }
     #v-sterkte .note { margin-top:6px; font-size:11.5px; }
-    header h1 .sub, #v-sterkte > .stbar + .note { display:none; }   /* Bart 2026-11-15: date lines go on phones */
+    header .sub, #st-asof { display:none; }   /* Bart 2026-11-15: date lines go on phones */
     #st-main { margin-top:8px; }
-    #v-sterkte td.st-team { white-space:nowrap; }
+    #v-sterkte td.st-team, #v-olteams td.st-team { white-space:nowrap; }
     .st-meta { display:block; color:var(--muted); font-size:11.5px; font-weight:400; margin-top:1px; }
-    #v-sterkte td, #v-sterkte th { padding:7px 5px; }
-    #v-sterkte .st-sm { display:inline; }
-    #v-sterkte .band { min-width:0; padding:2px 6px; font-size:11.5px; }
-    #v-sterkte td.st-nr, #v-sterkte th:first-child { padding-left:8px; }
+    #v-sterkte td, #v-sterkte th, #v-olteams td, #v-olteams th { padding:7px 5px; }
+    .st-sm { display:inline; }
+    #v-sterkte .band, #v-olteams .band { min-width:0; padding:2px 6px; font-size:11.5px; }
+    #v-sterkte td.st-nr, #v-sterkte th:first-child, #v-olteams td:first-child, #v-olteams th:first-child { padding-left:8px; }
     #clubstr .c-town, #clubstr .c-prov, #clubstr .c-type { display:none; }
     #clubstr tr.ghead th { font-size:10px; letter-spacing:.3px; white-space:nowrap; }
     #clubstr td, #clubstr th { padding-left:6px; padding-right:6px; }
@@ -280,21 +267,121 @@
     .filterbar { padding-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
     .filters { display:contents; }
     .filters select, .filterbar input { font-size:12.5px; padding:6px 8px; margin:0; }
-    #v-clubstr > .stbar { flex-wrap:nowrap; gap:6px; margin-bottom:10px !important; }
-    #v-clubstr > .stbar .tabs { flex-wrap:nowrap; flex:none; }
-    #v-clubstr > .stbar select { min-width:0; flex:1 1 auto; font-size:12.5px; padding:6px; }
+  }
+
+  /* ===== Navigation layer (2026-11-19): Home menu, sections and pages with their own address, club page. ===== */
+  [hidden] { display:none !important; }
+  header { row-gap:8px; }
+  .brandlink { display:flex; flex:none; }
+  .homebtn { flex:none; padding:6px 12px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); color:var(--text); text-decoration:none; font-weight:600; }
+  .homebtn:hover, .homebtn.active { border-color:var(--accent); color:var(--accent); }
+  #secnav { min-width:0; }
+  .subrow { display:flex; align-items:center; gap:8px 14px; flex:1 1 100%; min-width:0; min-height:30px; }
+  #subnav { background:transparent; border:none; padding:0; min-width:0; }
+  #subnav a { padding:4px 11px; border:1px solid transparent; border-radius:999px; }
+  #subnav a.active { background:rgba(58,163,255,.14); color:var(--accent); border-color:rgba(58,163,255,.45); box-shadow:none; }
+  .subrow .sub { margin-left:auto; white-space:nowrap; }
+  /* a club name is a link to its club page, wherever it labels a row */
+  a.clublink { color:inherit; text-decoration-line:underline; text-decoration-style:dotted; text-decoration-color:rgba(139,147,163,.7); text-decoration-thickness:1px; text-underline-offset:3px; }
+  a.clublink:hover { color:var(--accent); text-decoration-style:solid; text-decoration-color:var(--accent); }
+  .note a { color:var(--accent); text-decoration:none; white-space:nowrap; } .note a:hover { text-decoration:underline; }
+  .ptitle { margin:0; font-size:21px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:10px; }
+  .ptitle img { height:32px; }
+  /* Pictograms (second pass, 2026-11-19): small line drawings, inline. A tone gives the drawing its colour and a soft square behind it. */
+  .ic { width:20px; height:20px; flex:none; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .icb { display:inline-flex; align-items:center; justify-content:center; flex:none; width:36px; height:36px; border-radius:10px; color:var(--c); background:var(--cb); }
+  .t-blue { --c:#5fb4ff; --cb:rgba(58,163,255,.14); } .t-green { --c:#7adfb0; --cb:rgba(122,223,176,.13); } .t-ol { --c:#ffb86b; --cb:rgba(255,184,107,.14); }
+  .t-purple { --c:#b9a0ff; --cb:rgba(169,136,255,.15); } .t-grey { --c:#a7aebb; --cb:rgba(139,147,163,.15); }
+  /* Home: one card per section, its title and its pages as rows to tap */
+  .home { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; }
+  .hcard { background:linear-gradient(180deg, #1a1e26, var(--panel)); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .hcard h2 { margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
+  .hcard h2 a { display:flex; align-items:center; gap:12px; padding:14px 14px 14px 16px; color:var(--text); text-decoration:none; }
+  .hcard h2 a span:not(.icb) { flex:1; }
+  .hcard ul { list-style:none; margin:0; padding:0; }
+  .hcard li a { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:46px; padding:0 14px 0 16px; border-top:1px solid var(--line);
+    color:var(--text); font-size:14.5px; font-weight:500; text-decoration:none; }
+  .hcard a > .ic { width:16px; height:16px; color:var(--muted); }
+  @media (hover: hover) {   /* not on touch screens, where a hover would stick after a tap */
+    .hcard li a:hover, .hcard a:hover > .ic { color:var(--accent); } .hcard li a:hover, .hcard h2 a:hover { background:var(--hl); }
+  }
+  .hcard.wide { grid-column:1 / -1; } .hcard.wide ul { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  .hcard.wide li + li a { border-left:1px solid var(--line); }
+  /* A choice of a few: All / Girls / Boys */
+  .seg { display:inline-flex; gap:3px; padding:3px; background:var(--panel2); border:1px solid var(--line); border-radius:10px; }
+  .seg button { background:transparent; border:none; padding:6px 14px; border-radius:7px; color:var(--muted); font-weight:500; }
+  .seg button:hover { color:var(--text); } .seg button.active { background:var(--accent); color:#0b1320; font-weight:600; }
+  /* A band that leads to its team in the Team strength table */
+  a.bandlink { display:inline-block; border-radius:7px; color:inherit; text-decoration:none; }
+  a.bandlink .band { transition:box-shadow .12s; }
+  a.bandlink:hover .band, a.bandlink:focus-visible .band { box-shadow:0 0 0 1.5px var(--accent); }
+  /* Club page */
+  .clubtop { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-bottom:16px; }
+  .clubtop .where { color:var(--muted); font-size:13px; }
+  .clubtop .pick { margin:0 0 0 auto; }
+  .kpi.pic { display:flex; align-items:center; gap:14px; } .kpi .s { margin-top:3px; color:var(--muted); font-size:11.5px; }
+  .card.pad { padding:12px 16px 14px; }
+  #v-club .kpis { margin-bottom:0; }
+  #v-club td.chg { vertical-align:middle; font-weight:600; }
+  /* Team strength: the team a link pointed at */
+  tr.st-focus td { box-shadow:inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent) !important; }
+  tr.st-focus td:first-child { box-shadow:inset 2px 0 0 var(--accent), inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent) !important; }
+  tr.st-focus td:last-child { box-shadow:inset -2px 0 0 var(--accent), inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent) !important; }
+  /* Olympia teams */
+  #olteams th.st-team, #olteams td.st-team { width:auto; }   /* columns spread evenly; no wide gap after the name */
+  #olteams th[data-k] { cursor:pointer; } #olteams th.on { color:var(--text); }
+  #ol-bar { margin-bottom:12px; }
+  #olteams tr.go { cursor:pointer; }
+  #olteams tr.agestart td { border-top:2px solid var(--line); }
+  #olteams td.st-team a { color:var(--text); font-weight:600; text-decoration:none; }
+  #olteams tr.go:hover td.st-team a { color:var(--accent); }
+  #sc, #fc { cursor:default; } #sc.onclub, #fc.onclub { cursor:pointer; }
+  .sc-tip { max-width:100%; }
+  /* Definitions: one card per topic. The line "in short" always shows; the rest opens on a tap. */
+  .defhead { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-bottom:16px; }
+  .defhead p { margin:0; color:var(--muted); font-size:13px; flex:1 1 260px; }
+  .defhead button { flex:none; }
+  .defgrid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; align-items:start; }
+  .dcard { background:linear-gradient(180deg, #1a1e26, var(--panel)); border:1px solid var(--line); border-radius:14px; }
+  .dcard.target { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .dcard summary { display:grid; grid-template-columns:36px minmax(0, 1fr) 16px; gap:4px 12px; align-items:center; padding:14px 14px 14px 16px; cursor:pointer; list-style:none; }
+  .dcard summary::-webkit-details-marker { display:none; }
+  .dcard summary h3 { margin:0; font-size:15px; font-weight:700; letter-spacing:-.01em; }
+  .dcard summary > .ic { width:16px; height:16px; color:var(--muted); transition:transform .15s; } .dcard[open] summary > .ic { transform:rotate(90deg); }
+  .dcard .short { grid-column:1 / -1; margin:6px 0 0; color:#c6cad3; font-size:13.5px; line-height:1.45; }
+  .dcard .more { padding:0 16px 14px; }
+  .dcard ul { margin:0; padding:10px 0 0 18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; line-height:1.45; } .dcard li { margin:5px 0; }
+  .dcard .ex { margin-top:10px; padding:8px 11px; border-radius:9px; border-left:3px solid var(--c); background:var(--cb); color:#c6cad3; font-size:12.5px; line-height:1.45; }
+  .dcard .ex b { color:var(--text); font-weight:600; margin-right:4px; }
+  @media (max-width: 1000px) { .home, .defgrid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 720px) {
+    .homebtn { padding:5px 10px; font-size:13px; }
+    .subrow { min-height:0; }
+    .clubtop .pick { margin-left:0; width:100%; } .clubtop .pick select { flex:1; }
+    .ptitle { font-size:19px; }
+  }
+  @media (max-width: 600px) {
+    .subrow.nopages { display:none; }   /* only the date line is left, and that goes on phones */
+    .sc-tip { white-space:normal; }     /* after a tap the tooltip stays, so it must fit the screen */
+    .home, .defgrid { grid-template-columns:minmax(0, 1fr); gap:12px; }
+    .hcard.wide ul { grid-template-columns:minmax(0, 1fr); } .hcard.wide li + li a { border-left:none; }
+    .hcard li a { min-height:48px; font-size:15px; }
+    .seg { display:flex; flex:1; } .seg button { flex:1; padding:9px 10px; }
+    #v-club .kpis { grid-template-columns:1fr 1fr; gap:8px; }
+    #v-club .kpi { padding:11px 12px; } #v-club .kpi .v { font-size:21px; } .kpi.pic { gap:10px; } .kpi.pic .icb { width:32px; height:32px; }
+    /* now, a year earlier and the change fit next to each other: the small lines may wrap */
+    #club-str th, #club-str td { white-space:normal; padding:7px 4px; } #club-str td { min-width:0; }
+    #club-str td.row, #club-str th.row { padding-left:10px; }
   }
 </style>
 </head>
 <body>
 <header>
-  <img class="brand" src="olympia-logo.png" alt="HC Olympia" onerror="this.style.display='none'" />
-  <h1>Clubs and teams <span class="sub" id="sub">Belgium · outdoor</span></h1>
-  <div class="grow"></div>
-  <nav class="navs" id="tabs" hidden>
-    <div class="navgroup"><span class="navlabel">All clubs</span><div class="tabs"><button data-v="table" class="active">Club Overview</button><button data-v="clubstr">Club Strength</button><button data-v="sterkte">Team Strength</button><button data-v="map">Map</button></div></div>
-    <div class="navgroup"><span class="navlabel">Olympia</span><div class="tabs"><button data-v="flow">Evolution</button><button data-v="stats">Statistics</button><button data-v="leden">Actuals</button></div></div>
-  </nav>
+  <a class="brandlink" href="#/" title="Home"><img class="brand" src="olympia-logo.png" alt="HC Olympia" onerror="this.style.display='none'" /></a>
+  <h1><a href="#/" title="Home">Clubs and teams</a></h1>
+  <a class="homebtn" id="homebtn" href="#/" hidden>Home</a>
+  <nav class="tabs" id="secnav" aria-label="Sections" hidden></nav>
+  <div class="subrow" id="subrow" hidden><nav class="tabs" id="subnav" aria-label="Pages of this section"></nav><span class="sub" id="sub">Belgium · outdoor</span></div>
 </header>
 <div class="filterbar" id="filterbar" hidden><div class="filters" id="filters"></div><input id="q" type="search" placeholder="Search club…" hidden /></div>
 <main id="main">
@@ -360,9 +447,7 @@
   // Age bands follow the match formats: 3v3, 6v6, 8v8, 11v11.
   const BANDS = [['U7–U8', a => a >= 7 && a <= 8], ['U9', a => a === 9], ['U10–U12', a => a >= 10 && a <= 12],
                  ['U14–U19', a => a >= 13], ['Adults', a => !a]];
-  const level = t => /Top Hockey/.test(t.comp) ? 'Top' : /^Nat/.test(t.division) ? 'Nationaal' : /^Reg/.test(t.division) ? 'Regionaal' : 'Overig';
-  // The Dutch level names above and 'Overig' in SUB are keys matched in code; these are their display labels.
-  const LEVEL_LABEL = { Top: 'Top', Nationaal: 'National', Regionaal: 'Regional', Overig: 'Other' };
+  // 'Overig' in SUB is a key matched in code; this is its display label.
   const subTitle = k => k === 'Overig' ? 'Other' : k;
 
   // Club detail: team counts per sub-level. An adult level only means something inside one
@@ -381,9 +466,9 @@
     const sum = (ts, f) => ts.reduce((s, t) => s + f(t), 0);
     const used = SUB.filter(([k]) => rows.some(r => r.teams.some(t => subOf(t) === k)));
     const cell = (ts, k) => { const n = sum(ts.filter(t => subOf(t) === k), t => t.share); return n ? fmt1(n) : ''; };
-    return '<div><div class="mxh">' + title + '</div><table class="mx"><thead><tr><th class="l"></th>' +
+    return '<div>' + (title ? '<div class="mxh">' + title + '</div>' : '') + '<table class="mx"><thead><tr><th class="l"></th>' +
       used.map(([k, s]) => '<th title="' + subTitle(k) + '">' + s + '</th>').join('') + '<th>Teams</th><th>Players</th></tr></thead><tbody>' +
-      rows.map(r => '<tr><td class="l">' + esc(r.label) + '</td>' + used.map(([k]) => '<td>' + cell(r.teams, k) + '</td>').join('') +
+      rows.map(r => '<tr' + (r.cls ? ' class="' + r.cls + '"' : '') + '><td class="l">' + esc(r.label) + '</td>' + used.map(([k]) => '<td>' + cell(r.teams, k) + '</td>').join('') +
         '<td class="total">' + fmt1(sum(r.teams, t => t.share)) + '</td><td>' + fmt1(Math.round(sum(r.teams, t => t.size))) + '</td></tr>').join('') +
       '</tbody></table></div>';
   }
@@ -495,14 +580,56 @@
 
   const short = d => d.replace('Nat. ', 'N').replace('Reg. ', 'R');
   const signed = n => (n > 0 ? '+' : '') + n;
+  const signed1 = n => (n > 0 ? '+' : '') + n.toFixed(1);
+  const signClass = n => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+  // Every page has its own address in the URL hash. A club name links to that club's page, a team to its
+  // row in the Team strength table.
+  const clubHref = club => '#/club/' + encodeURIComponent(club);
+  const clubLink = (club, label) => '<a class="clublink" href="' + clubHref(club) + '">' + (label === undefined ? esc(club) : label) + '</a>';
+  const teamHref = t => '#/strength/teams?age=' + t.age + '&gender=' + t.gender + '&team=' + encodeURIComponent(t.team);
+  // A band that is a link: it opens the Team strength table on that team's age and gender, with the team marked.
+  const bandLink = t => '<a class="bandlink" href="' + esc(teamHref(t)) + '">' + bandChip(t.band) + '</a>';
+  // The link that ends a note: the explanation is on the Definitions page, under that topic.
+  const more = (topic, label) => ' <a href="#/definitions/' + topic + '">' + label + ' ›</a>';
+  // Pictograms: line drawings on a 24 x 24 grid, drawn here so nothing is loaded from the network.
+  const ICONS = {
+    people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M17 14.5c2.3.3 4 2.4 4 5"/>',
+    youth: '<circle cx="12" cy="10.5" r="2.4"/><path d="M7.8 20c0-2.6 1.9-4.6 4.2-4.6s4.2 2 4.2 4.6"/>',
+    adult: '<circle cx="12" cy="7" r="3.2"/><path d="M5.5 20.5c0-4 2.9-7 6.5-7s6.5 3 6.5 7"/>',
+    ages: '<circle cx="8" cy="11.5" r="2.2"/><path d="M4.5 20c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4"/><circle cx="16" cy="7.5" r="2.8"/><path d="M11.8 20c0-3.5 1.9-6.2 4.2-6.2s4.2 2.7 4.2 6.2"/>',
+    sprout: '<path d="M12 20.5V12"/><path d="M12 12c0-3.3-2.3-5.5-6-5.5 0 3.3 2.3 5.5 6 5.5z"/><path d="M12 14.5c0-2.8 2-4.7 5.5-4.7 0 2.8-2 4.7-5.5 4.7z"/>',
+    pitch: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.3"/><path d="M3 9.5c1.7 0 3 1.1 3 2.5s-1.3 2.5-3 2.5M21 9.5c-1.7 0-3 1.1-3 2.5s1.3 2.5 3 2.5"/>',
+    euro: '<circle cx="12" cy="12" r="8.5"/><path d="M15.3 8.8a4.2 4.2 0 1 0 0 6.4M7.3 11h5.2M7.3 13.2h5.2"/>',
+    bars: '<path d="M5.5 20v-5M12 20v-9.5M18.5 20V5"/>',
+    podium: '<path d="M9 20V8.5h6V20M3.5 20v-7H9M15 15.5h5.5V20M2.5 20h19"/>',
+    overlap: '<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',
+    above: '<path d="M4 17.5h16"/><path d="M12 14V5M8.5 8.5L12 5l3.5 3.5"/>',
+    percent: '<circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/><path d="M18.5 5.5l-13 13"/>',
+    star: '<path d="M12 3.8l2.5 5.1 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    steps: '<path d="M3 6.5h5v5h5v5h8"/><path d="M18 13.5l3 3-3 3"/>',
+    trend: '<path d="M3 17l5.5-5.5 4 3.5L20.5 7"/><path d="M15.5 7h5v5"/>',
+    list: '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5h6V7H9zM8.5 13l2.2 2.2 4.8-4.8"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    book: '<path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5z"/><path d="M5 20.5A2.5 2.5 0 0 0 7.5 21H19v-3"/>',
+    tray: '<path d="M4 13l2.5-7.5h11L20 13v5.5H4z"/><path d="M4 13h4.5l1 2.5h5l1-2.5H20"/>',
+    go: '<path d="M9 6l6 6-6 6"/>',
+  };
+  const icon = k => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[k] + '</svg>';
+  const badge = (k, tone) => '<span class="icb t-' + tone + '">' + icon(k) + '</span>';
+  // nav.key = the address on screen. The scroll position is remembered per address, so the back button
+  // returns to where the reader was; a click on a link starts the new page at the top.
+  const nav = { key: null, pos: {}, clicked: 0 };
+  const go = hash => { nav.clicked = Date.now(); location.hash = hash; };                                  // a new page, with a history entry
+  const setAddress = hash => { history.replaceState(null, '', hash); nav.key = location.hash; };            // same page, new state
   function bandChip(band) {
     const strong = Math.abs(band - 55) / 45;     // 1 at both ends, 0 in the middle
     const rgb = band <= 50 ? '122,223,176' : '255,122,144';
     return '<span class="band" style="background:rgba(' + rgb + ',' + (0.06 + strong * 0.34).toFixed(2) + ')">Top ' + band + '%</span>';
   }
 
-  // Team Strength, Clubs: Olympia on top, a club of choice below, every team per age and gender.
-  // Returns a function that draws into an element.
+  // The club card: every team of a club per age and gender, with its band. Returns the card for one club
+  // (block) and the Olympia club overview (draw): Olympia on top, a club of choice below.
   function clubCompare(teams, firstTeam) {
     const OUR_CLUB = 'Olympia', AGES = ST_AGES;
     const clubBand = x => Math.ceil(10 * x.rank / x.of) * 10;   // the club's place among all clubs in that group
@@ -518,44 +645,47 @@
           const t = own.find(x => x.age === age && x.nr === nr);
           if (!t) return '<td><span class="none">–</span></td>';
           const tip = t.team + ': ' + t.pos + ' of ' + t.of + ', goal difference ' + signed(t.gd) + ' in ' + t.played + ' matches';
-          return '<td title="' + esc(tip) + '">' + bandChip(t.band) + '<span class="sub">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + '</span></td>';
+          return '<td title="' + esc(tip) + '">' + bandLink(t) + '<span class="sub">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + '</span></td>';
         }).join('');
         rows += '<tr><td class="row">Team ' + nr + '</td>' + cells + (nr === 1 ? firstCell : '') + '</tr>';
       }
       return '<div class="card"><table class="st-mx"><thead><tr><th class="row"></th>' + AGES.map(a => '<th>U' + a + '</th>').join('') +
         '<th class="st-first" title="First-team strength of this club against all clubs">First team</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     }
-    function clubBlock(club) {
+    // plain: the club name is not a link (on the club page itself).
+    function clubBlock(club, plain) {
       const ours = club === OUR_CLUB, overall = (firstTeam(club) || {}).A;
-      return '<section class="clubblock' + (ours ? ' ours' : '') + '"><div class="clubhead">' + (ours ? '<img src="olympia-logo.png" alt="" />' : '') + esc(club) +
+      return '<section class="clubblock' + (ours ? ' ours' : '') + '"><div class="clubhead">' + (ours ? '<img src="olympia-logo.png" alt="" />' : '') + (plain ? esc(club) : clubLink(club)) +
         (overall ? '<span class="clubover" title="First-team strength, boys + girls, against all clubs">Overall ' + bandChip(clubBand(overall)) + '</span>' : '') + '</div>' +
         '<h2 class="sec">Boys</h2>' + clubTable(club, 'M') + '<h2 class="sec">Girls</h2>' + clubTable(club, 'F') + '</section>';
     }
     const clubs = [...new Set(teams.flatMap(t => t.clubs))].sort((a, b) => a.localeCompare(b));
     let otherClub = 'Victory';
-    return el => {
+    const draw = el => {
       const options = clubs.filter(c => c !== OUR_CLUB)
         .map(c => '<option' + (c === otherClub ? ' selected' : '') + '>' + esc(c) + '</option>').join('');
       el.innerHTML = clubBlock(OUR_CLUB) +
         '<label class="pick">Compare with <select id="st-club">' + options + '</select></label><div id="st-other">' + clubBlock(otherClub) + '</div>';
       $('st-club').addEventListener('change', e => { otherClub = e.target.value; $('st-other').innerHTML = clubBlock(otherClub); });
     };
+    return { draw, block: clubBlock };
   }
 
-  // Team Strength tab: fills #v-sterkte once and returns its draw function.
-  function strengthView(S, teams, GROUPS, drawCompare, evolution) {
+  // The three pages that share #v-sterkte: the Team strength table (teams), the Olympia club overview (club)
+  // and the Olympia evolution (evo). Fills the container once and returns its draw function.
+  function strengthView(S, teams, GROUPS, compare, evolution) {
     const OUR_CLUB = 'Olympia';
-    const AGES = ST_AGES, OVERLAP = ST_OVERLAP;
-    const signed1 = n => (n > 0 ? '+' : '') + n.toFixed(1);
-    const signClass = n => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+    const AGES = ST_AGES;
+    let focus = null, jump = false;   // the team a link pointed at: marked in the table and scrolled into view once
 
     function renderTeams() {
       const list = GROUPS[$('st-age').value + $('st-gender').value];
       const q = $('st-q').value.trim().toLowerCase();
       const shown = q ? list.filter(t => String(t.team).toLowerCase().includes(q)) : list;
-      const rows = shown.map(t => '<tr class="' + (t.clubs.includes(OUR_CLUB) ? 'st-ours' : '') + '">' +
+      // The team name leads to its club (a joint team to the first of its clubs).
+      const rows = shown.map(t => '<tr class="' + (t.clubs.includes(OUR_CLUB) ? 'st-ours' : '') + (t.team === focus ? ' st-focus' : '') + '">' +
         '<td class="st-nr">' + t.pos + '</td>' +
-        '<td class="st-team"><span class="hide-sm">' + esc(t.team) + '</span><span class="st-sm">' + esc(String(t.team).replace(/\s+U\d+\s*[A-Z]*\s*-?\s*(\d+)$/, ' $1')) + '</span><span class="st-meta">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + ' · <span class="' + signClass(t.gd) + '">' + signed(t.gd) + '</span></span></td>' +
+        '<td class="st-team">' + clubLink(t.clubs[0], '<span class="hide-sm">' + esc(t.team) + '</span><span class="st-sm">' + esc(String(t.team).replace(/\s+U\d+\s*[A-Z]*\s*-?\s*(\d+)$/, ' $1')) + '</span>') + '<span class="st-meta">' + esc(short(t.division)) + ' · ' + t.rank + '/' + t.poolSize + ' · <span class="' + signClass(t.gd) + '">' + signed(t.gd) + '</span></span></td>' +
         '<td class="l hide-sm">' + esc(short(t.division)) + ' · ' + esc(t.group) + '</td>' +
         '<td class="hide-sm">' + t.rank + '/' + t.poolSize + '</td>' +
         '<td class="hide-sm">' + t.played + '</td>' +
@@ -570,6 +700,9 @@
         '<th class="hide-sm" title="Goal difference per match, in spreads above the average of its own pool">Dominance</th>' +
         '<th class="hide-sm">Percentile</th><th>Band</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
         : '<div class="note">No teams found.</div>';
+      const mark = jump && $('st-main').querySelector('tr.st-focus');
+      jump = false;   // only when a link brought the reader here, not on every search keystroke
+      if (mark) requestAnimationFrame(() => mark.scrollIntoView({ block: 'center' }));
     }
 
     // Olympia per team label and round. The label stays, the players move up: U14 team 1 is another age group next season.
@@ -581,67 +714,57 @@
       for (const nr of [...new Set(evolution.teams.map(t => t.nr))].sort((a, b) => a - b)) {
         body += '<tr class="st-group"><td colspan="' + (3 + evolution.rounds.length) + '">' + esc(NAMES[nr] || 'Team ' + nr) + '</td></tr>';
         for (const t of evolution.teams.filter(x => x.nr === nr)) {
+          // The current round (now) is the Team strength table of today: its band leads to that team there.
+          const cur = teams.find(x => x.clubs.includes(OUR_CLUB) && x.age === t.age && x.gender === t.gender && x.nr === t.nr);
           body += '<tr><td class="l">U' + t.age + '</td><td class="l">' + G[t.gender] + '</td><td class="l">' + t.nr + '</td>' + evolution.rounds.map(([r]) => {
             const x = t.rounds[r];
             if (!x) return '<td><span class="none">–</span></td>';
             const tip = 'Place ' + x.pos + ' of ' + x.of + ', goal difference ' + signed(x.gd) + ' in ' + x.played + ' matches';
-            return '<td title="' + esc(tip) + '">' + bandChip(x.band) + '<span class="sub">' + esc(short(x.division)) + ' · ' + x.rank + '/' + x.poolSize + '</span></td>';
+            const chip = r === 'now' && cur ? '<a class="bandlink" href="' + esc(teamHref(cur)) + '">' + bandChip(x.band) + '</a>' : bandChip(x.band);
+            return '<td title="' + esc(tip) + '">' + chip + '<span class="sub">' + esc(short(x.division)) + ' · ' + x.rank + '/' + x.poolSize + '</span></td>';
           }).join('') + '</tr>';
         }
       }
-      $('st-main').innerHTML = '<div class="card"><table class="st-mx" id="st-evo"><thead><tr><th class="l">Age</th><th class="l">Gender</th><th class="l">Team</th>' + heads + '</tr></thead><tbody>' + body + '</tbody></table></div>' +
-        '<div class="note">Band = place against all teams of that age and gender in that round, with the same method as Teams. A row follows the team label, not the players: U14 team 1 in 2026-27 is a different year group than U14 team 1 in 2025-26. Last season the regional divisions were called VHL, LFH or HV; they count as Reg. 1 to 3.</div>';
+      $('st-main').innerHTML = '<div class="card"><table class="st-mx" id="st-evo"><thead><tr><th class="l">Age</th><th class="l">Gender</th><th class="l">Team</th>' + heads + '</tr></thead><tbody>' + body + '</tbody></table></div>';
     }
+    // One short line under each of the three pages; the explanations are on the Definitions page.
+    const NOTES = {
+      teams: more('ranking', 'How the ranking works'),
+      club: 'Click a band to see that team in the Team strength table.' + more('band', 'What a band means'),
+      evo: 'A row follows the team label, not the players. VHL, LFH and HV are last season’s names of the regional divisions; they count as Reg. 1 to 3. Click a band in the last column to see that team in the Team strength table.' + more('rounds', 'How rounds work'),
+    };
 
+    // view: teams, club or evo. q: the address parameters of the Team strength table (age, gender, team).
     let view = 'teams';
-    function draw() {
+    function draw(v, q) {
+      view = v || view;
       const teamsView = view === 'teams';
-      $('st-filters').style.display = teamsView ? '' : 'none';
-      for (const b of $('st-tabs').querySelectorAll('button')) b.classList.toggle('active', b.dataset.s === view);
-      if (teamsView) renderTeams(); else if (view === 'evo') renderEvolution(); else drawCompare($('st-main'));
+      $('st-bar').hidden = !teamsView;
+      if (teamsView && q) {
+        const age = q.get('age'), gender = q.get('gender');
+        if (AGES.includes(+age)) $('st-age').value = String(+age);
+        if (gender === 'M' || gender === 'F') $('st-gender').value = gender;
+        focus = q.get('team') || null;
+        jump = !!focus;
+        if (focus) $('st-q').value = '';   // a search must not hide the team the link points at
+      }
+      if (teamsView) renderTeams(); else if (view === 'evo') renderEvolution(); else compare.draw($('st-main'));
+      $('st-note').innerHTML = NOTES[view];
     }
 
     const played = teams.map(t => t.played);
     const asOf = S.pools.map(p => p.fetchedAt).sort().pop();
-    const factor = (1 + OVERLAP).toLocaleString('en-GB'), share = Math.round(100 * OVERLAP / (1 + OVERLAP));
     $('v-sterkte').innerHTML =
-      '<div class="stbar"><div class="tabs" id="st-tabs"><button data-s="teams" class="active">Teams</button><button data-s="club">Clubs</button><button data-s="evo">Olympia evolution</button></div>' +
-      '<div class="stbar" id="st-filters"><select id="st-age" title="Age">' + AGES.map(a => '<option value="' + a + '">U' + a + '</option>').join('') + '</select>' +
+      '<div class="stbar" id="st-bar"><div class="stbar" id="st-filters"><select id="st-age" title="Age">' + AGES.map(a => '<option value="' + a + '">U' + a + '</option>').join('') + '</select>' +
       '<select id="st-gender" title="Gender"><option value="M">Boys</option><option value="F">Girls</option></select>' +
       '<input id="st-q" type="search" placeholder="Search club…" /></div></div>' +
-      '<div class="note">Standings of ' + (asOf ? new Date(asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '?') + ', ' + Math.min(...played) + ' to ' + Math.max(...played) + ' matches played. The method is explained at the bottom.</div>' +
+      '<div class="note" id="st-asof">Standings of ' + (asOf ? new Date(asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '?') + ', ' + Math.min(...played) + ' to ' + Math.max(...played) + ' matches played.</div>' +
       '<div id="st-main"></div>' +
-      '<section class="method"><h2 class="sec">Method</h2>' +
-      '<h3>Dominance</h3><p>Dominance measures how far a team stands above its own pool.</p><ol>' +
-      '<li>Goal difference per match = goal difference ÷ matches played.</li>' +
-      '<li>Subtract the average of the pool.</li>' +
-      '<li>Divide by the spread of the pool: the standard deviation of the goal difference per match across all teams in the pool.</li></ol>' +
-      '<p>Example: +5.0 per match in a pool with average 0 and spread 3.0 gives dominance +1.7. The same +5.0 with spread 4.0 gives +1.3.</p>' +
-      '<h3>Ranking</h3><ol>' +
-      '<li>Per age and gender, the highest level gets number 0, the next one number 1, and so on. U10–U12 start at R1, because there is no national level there.</li>' +
-      '<li>Within a level, all teams across all pools are ordered by dominance. Their place runs evenly from 1 (best team) to 0 (last team).</li>' +
-      '<li>Score = (place − 0.5) × ' + factor + ' − level number.</li>' +
-      '<li>All teams of that age and gender go into one list, ordered by score.</li></ol>' +
-      '<h3>Falling and rising teams</h3><p>Without the factor ' + factor + ', each level would sit entirely above the next one. With that factor, two consecutive levels overlap.</p><ul>' +
-      '<li>Falling teams: the bottom ' + share + '% of a level by dominance.</li>' +
-      '<li>Rising teams: the top ' + share + '% of the level below.</li>' +
-      '<li>Both groups fall in the same score zone and are mixed together by score. The best falling team sits next to the best rising team, the last team of a level next to the weakest rising team.</li>' +
-      '<li>As a result, the last team of a level always ranks below the best team of the level below.</li>' +
-      '<li>Falling and rising refer to the place in this ranking, not to real promotion or relegation. The ' + share + '% is an assumption, not a calculated value.</li></ul>' +
-      '<h3>Percentile and band</h3><ul>' +
-      '<li>Percentile = 100 × (1 − (position − 1) ÷ number of teams), against all teams of that age and gender.</li>' +
-      '<li>Band = position ÷ number of teams, rounded up to the next 10%.</li></ul>' +
-      '<h3>First-team strength</h3><ul>' +
-      '<li>First team = the strongest team of a club in that age. Usually that is Team 1.</li>' +
-      '<li>Per age and gender, each first team gets a percentile against the first teams of the other clubs: 100 is the best, 50 an average first team.</li>' +
-      '<li>Strength per gender = average over U10, U11, U12, U14, U16 and U19. An age without a team counts as 0. That way a club with gaps does not score higher than a complete club.</li>' +
-      '<li>Boys + girls = average of both, only for clubs with both boys and girls.</li>' +
-      '<li>In Club Strength you can also view the same strength against all teams.</li>' +
-      '<li>In Clubs this strength is shown as a band: place of the club ÷ number of clubs, rounded up to the next 10%. Overall is boys + girls.</li>' +
-      '<li>Percentiles apply within one gender: a higher score for girls means a better relative place, not better hockey than the boys.</li></ul></section>';
-    $('st-tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { view = b.dataset.s; draw(); } });
-    for (const id of ['st-age', 'st-gender']) $(id).addEventListener('change', draw);
-    $('st-q').addEventListener('input', draw);
+      '<div class="note" id="st-note" style="margin-top:14px"></div>';
+    // A new age or gender is a new address, so a refresh comes back to it; the marked team goes.
+    const pick = () => { focus = null; setAddress('#/strength/teams?age=' + $('st-age').value + '&gender=' + $('st-gender').value); draw(); };
+    for (const id of ['st-age', 'st-gender']) $(id).addEventListener('change', pick);
+    $('st-q').addEventListener('input', () => draw());
     return draw;
   }
 
@@ -717,8 +840,11 @@
     $('filters').innerHTML =
       '<select id="f-age" title="Age category">' + AGE_SELECT + '</select>' +
       '<select id="f-gender" title="Boys or girls">' + [['', 'Boys + girls'], ['M', 'Boys / men'], ['F', 'Girls / women']].map(opt).join('') + '</select>' +
-      '<select id="f-prov" title="Province">' + [['', 'All provinces'], ...provs.map(p => [p, provLabel(p)])].map(opt).join('') + '</select>';
-    $('filterbar').hidden = false;
+      '<select id="f-prov" title="Province">' + [['', 'All provinces'], ...provs.map(p => [p, provLabel(p)])].map(opt).join('') + '</select>' +
+      // Choices of one page sit in the same bar; every page shows only the ones that apply to it (see SECTIONS).
+      '<select id="fc-mode" title="Which members" hidden><option value="all">All members</option><option value="youth">Youth only</option></select>' +
+      '<select id="str-type" title="Club type" hidden><option value="">All types</option><option value="hoog">' + TYPE_LABEL.hoog + '</option><option value="middel">' + TYPE_LABEL.middel + '</option><option value="laag">' + TYPE_LABEL.laag + '</option></select>' +
+      '<select id="str-base" title="Compare first-team strength with" hidden><option value="first">Against first teams</option><option value="all">Against all teams</option></select>';
     function keep(t, f) {
       if (f.age === 'youth' && !t.age) return false;
       if (f.age === 'adult' && t.age) return false;
@@ -729,8 +855,7 @@
       return true;
     }
 
-    // Overview: age band x level
-    const LEVELS = ['Top', 'Nationaal', 'Regionaal', 'Overig'];
+    // Club overview: the club table
     let sortKey = 'members', sortDir = -1, COLS = [];
     // One age or one youth group picked: the age bands say nothing, so split by level (N1 ... R3) instead.
     const levelView = () => /^\d+$/.test($('f-age').value) || $('f-age').value.startsWith('g:');
@@ -763,6 +888,7 @@
       if (k === 'preU7' && c.preU7Unknown) return '<span title="Unknown: the club has no U7–U8 teams in the competition">–</span>';
       if (['preU7', 's2h', 'members'].includes(k)) return fmt(Math.round(val(c, k) || 0));
       if (k === 'prov') return esc(provLabel(c.prov));
+      if (k === 'club') return clubLink(c.club);
       if (k !== 'type') return esc(show(val(c, k)));
       const t = clubType(c.club).type;
       return '<span class="ty ty-' + t + '" title="' + esc(typeLine(c.club)) + '">' + TYPE_SHORT[t] + '</span>';
@@ -784,19 +910,12 @@
     const S2H_RATIO = olBase.u914 ? ledenCount(r => r.s2h) / olBase.u914 : 0;
 
     const SC_OL = '#d07e2a', SC_HIT = '#3491e0', SC_BASE = '#8b93a3';   // scatter marks; the first two pass the palette validator on dark
-    $('main').innerHTML = '<div id="v-table"><div class="stbar" style="margin-bottom:14px"><div class="tabs" id="ov-tabs"><button data-s="table" class="active">Table</button><button data-s="fields">Pitches and members</button><button data-s="fees">Fees</button></div>' +
-        '<select id="fc-mode" title="Which members" hidden><option value="all">All members</option><option value="youth">Youth only</option></select></div>' +
-      '<div id="ov-table"><h2 class="sec" style="margin-top:0">Per club</h2><div class="card"><table id="clubs"><thead></thead><tbody></tbody></table></div>' +
-      '<div class="kpis" id="kpis" style="margin-top:18px"></div>' +
-      '<h2 class="sec" id="gridtitle">Teams by age and level</h2><div class="card"><table id="grid"></table></div>' +
-      '<div class="note">Players = teams × squad size: U7–U8 5 · U9 9 · U10–U12 11 · U14–U19 16 · Men, Women, Junior Ladies and Junior Boys 20 · Gents and Ladies 11 · Trimmers 25 · 45+ and R2C 16. ' +
-      'Counts outdoor competition teams only; players without a team (U6, coaches, non-playing members) are missing and players in two teams count twice. ' +
-      'A joint team (e.g. Ping/Well) counts as half a team for each club. Mixed teams (45+, 35+, trimmers, R2C) drop out as soon as you filter on boys or girls. ' +
-      'Province = postcode of the main pitch. ' +
-      'Non-competition: Pre U7 (under 6) and Start to Hockey are not in the federation figures and are estimated per club with the ratio at Olympia: Pre U7 = ' + PRE_RATIO.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' × U7–U8 players, S2H = ' + S2H_RATIO.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' × U9–U14 players. Other clubs can differ a lot from this. A dash at Pre U7 = unknown: the club has no U7–U8 teams, so Total members leaves out Pre U7 there. ' +
-      'For comparison: Hockey Belgium counts just over 63,000 registered members in 111–113 clubs (2026, BX1 / DH); including non-competition this estimate covers about 78% of the members (without: 73%). ' +
-      'Pitches = hockey pitches from the home matches of November and December on hockey.be, completed with club websites; a training pitch without competition matches can be missing. 0 = the club plays on the pitch of another club. ' +
-      'Click a club for its team list.</div></div>' +
+    // One container per view; the address decides which one shows (see SECTIONS and showPage below).
+    $('main').innerHTML = '<div id="v-home" hidden></div>' +
+      '<div id="v-table" hidden>' +
+      // Club overview (Bart, second pass): the club table only. The explanations are on the Definitions page.
+      '<div id="ov-table"><div class="card"><table id="clubs"><thead></thead><tbody></tbody></table></div>' +
+      '<div class="note">Players and members are estimates: teams × squad size, plus Pre U7 and Start to Hockey. Click a club name for its club page.' + more('members', 'How members are counted') + '</div></div>' +
       '<div id="ov-fees" hidden><h2 class="sec" style="margin-top:0">Membership fee per category (euro per season)</h2><div class="card"><table id="fee-cats"></table></div>' +
         '<h2 class="sec">Per club</h2><div class="card"><table id="fee-clubs"><thead></thead><tbody></tbody></table></div><div class="note" id="fee-note"></div></div>' +
       '<div id="ov-fields" hidden><div class="chart"><h2 class="sec" id="fc-title"></h2>' +
@@ -806,10 +925,11 @@
       '<div id="v-map" hidden><div id="map"></div><div class="note" id="mapnote"></div></div>' +
       '<div id="v-leden" hidden><div class="kpis" id="ledenkpis"></div><div class="card"><table id="ledent"></table></div><div class="note" id="ledennote"></div></div>' +
       '<div id="v-sterkte" hidden></div>' +
+      '<div id="v-olteams" hidden></div>' +
+      '<div id="v-club" hidden></div>' +
+      '<div id="v-defs" hidden></div>' +
       '<div id="v-stats" hidden><iframe id="stats-frame" title="Statistics" style="width:100%;min-height:70vh;border:0;display:block"></iframe></div>' +
-      '<div id="v-clubstr" hidden><div class="stbar" style="margin-bottom:14px"><div class="tabs" id="str-tabs"><button data-s="table" class="active">Table</button><button data-s="chart">Chart</button><button data-s="evo">Evolution</button></div>' +
-        '<select id="str-base" title="Compare first-team strength with"><option value="first">Against first teams</option><option value="all">Against all teams</option></select>' +
-        '<select id="str-type" title="Club type" hidden><option value="">All types</option><option value="hoog">' + TYPE_LABEL.hoog + '</option><option value="middel">' + TYPE_LABEL.middel + '</option><option value="laag">' + TYPE_LABEL.laag + '</option></select></div>' +
+      '<div id="v-clubstr" hidden>' +
         '<div id="str-table"><div class="card"><table id="clubstr"><thead></thead><tbody></tbody></table></div></div>' +
         '<div id="str-evo" hidden></div>' +
         '<div id="str-chart" hidden><div class="chart"><h2 class="sec" id="sc-title"></h2>' +
@@ -818,77 +938,42 @@
       '<dialog id="helpdlg"><div class="helpbody"><button type="button" id="helpx" aria-label="Close">×</button><h3 id="helptitle"></h3><ul id="helplist"></ul></div></dialog>' +
       '<div id="v-flow" hidden><div class="flowbar"><details id="fsel"><summary id="fselsum">Clubs</summary><div class="fsel-body">' +
         '<div class="fsel-btns"><button type="button" id="fall">All</button><button type="button" id="fnone">None</button><span class="fsel-types" id="fsel-types"></span></div>' +
-        '<div id="fsel-list"></div></div></details>' +
-        '<div class="flowlegend"><span><i style="background:#ffb86b"></i>Olympia</span><span><i style="background:#7adfb0"></i>Average of the clubs shown (pooled)</span><span><i style="background:rgba(139,147,163,.6)"></i>Club (hover for name)</span></div></div>' +
-        '<div class="charts"><div class="chart"><h2 class="sec">1 · Players per youth stage, U7–U9 = 100</h2><svg id="ch1" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch1-hov"></div></div>' +
-        '<div class="chart"><h2 class="sec">2 · Players per age group (per birth year), U7–U8 = 100</h2><svg id="ch2" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch2-hov"></div></div></div>' +
-        '<div class="note" id="flownote"></div>' +
-        '<h2 class="sec">3 · Olympia youth over 5 years, with the flow between age groups of the selection</h2><div id="proj"></div></div>';
+        '<div id="fsel-list"></div></div></details></div>' +
+        // Bart, 2026-11-19: the projection table first, then the two charts, then the notes.
+        '<h2 class="sec" style="margin-top:4px">Olympia youth over 5 years</h2><div id="proj"></div>' +
+        '<div class="flowlegend" style="margin:26px 0 10px;padding-top:0"><span><i style="background:#ffb86b"></i>Olympia</span><span><i style="background:#7adfb0"></i>Average of the clubs shown (pooled)</span><span><i style="background:rgba(139,147,163,.6)"></i>Club (hover for name)</span></div>' +
+        '<div class="charts"><div class="chart"><h2 class="sec">Chart 1 · Players per youth stage, U7–U9 = 100</h2><svg id="ch1" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch1-hov"></div></div>' +
+        '<div class="chart"><h2 class="sec">Chart 2 · Players per age group (per birth year), U7–U8 = 100</h2><svg id="ch2" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch2-hov"></div></div></div>' +
+        '<div class="note" id="projnote"></div><div class="note" id="flownote"></div></div>';
 
-    let teams = [], clubs = new Map(), rows = [];
-    function compute() {
-      const f = { age: $('f-age').value, gender: $('f-gender').value, prov: $('f-prov').value };
-      for (const id of ['f-age', 'f-gender', 'f-prov']) $(id).classList.toggle('on', !!$(id).value);
-      teams = ALL.filter(t => keep(t, f));
-      clubs = new Map();
-      for (const t of teams) {
-        const c = clubs.get(t.club) || { club: t.club, town: t.town, prov: provinceOf(t.club), teams: [], bands: BANDS.map(() => 0), players: 0, youthP: 0, adultP: 0 };
+    let teams = [], rows = [];
+    // The clubs of a list of teams, with their team, player and member counts.
+    function clubMap(ts) {
+      const m = new Map();
+      for (const t of ts) {
+        const c = m.get(t.club) || { club: t.club, town: t.town, prov: provinceOf(t.club), teams: [], bands: BANDS.map(() => 0), players: 0, youthP: 0, adultP: 0 };
         c.teams.push(t);
         c.bands[BANDS.findIndex(([, g]) => g(t.age))] += t.share;
         c.players += t.size;
         if (t.age) c.youthP += t.size; else c.adultP += t.size;
-        clubs.set(t.club, c);
+        m.set(t.club, c);
       }
-      rows = [...clubs.values()];
-      for (const c of rows) {
+      for (const c of m.values()) {
         const b = ncBase.get(c.club) || { u78: 0, u914: 0 };
         c.preU7 = PRE_RATIO * b.u78; c.s2h = S2H_RATIO * b.u914; c.members = c.players + c.preU7 + c.s2h;
         c.preU7Unknown = !b.u78 && b.u914 > 0;   // youth club without U7-U8 teams: Pre U7 cannot be estimated
         c.fields = (D.fields[c.club] || [-1])[0] ?? -1;
       }
+      return m;
     }
-    function drawSummary() {
-      const sum = g => rows.reduce((s, c) => s + g(c), 0);
-      const all = nTeams(teams), youth = nTeams(teams.filter(t => t.age));
-      $('kpis').innerHTML = [[fmt(clubs.size), 'clubs with teams'], [fmt1(all), 'teams'], [fmt1(youth), 'youth teams'],
-        [fmt1(all - youth), 'adult teams'], [fmt(Math.round(sum(c => c.players))), 'players (estimate)'],
-        [fmt(Math.round(sum(c => c.youthP))), 'of which youth'],
-        ...(showNC() ? [[fmt(Math.round(sum(c => c.members))), 'members incl. non-competition (estimate)']] : []),
-        (() => { const sc = rows.map(c => clubType(c.club).score).filter(s => s !== undefined);
-          return [sc.length ? (sc.reduce((a, b) => a + b, 0) / sc.length).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–', 'avg. competition level score (' + sc.length + ' clubs)']; })()].map(([v, l]) => '<div class="kpi"><div class="v' + (/^\+/.test(v) ? ' pos' : /^[−-]\d/.test(v) ? ' neg' : '') + '">' + v + '</div><div class="l">' + l + '</div></div>').join('');
-      if (levelView()) {
-        // Rows: boys / girls, and per age when a group spans several ages.
-        const lv = usedLevels(), G = [['M', 'boys'], ['F', 'girls'], ['', 'mixed']], v = $('f-age').value;
-        const ages = [...new Set(teams.map(t => t.age))].sort((a, b) => a - b), multi = ages.length > 1;
-        const rowsG = [];
-        for (const a of ages) for (const [g, name] of G) {
-          const ts = teams.filter(t => t.age === a && (t.gender || '') === g);
-          if (ts.length) rowsG.push({ name: multi ? 'U' + a + ' ' + name : name[0].toUpperCase() + name.slice(1), ts });
-        }
-        if (multi) for (const [g, name] of G) {
-          const ts = teams.filter(t => (t.gender || '') === g);
-          if (ts.length) rowsG.push({ name: 'Total ' + name, ts, total: true });
-        }
-        $('gridtitle').textContent = (v.startsWith('g:') ? GROUPS[v.slice(2)][0] : 'U' + v) + ': teams by level';
-        $('grid').innerHTML = '<thead><tr><th class="l"></th>' + lv.map(([k, s]) => '<th title="' + subTitle(k) + '">' + s + '</th>').join('') +
-          '<th>Teams</th><th>Players</th></tr></thead><tbody>' +
-          rowsG.map(r => '<tr' + (r.total ? ' class="tot"' : '') + '><td class="l">' + r.name + '</td>' + lv.map(([k]) => '<td>' + show(nTeams(r.ts.filter(t => subOf(t) === k))) + '</td>').join('') +
-            '<td class="total">' + show(nTeams(r.ts)) + '</td><td class="total">' + fmt(Math.round(r.ts.reduce((s, t) => s + t.size, 0))) + '</td></tr>').join('') +
-          (rowsG.length ? '' : '<tr><td class="l">No teams for this selection.</td></tr>') + '</tbody>';
-        return;
-      }
-      $('gridtitle').textContent = 'Teams by age and level';
-      const grid = BANDS.map(([name, g]) => {
-        const ts = teams.filter(t => g(t.age));
-        return { name, cells: LEVELS.map(l => nTeams(ts.filter(t => level(t) === l))), n: nTeams(ts),
-                 p: ts.reduce((s, t) => s + t.size, 0), m: nTeams(ts.filter(t => t.gender === 'M')), f: nTeams(ts.filter(t => t.gender === 'F')) };
-      }).filter(g => g.n);
-      $('grid').innerHTML = '<thead><tr><th class="l">Category</th>' + LEVELS.map(l => '<th>' + LEVEL_LABEL[l] + '</th>').join('') +
-        '<th>Teams</th><th>Boys/men</th><th>Girls/women</th><th>Players</th></tr></thead><tbody>' +
-        grid.map(g => '<tr><td class="l">' + g.name + '</td>' + g.cells.map(x => '<td>' + show(x) + '</td>').join('') +
-          '<td class="total">' + show(g.n) + '</td><td>' + show(g.m) + '</td><td>' + show(g.f) + '</td><td class="total">' + fmt(Math.round(g.p)) + '</td></tr>').join('') +
-        (grid.length ? '' : '<tr><td class="l" colspan="9">No teams for this selection.</td></tr>') + '</tbody>';
+    function compute() {
+      const f = { age: $('f-age').value, gender: $('f-gender').value, prov: $('f-prov').value };
+      for (const id of ['f-age', 'f-gender', 'f-prov']) $(id).classList.toggle('on', !!$(id).value);
+      teams = ALL.filter(t => keep(t, f));
+      rows = [...clubMap(teams).values()];
     }
+    // Every club without any filter: the club page shows the whole club, whatever the filters say.
+    const CLUBS_ALL = clubMap(ALL);
 
     // ----- Map: one bubble per club, area proportional to estimated players -----
     let map = null, layer = null, lastProv = null;
@@ -896,7 +981,7 @@
     function popup(c, prec) {
       const yt = nTeams(c.teams.filter(t => t.age)), at = nTeams(c.teams.filter(t => !t.age));
       const filtered = $('f-age').value || $('f-gender').value;
-      return '<div class="pop"><b>' + esc(c.club) + '</b><div class="t">' + esc(c.town || '') + ' · ' + esc(provLabel(c.prov)) +
+      return '<div class="pop"><b>' + clubLink(c.club) + '</b><div class="t">' + esc(c.town || '') + ' · ' + esc(provLabel(c.prov)) +
         (prec === 'town' ? ' · located by town' : '') + '</div>' +
         '<div class="t">' + esc(TYPE_LABEL[clubType(c.club).type]) + '</div>' +
         '<div class="big">' + fmt(Math.round(c.players)) + '</div><div class="t">estimated players' + (filtered ? ' in this selection' : '') + '</div><table>' +
@@ -1077,12 +1162,10 @@
       lineChart('ch1', STAGES.slice(0, 3).map(([n]) => n), s1, inPool.length ? series1(pool) : null, ol1 && { vals: ol1 }, false);
       lineChart('ch2', G2.map(([n]) => n), s2, inPool.length ? series2(pool) : null, ol2 && { vals: ol2 }, false);
       const dropped1 = sel.length - s1.length, dropped2 = sel.length - s2.length;
-      $('flownote').textContent = 'Top ' + top.length + ' clubs by estimated players within the chosen gender and province filters; the age filter does not apply here. ' +
-        'Average = the clubs shown, pooled (all players per step ÷ all players in the base), so a small club with few U7 players does not skew it. Olympia is always shown separately. ' +
-        (outPool.length ? 'Not in the average, because no U7, U8 or U9: ' + outPool.join(', ') + '. ' : '') +
-        'Chart 1 counts players per youth stage: older youth covers 7 birth years (U13–U19), younger and middle youth 3 each, so a flat line already means players dropping out every year. ' +
-        'Chart 2 counts per group of two birth years (U19 = three: U17–U19) and divides by the number of years, so U19 stays comparable. Adults are not in the charts for now. ' +
-        (dropped1 ? dropped1 + ' club(s) without younger youth not in chart 1. ' : '') + (dropped2 ? dropped2 + ' club(s) without U7–U8 not in chart 2.' : '');
+      // What the charts show and leave out; how to read them is on the Definitions page.
+      $('flownote').innerHTML = 'Charts: top ' + top.length + ' clubs by estimated players within the chosen gender and province filters. Average = the clubs shown, pooled.' +
+        (outPool.length ? ' Not in the average, because no U7, U8 or U9: ' + esc(outPool.join(', ')) + '.' : '') +
+        (dropped1 ? ' ' + dropped1 + ' club(s) without younger youth not in chart 1.' : '') + (dropped2 ? ' ' + dropped2 + ' club(s) without U7–U8 not in chart 2.' : '') + more('flow', 'How to read the charts');
       drawProjection(olC, inPool.length ? pool : null, sel, inPool.length);
     }
 
@@ -1094,7 +1177,7 @@
     const perYear = c => { const o = {}; for (let a = 7; a <= 19; a++) { const k = CAT_OF[a]; o[a] = (c.age[k] || 0) / (SPAN[k] || 1); } return o; };
     let projSrc = 'avg';   // whose ratios drive the projection: the selection's average or one club
     function drawProjection(olC, pool, sel, poolClubs) {
-      if (!olC || !pool) { $('proj').innerHTML = '<p class="note">No projection: choose at least one club and a selection in which Olympia has teams.</p>'; return; }
+      if (!olC || !pool) { $('proj').innerHTML = '<p class="note">No projection: choose at least one club and a selection in which Olympia has teams.</p>'; $('projnote').textContent = ''; return; }
       const src = projSrc !== 'avg' && sel.find(c => c.club === projSrc);
       if (!src) projSrc = 'avg';
       const p = perYear(src || pool), r = {};
@@ -1128,13 +1211,10 @@
       for (let a = 7; a < 19; a++) if (CAT_OF[a] !== CAT_OF[a + 1]) steps.push('U' + CAT_OF[a] + '→U' + CAT_OF[a + 1] + ' ' + Math.round(r[a] * 100) + '%');
       const pick = '<label class="projsrc">Flow between age groups from <select id="projsrc"><option value="avg">Average of the selection (' + poolClubs + ' clubs)</option>' +
         sel.map(c => '<option value="' + esc(c.club) + '"' + (c.club === projSrc ? ' selected' : '') + '>' + esc(c.club) + '</option>').join('') + '</select></label>';
-      $('proj').innerHTML = pick + '<div class="card"><table class="projt"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
-        '<p class="note">Flow between age groups per year ' + (src ? 'at ' + esc(src.club) : 'in the selection (average, pooled)') + ': ' + steps.join(' · ') +
-        '. Pre U7 (Olympiaantjes) and Start to Hockey are shown separately as non-competition and use the same ratio as the club overview: Pre U7 = ' + PRE_RATIO.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' × U7–U8 players, S2H = ' + S2H_RATIO.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' × U9–U14 players of that year. They drop out when you filter on boys or girls. Younger youth = U7 + U8 + U9, middle youth = U10 + U11 + U12, older youth = U14 + U16 + U19 (the 7 birth years U13–U19). ' +
-        'Within U14, U16 and U19 a year group stays the same size (the count per category does not show what happens between those years). ' +
-        (src ? 'If this club has an empty year group, the chain drops to 0 from there on. ' : '') +
-        'This is a "what if" scenario: how many youth players Olympia would have if its year groups move up the way they do ' + (src ? 'at ' + esc(src.club) : 'at the chosen clubs') + ' today, with the same number of U7 starters every year. ' +
-        'The ratios come from one snapshot of different year groups, not from following the same players.</p>';
+      $('proj').innerHTML = pick + '<div class="card"><table class="projt"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
+      // The projection's note goes with the other notes, under the charts: what it is and the flow it used.
+      $('projnote').innerHTML = 'Projection: a “what if” in which the year groups of Olympia move up the way they do ' + (src ? 'at ' + esc(src.club) : 'at the chosen clubs') + ' today, with the same number of U7 starters every year. ' +
+        'Flow between age groups per year: ' + steps.join(' · ') + '.' + (src ? ' If this club has an empty year group, the chain drops to 0 from there on.' : '') + more('projection', 'How the projection works');
       $('projsrc').value = projSrc;
       $('projsrc').onchange = e => { projSrc = e.target.value; drawProjection(olC, pool, sel, poolClubs); };
     }
@@ -1188,13 +1268,11 @@
         L.map(r => '<tr class="' + (r.cls || '') + '"><td class="l">' + r.name + '</td><td>' + (r.n ? fmt1(r.n) : '–') + '</td><td>' + num(r.assume, 1) + '</td><td>' + (r.est ? fmt(Math.round(r.est)) : '–') + '</td><td class="total">' + fmt(r.real) + '</td><td class="' + (r.real - r.est > 0 ? 'pos' : r.real - r.est < 0 ? 'neg' : '') + '">' + dlt(r.real - r.est) + '</td><td>' + num(r.perTeam, 1) + '</td></tr>').join('') + '</tbody>';
       const tot = L[L.length - 1], jeugd = youthRow, sen = adultRow, oly = L[0], s2h = L[1];
       $('ledenkpis').innerHTML = [[fmt(Math.round(tot.est)), 'estimate based on federation data'], [fmt(tot.real), 'members according to Olympia (' + D.leden.season + ')'],
-        [dlt(tot.real - tot.est), 'difference'], [fmt(oly.real), 'Olympiaantjes, not in the federation figures'], [fmt(s2h.real), 'Start to Hockey, not in the federation figures'], [dlt(jeugd.real - jeugd.est), 'youth in teams vs. estimate'], [dlt(sen.real - sen.est), 'adults vs. estimate']]
+        [dlt(tot.real - tot.est), 'difference'], [fmt(oly.real), 'Olympiaantjes'], [fmt(s2h.real), 'Start to Hockey'], [dlt(jeugd.real - jeugd.est), 'youth in teams vs. estimate'], [dlt(sen.real - sen.est), 'adults vs. estimate']]
         .map(([v, l]) => '<div class="kpi"><div class="v' + (/^\+/.test(v) ? ' pos' : /^[−-]\d/.test(v) ? ' neg' : '') + '">' + v + '</div><div class="l">' + l + '</div></div>').join('');
-      $('ledennote').textContent = 'Source: ' + sourceLabel(D.leden.source) + ', against teams × squad size from the federation competitions. ' +
-        'Olympiaantjes are under 6 and play no competition. Trimmers = the Tuesday and Thursday trimmers (DI/DO) who play in no other team; trimmers who also play Gents or Junior Ladies count there. ' +
-        'Anyone listed in two teams counts with the first one named: "Heren 3, Gents 1" (2 players) with Men, "U19B, Heren 1" with U19. ' +
-        'Start to Hockey (S2H) is shown separately because that group is not a competition team; the Youth count of the member administration (599) does include S2H. ' +
-        'Olympiaantjes and trimmers have no gender in this file, so they drop out when you filter on boys or girls.';
+      // Who counts where in the member list is on the Definitions page.
+      $('ledennote').innerHTML = 'Source: ' + esc(sourceLabel(D.leden.source)) + ', against teams × squad size from the federation competitions. ' +
+        'Olympiaantjes and trimmers have no gender in this file, so they drop out when you filter on boys or girls.' + more('actuals', 'How the member list is counted');
     }
 
     // ----- Club Strength: competition level and first-team strength per club. Both span all U10+ teams, so
@@ -1218,7 +1296,7 @@
         'Score = average over the 6 ages, separately for boys and girls. An age without a team counts as 0.',
         'B+G = average of boys and girls, only for clubs with both. Otherwise it shows –.',
         'Percentiles apply within one gender: a higher score for girls means a better relative place, not better hockey than the boys.',
-        'The team ranking itself is in Team Strength.']],
+        'The team ranking itself is in the Team strength table.']],
     };
     function openHelp(id) {
       const [title, items] = HELP[id];
@@ -1266,29 +1344,53 @@
       const el = $('sc');
       el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
       $('sc-title').textContent = 'Youth players U10+ against first-team strength · ' + { A: 'boys + girls', M: 'boys', F: 'girls' }[g];
-      $('sc-note').textContent = pts.length + ' clubs shown. Each dot is a club. Youth players = estimated U10+ players (teams × squad size), without recreational R2C teams. ' +
-        'Strength against ' + (strBase === 'first' ? 'first teams' : 'all teams') + '. Filter on gender, province and type; search for a club to highlight it.' + (noScore ? ' ' + noScore + ' club(s) without a score not shown.' : '');
-      // Tooltip for the nearest dot, within 24px, so a small dot stays easy to hit; a tap works too.
-      const tip = $('sc-tip');
-      let cur = null;
-      const reset = () => { if (cur) cur.setAttribute('r', pts[+cur.dataset.i].ol || pts[+cur.dataset.i].hit ? 6 : 4.5); cur = null; tip.hidden = true; };
-      el.onpointermove = el.onpointerdown = e => {
+      $('sc-note').innerHTML = pts.length + ' clubs shown' + (noScore ? '; ' + noScore + ' club(s) without a score not shown' : '') + '. Each dot is a club. Youth players = estimated U10+ players, without recreational R2C teams.' + more('first-team', 'First-team strength');
+      dotChart(el, $('sc-tip'), pts, W, p => [px(p.x), py(p.y)],
+        p => ' · ' + TYPE_SHORT[p.type] + ' · ' + fmt(Math.round(p.x)) + ' players · strength ' + Math.round(p.y) + ' (#' + p.rank + ' of ' + p.of + ')');
+    }
+    // The dots of a chart (Club strength chart, Club pitches). The tooltip goes to the nearest dot within 24px, so a
+    // small dot stays easy to hit. A click on a dot opens that club's page; on a touch screen the first tap shows
+    // the tooltip and a second tap on the same dot opens the page.
+    function dotChart(el, tip, pts, W, at, describe) {
+      let cur = null, touch = false, armed = null, opens = false;
+      tip.hidden = true;   // a tooltip left from before the chart was redrawn
+      const reset = () => { if (cur) cur.setAttribute('r', pts[+cur.dataset.i].ol || pts[+cur.dataset.i].hit ? 6 : 4.5); cur = null; tip.hidden = true; el.classList.remove('onclub'); };
+      const nearest = e => {
         const box = el.getBoundingClientRect(), mx = e.clientX - box.left, my = e.clientY - box.top;
         let best = null, dist = 24;
-        pts.forEach((p, i) => { const d = Math.hypot(px(p.x) - mx, py(p.y) - my); if (d <= dist) { dist = d; best = i; } });
+        pts.forEach((p, i) => { const [x, y] = at(p), d = Math.hypot(x - mx, y - my); if (d <= dist) { dist = d; best = i; } });
+        return best;
+      };
+      const hover = e => {
+        const best = nearest(e);
         reset();
-        if (best === null) return;
-        const p = pts[best];
+        if (best === null) return null;
+        const p = pts[best], [x, y] = at(p);
         cur = el.querySelector('circle[data-i="' + best + '"]');
         cur.setAttribute('r', 8);
+        el.classList.add('onclub');
         tip.hidden = false;
         tip.textContent = '';
         const name = document.createElement('b'); name.textContent = p.club; tip.appendChild(name);
-        tip.appendChild(document.createTextNode(' · ' + TYPE_SHORT[p.type] + ' · ' + fmt(Math.round(p.x)) + ' players · strength ' + Math.round(p.y) + ' (#' + p.rank + ' of ' + p.of + ')'));
-        tip.style.left = Math.max(0, Math.min(px(p.x) + 12, W - tip.offsetWidth)) + 'px';
-        tip.style.top = Math.max(0, py(p.y) - 34) + 'px';
+        tip.appendChild(document.createTextNode(describe(p) + (touch ? ' · tap again to open' : '')));
+        tip.style.left = Math.max(0, Math.min(x + 12, W - tip.offsetWidth)) + 'px';
+        tip.style.top = Math.max(0, y - 34) + 'px';
+        return p;
       };
-      el.onpointerleave = reset;
+      el.onpointermove = hover;
+      el.onpointerdown = e => {
+        touch = e.pointerType !== 'mouse';
+        const before = armed, p = hover(e);
+        opens = !!p && (!touch || before === p.club);
+        armed = p ? p.club : null;
+      };
+      el.onpointerleave = e => { if (e.pointerType === 'mouse') reset(); };   // after a tap the tooltip stays, for the second tap
+      el.onpointercancel = () => { armed = null; reset(); };                    // the tap became a scroll
+      el.onclick = e => {
+        const i = nearest(e);
+        if (i === null) { armed = null; reset(); return; }
+        if (opens) go(clubHref(pts[i].club));
+      };
     }
     // Evolution: first-team strength per outdoor round, Olympia on top and a club of choice below.
     const EVO_ROUNDS = [['o1', 'H1 2025-26 outdoor'], ['o2', 'H2 2025-26 outdoor'], ['now', 'H1 2026-27 outdoor']];
@@ -1300,20 +1402,15 @@
       return '<div class="card"><table class="st-mx" id="' + (club === 'Olympia' ? 'evo-ol' : 'evo-other') + '"><thead><tr><th class="row"></th>' + EVO_ROUNDS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' +
         EVO_ROWS.map(([g, n]) => '<tr><td class="row">' + n + '</td>' + EVO_ROUNDS.map(([r]) => cell(r, g)).join('') + '</tr>').join('') + '</tbody></table></div>';
     }
-    const evoBlock = club => '<section class="clubblock' + (club === 'Olympia' ? ' ours' : '') + '"><div class="clubhead">' + (club === 'Olympia' ? '<img src="olympia-logo.png" alt="" />' : '') + esc(club) + '</div>' + evoTable(club) + '</section>';
+    // A club from last season that is no longer in the club overview has no club page, so no link.
+    const evoBlock = club => '<section class="clubblock' + (club === 'Olympia' ? ' ours' : '') + '"><div class="clubhead">' + (club === 'Olympia' ? '<img src="olympia-logo.png" alt="" />' : '') + (CLUBS_ALL.has(club) ? clubLink(club) : esc(club)) + '</div>' + evoTable(club) + '</section>';
     function drawClubEvo() {
       const options = Object.keys(D.evolution.clubs).filter(c => c !== 'Olympia').sort((a, b) => a.localeCompare(b))
         .map(c => '<option' + (c === evoClub ? ' selected' : '') + '>' + esc(c) + '</option>').join('');
       $('str-evo').innerHTML = evoBlock('Olympia') +
         '<label class="pick">Compare with <select id="evo-club">' + options + '</select></label><div id="evo-other">' + evoBlock(evoClub) + '</div>' +
-        '<div class="note">First-team strength (0–100) per outdoor round, with the place among the clubs in that round. Between 2025-26 and 2026-27 players move up, so this follows the club, not the same squads. A team that played only one outdoor round in 2025-26 counts in both rounds with that score. Indoor is not included.</div>';
+        '<div class="note">First-team strength (0–100) per outdoor round, with the place among the clubs in that round. This follows the club, not the same squads. Indoor is not included.' + more('rounds', 'How rounds work') + '</div>';
       $('evo-club').addEventListener('change', e => { evoClub = e.target.value; $('evo-other').innerHTML = evoBlock(evoClub); });
-    }
-    function syncStr() {
-      for (const b of $('str-tabs').querySelectorAll('button')) b.classList.toggle('active', b.dataset.s === strSub);
-      $('str-table').hidden = strSub !== 'table'; $('str-chart').hidden = strSub !== 'chart'; $('str-evo').hidden = strSub !== 'evo'; $('str-type').hidden = strSub !== 'chart';
-      $('filterbar').hidden = strView && strSub === 'evo';   // one club at a time, so no list filters
-      $('f-gender').disabled = strView && strSub === 'table';   // the table always shows boys, girls and both
     }
     function drawStrength() {
       if (strSub === 'chart') { drawScatter(); return; }
@@ -1334,7 +1431,6 @@
         STR_COLS.map(([k, , cl], i) => '<td class="c-' + k + ' ' + (cl || '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
           (k === 's1A' && isFinite(+firstTeamOf(c.club, k)) && firstTeamOf(c.club, k) !== null ? ' bar" style="--w:' + Math.max(0, Math.min(100, Math.round(+firstTeamOf(c.club, k)))) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
     }
-    $('str-tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { strSub = b.dataset.s; syncStr(); drawStrength(); } });
     $('str-base').addEventListener('change', e => { strBase = e.target.value; drawStrength(); });
     $('str-type').addEventListener('change', drawStrength);
     window.addEventListener('resize', () => { if (strView && strSub === 'chart') drawScatter(); });
@@ -1389,40 +1485,12 @@
       $('fc-table').innerHTML = '<thead><tr><th class="l">Pitches</th><th>Clubs</th><th>Average per pitch</th><th>Median per pitch</th><th>Lowest</th><th>Highest</th></tr></thead><tbody>' +
         groups.map(g => '<tr><td class="l">' + g.v + '</td><td>' + g.n + '</td><td class="total">' + fmt(Math.round(g.mean)) + '</td><td>' + fmt(Math.round(g.mid)) + '</td><td>' + fmt(Math.round(g.lo)) + '</td><td>' + fmt(Math.round(g.hi)) + '</td></tr>').join('') + '</tbody>';
       const ol = pts.find(p => p.ol);
-      $('fc-note').textContent = (ol ? 'Olympia: ' + fmt(Math.round(ol.total)) + (all ? ' members' : ' youth members') + ' on ' + ol.x + (ol.x === 1 ? ' pitch, ' : ' pitches, ') + fmt(Math.round(ol.y)) + ' per pitch. ' : '') +
-        'Each dot is a club; within a column the dots are spread out only to keep them readable. Members are an estimate (teams × squad size + Pre U7 and S2H). Youth only = U7–U19 players + Pre U7 + S2H. ' +
-        (guests ? guests + ' club(s) without a pitch of their own are not included. ' : '') + (showNC() ? '' : 'With these filters Pre U7 and S2H drop out. ') + 'Dutch clubs are not included: they play here with only a few teams, so their member count says nothing about their pitches. Pitches: training pitches without competition matches can be missing.';
-      const tip = $('fc-tip');
-      let cur = null;
-      const reset = () => { if (cur) cur.setAttribute('r', pts[+cur.dataset.i].ol || pts[+cur.dataset.i].hit ? 6 : 4.5); cur = null; tip.hidden = true; };
-      el.onpointermove = el.onpointerdown = e => {
-        const box = el.getBoundingClientRect(), mx = e.clientX - box.left, my = e.clientY - box.top;
-        let best = null, dist = 24;
-        pts.forEach((p, i) => { const d = Math.hypot(dotX(p) - mx, py(p.y) - my); if (d <= dist) { dist = d; best = i; } });
-        reset();
-        if (best === null) return;
-        const p = pts[best];
-        cur = el.querySelector('circle[data-i="' + best + '"]');
-        cur.setAttribute('r', 8);
-        tip.hidden = false;
-        tip.textContent = '';
-        const name = document.createElement('b'); name.textContent = p.club; tip.appendChild(name);
-        tip.appendChild(document.createTextNode(' · ' + fmt(Math.round(p.total)) + (all ? ' members' : ' youth members') + ' on ' + p.x + (p.x === 1 ? ' pitch' : ' pitches') + ' · ' + fmt(Math.round(p.y)) + ' per pitch'));
-        tip.style.left = Math.max(0, Math.min(dotX(p) + 12, W - tip.offsetWidth)) + 'px';
-        tip.style.top = Math.max(0, py(p.y) - 34) + 'px';
-      };
-      el.onpointerleave = reset;
+      $('fc-note').innerHTML = (ol ? 'Olympia: ' + fmt(Math.round(ol.total)) + (all ? ' members' : ' youth members') + ' on ' + ol.x + (ol.x === 1 ? ' pitch, ' : ' pitches, ') + fmt(Math.round(ol.y)) + ' per pitch. ' : '') +
+        'Each dot is a club; within a column the dots are spread out only to keep them readable. ' +
+        'Not included: ' + (guests ? guests + ' club(s) without a pitch of their own and ' : '') + 'the Dutch clubs. ' + (showNC() ? '' : 'With these filters Pre U7 and S2H drop out.') + more('pitches', 'How pitches are counted');
+      dotChart(el, $('fc-tip'), pts, W, p => [dotX(p), py(p.y)],
+        p => ' · ' + fmt(Math.round(p.total)) + (all ? ' members' : ' youth members') + ' on ' + p.x + (p.x === 1 ? ' pitch' : ' pitches') + ' · ' + fmt(Math.round(p.y)) + ' per pitch');
     }
-    $('ov-tabs').addEventListener('click', e => {
-      const b = e.target.closest('button');
-      if (!b) return;
-      ovSub = b.dataset.s;
-      for (const x of $('ov-tabs').querySelectorAll('button')) x.classList.toggle('active', x === b);
-      $('ov-table').hidden = ovSub !== 'table'; $('ov-fields').hidden = ovSub !== 'fields'; $('ov-fees').hidden = ovSub !== 'fees'; $('fc-mode').hidden = ovSub !== 'fields';
-      $('f-age').disabled = $('f-gender').disabled = ovSub === 'fees';   // fees hold for the whole club
-      if (ovSub === 'fields') drawFieldChart();
-      if (ovSub === 'fees') drawFees();
-    });
     $('fc-mode').addEventListener('change', drawFieldChart);
 
     // ----- Club Overview, Fees: published membership fees in six categories; province and search apply. -----
@@ -1450,13 +1518,12 @@
         return (typeof x === 'string' ? x.localeCompare(y) : x - y) * feeDir; });
       $('fee-clubs').tHead.innerHTML = '<tr>' + FEE_COLS.map(([k, t, cl]) => '<th data-k="' + k + '" class="' + (cl || '') + '">' + t + (k === feeKey ? (feeDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
       $('fee-clubs').tBodies[0].innerHTML = rowsF.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' + FEE_COLS.map(([k, , cl]) => {
-        if (k === 'club') return '<td class="l">' + esc(c.club) + (c.out ? ' *' : '') + '</td>';
+        if (k === 'club') return '<td class="l">' + (CLUBS_ALL.has(c.club) ? clubLink(c.club) : esc(c.club)) + (c.out ? ' *' : '') + '</td>';
         if (k === 'season') return '<td class="l">' + esc(c.season || '?') + '</td>';
         if (k === 'source') return '<td class="l">' + (c.source ? '<a class="src" href="' + esc(c.source) + '" target="_blank" rel="noopener">link ↗</a>' : '–') + '</td>';
         return '<td>' + feeNum(c[k]) + '</td>'; }).join('') + '</tr>').join('');
-      $('fee-note').textContent = D.fees.length + ' of 111 clubs publish their membership fee. Amount = regular competition member, at the early-bird rate if the club has two rates. Mandatory yearly contributions are added (Antwerp 140, Dragons 90, Oree 135). ' +
-        'Not included: one-off joining fees, deposits, bar credit, indoor, training-only members, G-hockey, students and non-playing members. Youth amounts are the average over the ages. Top youth = separate rate for first or performance teams. ' +
-        'Not everything is comparable: many clubs include the federation contribution, others do not mention it, so differences under 25 euro mean little. Some clubs still show an older season. * = not in the comparison: Dutch clubs and Leopold, where the hockey amount comes on top of a separate multi-sport contribution.';
+      // The long explanation (what a fee includes, what it leaves out) is on the Definitions page.
+      $('fee-note').innerHTML = D.fees.length + ' of 111 clubs publish their membership fee. Amount = regular competition member. * = not in the comparison.' + more('fees', 'What a fee includes');
     }
     $('fee-clubs').addEventListener('click', e => {
       const th = e.target.closest('th[data-k]');
@@ -1468,7 +1535,234 @@
     });
     window.addEventListener('resize', () => { if (!$('v-table').hidden && ovSub === 'fields') drawFieldChart(); });
 
-    let drawSterkte = null;
+    const compare = clubCompare(rankedTeams, firstTeam);
+    const drawSterkte = strengthView(D.standings, rankedTeams, rankedGroups, compare, D.evolution);
+
+    // ----- Olympia teams: every Olympia team that has a ranking (U10-U19 outdoor), one row each, with the same
+    // numbers as the Team strength table. A row leads to that table, on the team's age and gender. A click on a
+    // column header sorts (a second click the other way round); All / Girls / Boys picks the rows. -----
+    const olOrder = (a, b) => a.age - b.age || (a.gender === 'F' ? 0 : 1) - (b.gender === 'F' ? 0 : 1) || a.nr - b.nr;   // the standing order: per age, girls before boys
+    const OL_LEVELS = ['Nat. 1', 'Nat. 2', 'Nat. 3', 'Reg. 1', 'Reg. 2', 'Reg. 3'];
+    const olLevel = t => { const i = OL_LEVELS.indexOf(t.division); return i < 0 ? OL_LEVELS.length : i; };
+    // key, label, short label on phones, classes, order (smallest first), first click (1 = smallest first, -1 = largest first), tooltip
+    const OL_COLS = [
+      ['team', 'Team', '', 'st-team', olOrder, 1],
+      ['division', 'Division', '', 'l hide-sm', (a, b) => olLevel(a) - olLevel(b) || String(a.group).localeCompare(String(b.group)), 1],
+      ['pool', 'Place in pool', '', 'hide-sm', (a, b) => a.rank - b.rank || b.poolSize - a.poolSize, 1],
+      ['rank', 'National rank', 'Rank', '', (a, b) => a.pos - b.pos || b.of - a.of, 1, 'Place among all teams of that age and gender'],
+      ['band', 'Band', '', '', (a, b) => a.band - b.band || b.pct - a.pct, 1],
+      ['match', 'Goal difference per match', '/match', '', (a, b) => a.perGame - b.perGame, -1],
+      ['dominance', 'Dominance', 'Dom.', '', (a, b) => a.dominance - b.dominance, -1, 'Goal difference per match, in spreads above the average of its own pool'],
+    ];
+    let olKey = 'team', olDir = 1, olShow = '';   // kept while the page is open, so the back button returns to the same list
+    function drawOlympiaTeams() {
+      const G = { F: 'Girls', M: 'Boys' };
+      const order = OL_COLS.find(c => c[0] === olKey)[4];
+      const list = rankedTeams.filter(t => t.clubs.includes('Olympia') && (!olShow || t.gender === olShow))
+        .sort((a, b) => order(a, b) * olDir || olOrder(a, b));   // equal values stay in the standing order
+      const both = (wide, small) => small ? '<span class="hide-sm">' + wide + '</span><span class="st-sm">' + small + '</span>' : wide;
+      const byTeam = olKey === 'team';   // the line between two ages only means something in the standing order
+      const rowsT = list.map((t, i) => '<tr class="go' + (byTeam && i && list[i - 1].age !== t.age ? ' agestart' : '') + '" data-href="' + esc(teamHref(t)) + '">' +
+        '<td class="st-team"><a href="' + esc(teamHref(t)) + '">U' + t.age + ' ' + G[t.gender] + ' ' + t.nr + '</a><span class="st-meta">' + esc(short(t.division)) + ' · ' + esc(t.group) + ' · ' + t.rank + ' of ' + t.poolSize + '</span></td>' +
+        '<td class="l hide-sm">' + esc(short(t.division)) + ' · ' + esc(t.group) + '</td>' +
+        '<td class="hide-sm">' + t.rank + ' of ' + t.poolSize + '</td>' +
+        '<td>' + both(t.pos + ' of ' + t.of, t.pos + '/' + t.of) + '</td>' +
+        '<td>' + bandChip(t.band) + '</td>' +
+        '<td class="' + signClass(t.gd) + '">' + signed1(t.perGame) + '</td>' +
+        '<td class="' + signClass(t.dominance) + '">' + signed1(t.dominance) + '</td></tr>').join('');
+      const head = OL_COLS.map(([k, label, small, cls, , , tip]) => '<th data-k="' + k + '" class="' + cls + (k === olKey ? ' on' : '') + '"' + (tip ? ' title="' + tip + '"' : '') + '>' +
+        both(label, small) + (k === olKey ? (olDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('');
+      $('v-olteams').innerHTML = '<div class="stbar" id="ol-bar"><div class="seg" id="ol-show">' +
+        [['', 'All'], ['F', 'Girls'], ['M', 'Boys']].map(([g, label]) => '<button type="button" data-g="' + g + '"' + (g === olShow ? ' class="active"' : '') + '>' + label + '</button>').join('') + '</div></div>' +
+        (list.length ? '<div class="card"><table id="olteams"><thead><tr>' + head + '</tr></thead><tbody>' + rowsT + '</tbody></table></div>'
+          : '<div class="note">No Olympia teams in the current standings.</div>') +
+        '<div class="note">The U10–U19 outdoor teams; younger and adult teams are not ranked. Click a row to see the team in the Team strength table.' + more('ranking', 'How the ranking works') + '</div>';
+    }
+    $('v-olteams').addEventListener('click', e => {
+      const th = e.target.closest('th[data-k]'), pick = e.target.closest('#ol-show button'), tr = e.target.closest('tr.go');
+      if (th) { const k = th.dataset.k; olDir = k === olKey ? -olDir : OL_COLS.find(c => c[0] === k)[5]; olKey = k; drawOlympiaTeams(); }
+      else if (pick) { olShow = pick.dataset.g; drawOlympiaTeams(); }
+      else if (tr && !e.target.closest('a')) go(tr.dataset.href);
+    });
+
+    // ----- Club page: one club, whatever the filters say. Its numbers are those of the club overview without
+    // filters, the Club strength table (against first teams) and the club card of the Olympia club overview. -----
+    const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+    // Place of a club when the unfiltered club overview is sorted on a column; ties share a place, as in that table.
+    function placeOn(club, f) {
+      const sorted = [...CLUBS_ALL.values()].sort((a, b) => f(b) - f(a));
+      let place = 0, out = null;
+      sorted.forEach((c, i) => { if (!i || Math.abs(f(sorted[i - 1]) - f(c)) >= 1e-9) place = i + 1; if (c.club === club) out = place; });
+      return out;
+    }
+    const CLUB_NAMES = [...CLUBS_ALL.keys()].sort((a, b) => a.localeCompare(b));
+    function drawClubPage(name) {
+      const c = CLUBS_ALL.get(name), ranked = rankedTeams.some(t => t.clubs.includes(name));
+      const picker = '<label class="pick">Club <select id="club-pick">' + (c ? '' : '<option selected disabled>Choose a club</option>') +
+        CLUB_NAMES.map(n => '<option' + (n === name ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label>';
+      // A tile: a big number and one word. The four at the top carry a pictogram.
+      const tile = (v, l, s, pic) => '<div class="kpi' + (pic ? ' pic' : '') + '">' + (pic ? badge(pic, 'blue') : '') + '<div><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div></div>';
+      let html = '<div class="clubtop"><h2 class="ptitle">' + (name === 'Olympia' ? '<img src="olympia-logo.png" alt="" />' : '') + esc(c || ranked ? name : 'Club not found') + '</h2>' +
+        (c ? '<span class="where">' + esc(c.town || '') + ' · ' + esc(provLabel(c.prov)) + '</span>' : '') + picker + '</div>';
+      if (!c && !ranked) html += '<div class="note">There is no club called “' + esc(name) + '” on this site. Choose a club from the list.</div>';
+      if (!c && ranked) html += '<div class="note">This club has no teams in the club overview, so there are no member figures.</div>';
+      if (c) {
+        // Same figures as the row of this club in the club overview: Total members, Youth, Adults, Pitches.
+        const f = D.fields[name], N = CLUBS_ALL.size;
+        const place = (v, fn, l, none) => v ? tile(ord(placeOn(name, fn)), l) : tile('–', l, none);
+        html += '<div class="kpis" id="club-size">' +
+          tile(fmt(Math.round(c.members)), D.leden ? 'Members' : 'Players', '', 'people') +
+          tile(fmt1(c.youthP), 'Youth', '', 'youth') +
+          tile(fmt1(c.adultP), 'Adults', '', 'adult') +
+          // a club without a pitch of its own: where it plays explains the 0
+          tile(!f || f[0] === null ? '–' : f[0], f && f[0] === 1 ? 'Pitch' : 'Pitches', f && f[0] === 0 && f[2] ? 'Plays at ' + esc(f[2]) : '', 'pitch') + '</div>' +
+          '<h2 class="sec">Size rank among ' + N + ' clubs</h2><div class="kpis" id="club-rank">' +
+          place(c.members, x => x.members, 'Overall', '') +
+          place(c.youthP, x => x.youthP, 'Youth', 'No youth teams') +
+          place(c.adultP, x => x.adultP, 'Adults', 'No adult teams') + '</div>';
+      }
+      if (ranked) {
+        // Now = the Club strength table (against first teams); a year earlier = the same round of last season.
+        const now = firstTeam(name) || {}, last = ((D.evolution.clubs[name] || {}).o1 || {}).first || {};
+        const chip = (score, rank, of) => bandChip(Math.ceil(10 * rank / of) * 10) + '<span class="sub">Score ' + Math.round(score) + ' · #' + rank + ' of ' + of + '</span>';
+        const none = '<span class="none">–</span>';
+        html += '<h2 class="sec">First-team strength</h2><div class="card"><table class="st-mx" id="club-str"><thead><tr><th class="row"></th>' +
+          '<th>Now<span class="sub">' + EVO_ROUNDS[2][1] + '</span></th><th>A year earlier<span class="sub">' + EVO_ROUNDS[0][1] + '</span></th><th>Change<span class="sub">in score</span></th></tr></thead><tbody>' +
+          EVO_ROWS.map(([g, label]) => {
+            const n = now[g], l = last[g], d = n && l ? Math.round(n.score) - Math.round(l[0]) : null;
+            return '<tr><td class="row">' + label + '</td><td>' + (n ? chip(n.score, n.rank, n.of) : none) + '</td><td>' + (l ? chip(l[0], l[1], l[2]) : none) + '</td>' +
+              '<td class="chg ' + (d === null ? '' : signClass(d)) + '">' + (d === null ? none : (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(d)) + '</td></tr>';
+          }).join('') + '</tbody></table></div>' +
+          '<h2 class="sec">Team strength</h2>' + compare.block(name, true) +
+          '<div class="note">First-team strength is against the first teams of the other clubs and follows the club, not the same squads. Click a band to see that team in the Team strength table.' + more('first-team', 'First-team strength') + '</div>';
+      } else if (c) html += '<h2 class="sec">Strength</h2><div class="note" id="club-noranked">No ranked teams: this club has no U10–U19 teams in the current outdoor standings.</div>';
+      if (c) {
+        const bandRows = BANDS.map(([label, g]) => ({ label, teams: c.teams.filter(t => g(t.age)) })).filter(r => r.teams.length);
+        if (bandRows.length > 1) bandRows.push({ label: 'Total', teams: c.teams, cls: 'tot' });
+        html += '<h2 class="sec">Teams by age band and level</h2><div class="card pad" id="club-bands"><div class="mxwrap">' + matrix('', bandRows, fmt1) + '</div></div>' +
+          '<h2 class="sec">Teams by age, gender and competition</h2><div class="card pad" id="club-teams"><div class="typeline">' + esc(typeLine(name)) + '</div>' + clubDetail(c, fmt1) + '</div>';
+      }
+      $('v-club').innerHTML = html;
+      $('club-pick').onchange = e => go(clubHref(e.target.value));
+    }
+
+    // ----- Definitions (second pass): one card per topic, with a pictogram. The line "in short" always shows; a tap
+    // opens the rest. The notes under the tables are one or two lines now, so every caveat they held is kept here.
+    // Ratios and the examples for Olympia are computed, not typed. -----
+    function drawDefinitions(anchor) {
+      if (!$('v-defs').firstChild) {
+        const ratio = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 });
+        const factor = (1 + ST_OVERLAP).toLocaleString('en-GB'), share = Math.round(100 * ST_OVERLAP / (1 + ST_OVERLAP));
+        const ol = CLUBS_ALL.get('Olympia'), olF = D.fields.Olympia, olS = firstTeam('Olympia');
+        const olBest = rankedTeams.filter(t => t.clubs.includes('Olympia')).sort((a, b) => a.band - b.band || b.pct - a.pct)[0];
+        const G = { F: 'Girls', M: 'Boys' };
+        const st = x => Math.round(x.score) + ' (#' + x.rank + ' of ' + x.of + ')';
+        // address, title, pictogram, tone, in short, the rest, example
+        const DEFS = [
+          ['members', 'Members and players', 'people', 'blue', 'Estimates from the teams in the competition, not official member counts.', [
+            'Players = teams × squad size: U7–U8 5 · U9 9 · U10–U12 11 · U14–U19 16 · Men, Women, Junior Ladies and Junior Boys 20 · Gents and Ladies 11 · Trimmers 25 · 45+ and R2C 16.',
+            'Total members = players + Pre U7 + Start to Hockey.',
+            'Only outdoor competition teams count. Players without a team (U6, coaches, non-playing members) are missing; players in two teams count twice.',
+            'A joint team (e.g. Ping/Well) counts as half a team for each club.',
+            'For comparison: Hockey Belgium counts just over 63,000 registered members in 111–113 clubs (2026, BX1 / DH). This estimate covers about 78% of them, 73% without Pre U7 and Start to Hockey.'],
+            ol && D.leden ? 'Olympia: ' + fmt1(ol.players) + ' players + ' + fmt(Math.round(ol.preU7)) + ' Pre U7 + ' + fmt(Math.round(ol.s2h)) + ' Start to Hockey = ' + fmt(Math.round(ol.members)) + ' members.' : ''],
+          ['youth', 'Youth and adults', 'ages', 'blue', 'Youth = the teams with an age category, U7 to U19. Adults = all other teams.', [
+            'Younger youth = U7 + U8 + U9, middle youth = U10 + U11 + U12, older youth = U14 + U16 + U19 (the 7 birth years U13–U19).',
+            'Mixed teams (45+, 35+, trimmers, R2C) drop out as soon as you filter on boys or girls.']],
+          ['noncompetition', 'Pre U7 and Start to Hockey', 'sprout', 'blue', 'Two groups without competition teams. They are not in the federation figures, so they are estimated.', [
+            'Pre U7 (under 6; at Olympia the Olympiaantjes) = ' + ratio(PRE_RATIO) + ' × U7–U8 players. Start to Hockey (S2H) = ' + ratio(S2H_RATIO) + ' × U9–U14 players.',
+            'These are the ratios at Olympia. Other clubs can differ a lot from this.',
+            'A dash at Pre U7 = unknown: the club has no U7–U8 teams, so Total members leaves out Pre U7 there.',
+            'Both drop out when you filter on boys or girls, or on one age or age group.']],
+          ['pitches', 'Pitches', 'pitch', 'blue', 'The hockey pitches a club plays its home matches on.', [
+            'Counted from the home matches of November and December on hockey.be, completed with club websites. A training pitch without competition matches can be missing.',
+            '0 = the club plays on the pitch of another club.',
+            'Members per pitch = estimated members ÷ pitches. Youth only = U7–U19 players + Pre U7 + S2H.',
+            'Not in the pitches chart: clubs without a pitch of their own, and Dutch clubs. Those play here with only a few teams, so their member count says nothing about their pitches.',
+            'Province = postcode of the main pitch.'],
+            ol && D.leden && olF && olF[0] > 0 ? 'Olympia: ' + fmt(Math.round(ol.members)) + ' members on ' + olF[0] + (olF[0] === 1 ? ' pitch' : ' pitches') + ' = ' + fmt(Math.round(ol.members / olF[0])) + ' per pitch.' : ''],
+          ['fees', 'Fees', 'euro', 'blue', 'What a regular competition member pays, in euro per season.', [
+            'At the early-bird rate if the club has two rates. Mandatory yearly contributions are added (Antwerp 140, Dragons 90, Oree 135).',
+            'Not included: one-off joining fees, deposits, bar credit, indoor, training-only members, G-hockey, students and non-playing members.',
+            'Youth amounts are the average over the ages. Top youth = separate rate for first or performance teams.',
+            'Not everything is comparable: many clubs include the federation contribution, others do not mention it, so differences under 25 euro mean little. Some clubs still show an older season.',
+            '* = not in the comparison: Dutch clubs and Leopold, where the hockey amount comes on top of a separate multi-sport contribution.']],
+          ['level', 'Competition level', 'bars', 'green', 'At which level the U10+ youth teams of a club play: High, Medium or Low.', [
+            'Points per team: N1 3 · N2 2.5 · N3 2 · R1 1 · R2 0.5 · R3 0.',
+            'Score = average points over all U10+ teams of the club, from 0 to 3. Recreational R2C teams do not count.',
+            'High = top 25% of the clubs, Medium = next 45%, Low = last 30%. Clubs with the same score stay in the same class.',
+            'Every extra team at a low level lowers the score, so a broad club scores lower than a small club with only strong teams.'],
+            ol && clubType('Olympia').type !== 'geen' ? 'Olympia: ' + esc(typeLine('Olympia')) + '.' : ''],
+          ['ranking', 'Team ranking', 'podium', 'green', 'Every U10–U19 team against all teams of its age and gender: division first, then dominance.', [
+            'The highest level gets number 0, the next one number 1, and so on. U10–U12 start at R1, because there is no national level there.',
+            'Within a level, all teams across all pools are ordered by dominance. Their place runs evenly from 1 (best team) to 0 (last team).',
+            'Score = (place − 0.5) × ' + factor + ' − level number. All teams of that age and gender go into one list, ordered by score.']],
+          ['overlap', 'Overlap between divisions', 'overlap', 'green', 'Two consecutive levels overlap: the weakest teams of a level rank among the best of the level below.', [
+            'Without the factor ' + factor + ' in the score, each level would sit entirely above the next one.',
+            'Falling teams = the bottom ' + share + '% of a level by dominance. Rising teams = the top ' + share + '% of the level below. Both are mixed together by score.',
+            'The last team of a level always ranks below the best team of the level below.',
+            'Falling and rising refer to the place in this ranking, not to real promotion or relegation. The ' + share + '% is an assumption, not a calculated value.']],
+          ['dominance', 'Dominance', 'above', 'green', 'How far a team stands above its own pool.', [
+            'Goal difference per match = goal difference ÷ matches played.',
+            'Subtract the average of the pool.',
+            'Divide by the spread of the pool: the standard deviation of the goal difference per match across all teams in the pool.'],
+            '+5.0 per match in a pool with average 0 and spread 3.0 gives dominance +1.7. The same +5.0 with spread 4.0 gives +1.3.'],
+          ['band', 'Percentile and Top x% band', 'percent', 'green', 'Where a team stands among all teams of its age and gender.', [
+            'Percentile = 100 × (1 − (position − 1) ÷ number of teams).',
+            'Band = position ÷ number of teams, rounded up to the next 10%.',
+            'A club gets its band the same way: place of the club ÷ number of clubs, rounded up to the next 10%.'],
+            olBest ? 'Olympia U' + olBest.age + ' ' + G[olBest.gender] + ' ' + olBest.nr + ': position ' + olBest.pos + ' of ' + olBest.of + ' gives percentile ' + olBest.percentile + ' and band Top ' + olBest.band + '%.' : ''],
+          ['first-team', 'First-team strength', 'star', 'green', 'How strong the first teams of a club are against the first teams of the other clubs, from 0 to 100. With the competition level it makes up the Club strength table.', [
+            'First team = the strongest team of a club in that age. Usually that is Team 1.',
+            'Per age and gender it gets a percentile among the first teams: 100 is the best, 50 an average first team.',
+            'Strength per gender = average over U10, U11, U12, U14, U16 and U19. An age without a team counts as 0, so a club with gaps does not score higher than a complete club.',
+            'Boys + girls (B+G, Overall) = average of both, only for clubs with both.',
+            'Against all teams: second and third teams count too, so an average first team scores higher than 50.',
+            'Percentiles apply within one gender: a higher score for girls means a better relative place, not better hockey than the boys.'],
+            olS && olS.M && olS.F && olS.A ? 'Olympia: boys ' + st(olS.M) + ', girls ' + st(olS.F) + ', boys + girls ' + st(olS.A) + '.' : ''],
+          ['rounds', 'Rounds: H1, indoor, H2', 'calendar', 'ol', 'A season has three rounds: outdoor H1, indoor and outdoor H2.', [
+            'H1 = the first half of the outdoor season, H2 = the second half.',
+            'In Olympia evolution a band = the place against all teams of that age and gender in that round, with the same method as the Team strength table.',
+            'A row follows the team label, not the players: U14 team 1 in 2026-27 is a different year group than U14 team 1 in 2025-26.',
+            'Club strength per round is outdoor only; indoor is not included. Between 2025-26 and 2026-27 players move up, so it follows the club, not the same squads.',
+            'A team that played only one outdoor round in 2025-26 counts in both rounds with that score.',
+            'Last season the regional divisions were called VHL, LFH or HV; they count as Reg. 1 to 3.']],
+          ['flow', 'Flow between age groups', 'steps', 'ol', 'The players of an age group against the players of the age group before it.', [
+            'The ratios come from one snapshot of different year groups, not from following the same players.',
+            'Chart 1 counts players per youth stage. Older youth covers 7 birth years (U13–U19), younger and middle youth 3 each, so a flat line already means players dropping out every year.',
+            'Chart 2 counts per group of two birth years (U19 = three: U17–U19) and divides by the number of years, so U19 stays comparable.',
+            'Average = the clubs shown, pooled (all players per step ÷ all players in the base), so a small club with few U7 players does not skew it. Clubs without U7, U8 or U9 stay out of the average.',
+            'The age filter does not apply to these charts. Adults are not in them for now.']],
+          ['projection', '5-year projection', 'trend', 'ol', 'A “what if”: how many youth players Olympia would have if its year groups move up the way they do at the chosen clubs today.', [
+            'The same number of U7 starters every year.',
+            'Within U14, U16 and U19 a year group stays the same size: the count per category does not show what happens between those years.',
+            'Pre U7 and Start to Hockey use the same ratio as the club overview, on the players of that year.',
+            'If you take the flow of one club and it has an empty year group, the chain drops to 0 from there on.']],
+          ['actuals', 'Actuals: the member list', 'list', 'ol', 'The estimate next to the member list of HC Olympia itself.', [
+            'Anyone listed in two teams counts with the first one named: "Heren 3, Gents 1" (2 players) with Men, "U19B, Heren 1" with U19.',
+            'Trimmers = the Tuesday and Thursday trimmers (DI/DO) who play in no other team; trimmers who also play Gents or Junior Ladies count there.',
+            'Olympiaantjes are under 6 and play no competition. Start to Hockey (S2H) is shown separately because that group is not a competition team; the Youth count of the member administration (599) does include S2H.',
+            'Olympiaantjes and trimmers have no gender in this file, so they drop out when you filter on boys or girls.']],
+        ];
+        $('v-defs').innerHTML = '<div class="defhead"><h2 class="ptitle">Definitions</h2><p>How the figures are calculated. Open a card for the details.</p><button type="button" id="def-all">Open all</button></div>' +
+          '<div class="defgrid">' + DEFS.map(([id, title, pic, tone, short, lines, ex]) => '<details class="dcard t-' + tone + '" id="def-' + id + '"><summary>' + badge(pic, tone) + '<h3>' + title + '</h3>' + icon('go') +
+            '<span class="short">' + short + '</span></summary><div class="more"><ul>' + lines.map(x => '<li>' + x + '</li>').join('') + '</ul>' +
+            (ex ? '<div class="ex"><b>Example</b>' + ex + '</div>' : '') + '</div></details>').join('') + '</div>';
+        $('def-all').onclick = () => {
+          const cards = [...$('v-defs').querySelectorAll('details')], open = cards.some(d => !d.open);
+          for (const d of cards) d.open = open;
+          $('def-all').textContent = open ? 'Close all' : 'Open all';
+        };
+      }
+      // A link to one topic opens that card and marks it.
+      for (const d of $('v-defs').querySelectorAll('.dcard.target')) d.classList.remove('target');
+      const el = anchor && $('def-' + anchor);
+      if (!el) return;
+      el.open = true;
+      el.classList.add('target');
+      requestAnimationFrame(() => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - document.querySelector('header').offsetHeight - 10));
+    }
+
     // Statistiek is its own page (statistiek.html, rebuilt daily); shown here in a frame. It opens
     // with the password this page saved in sessionStorage, and the frame grows with its content.
     function openStatsFrame() {
@@ -1482,30 +1776,103 @@
       });
       f.src = 'statistiek.html?embed=1';
     }
-    function showView(v) {
-      $('v-table').hidden = v !== 'table'; $('v-map').hidden = v !== 'map'; $('v-flow').hidden = v !== 'flow'; $('v-leden').hidden = v !== 'leden'; $('q').hidden = v !== 'table' && v !== 'clubstr';
-      $('v-sterkte').hidden = v !== 'sterkte'; $('v-clubstr').hidden = v !== 'clubstr'; $('v-stats').hidden = v !== 'stats';
-      $('filterbar').hidden = v === 'sterkte' || v === 'stats' || (v === 'clubstr' && strSub === 'evo');   // Team Strength has its own age and gender selectors
-      strView = v === 'clubstr';
-      if (strView) drawStrength();
-      $('f-gender').disabled = v === 'clubstr' && strSub === 'table';
-      $('f-age').disabled = v === 'flow' || v === 'leden' || v === 'clubstr';   // the curves and the member check span all ages by design
-      $('f-prov').disabled = v === 'leden';                  // Olympia only
-      for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('active', b.dataset.v === v);
-      const act = $('tabs').querySelector('button.active'); if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      flowView = v === 'flow'; ledenView = v === 'leden';
+
+    // ----- Navigation (Bart, 2026-11-19): Home is a menu of sections, every page has its own address in the URL
+    // hash (#/section/page), so the back button, a refresh and a saved link all work. A page names its view
+    // (the container v-...), the part of that view and the filters that apply to it; the others are hidden. -----
+    const F_ALL = ['f-age', 'f-gender', 'f-prov'];
+    const SECTIONS = [
+      { id: 'membership', title: 'Club membership', icon: 'people', tone: 'blue', pages: [
+        { id: 'clubs', title: 'Club overview', view: 'table', sub: 'table', filters: [...F_ALL, 'q'] },
+        { id: 'pitches', title: 'Club pitches', view: 'table', sub: 'fields', filters: [...F_ALL, 'fc-mode', 'q'] },
+        { id: 'map', title: 'Club map', view: 'map', filters: F_ALL },
+        { id: 'fees', title: 'Club fees', view: 'table', sub: 'fees', filters: ['f-prov', 'q'] }] },   // fees hold for the whole club
+      { id: 'strength', title: 'Club and team strength', icon: 'bars', tone: 'green', pages: [
+        { id: 'clubs', title: 'Club strength table', view: 'clubstr', sub: 'table', filters: ['f-prov', 'str-base', 'q'] },   // always boys, girls and both
+        { id: 'chart', title: 'Club strength chart', view: 'clubstr', sub: 'chart', filters: ['f-gender', 'f-prov', 'str-type', 'str-base', 'q'] },
+        { id: 'teams', title: 'Team strength table', view: 'sterkte', sub: 'teams' }] },   // its own age and gender selectors
+      { id: 'olympia', title: 'Olympia strength', icon: 'star', tone: 'ol', pages: [
+        { id: 'overview', title: 'Olympia club overview', view: 'sterkte', sub: 'club' },
+        { id: 'teams', title: 'Olympia teams', view: 'olteams' },
+        { id: 'evolution', title: 'Olympia evolution', view: 'sterkte', sub: 'evo' }] },
+      { id: 'evolution', title: 'Olympia membership evolution', icon: 'trend', tone: 'ol', pages: [
+        { id: '', title: 'Evolution', view: 'flow', filters: ['f-gender', 'f-prov'] }] },   // spans all ages by design
+      { id: 'club', title: 'Club detail', icon: 'search', tone: 'purple', pages: [
+        { id: '', title: 'Club page', view: 'club', href: '#/club/Olympia' }] },
+      { id: 'definitions', title: 'Definitions', icon: 'book', tone: 'grey', pages: [
+        { id: '', title: 'Definitions', view: 'defs' }] },
+      { id: 'unsorted', title: 'Unsorted', icon: 'tray', tone: 'grey', wide: true, pages: [   // not placed yet: one strip under the others
+        { id: 'statistics', title: 'Statistics', view: 'stats' },
+        { id: 'actuals', title: 'Actuals', view: 'leden', filters: ['f-gender'] },   // Olympia only, all ages
+        { id: 'club-evolution', title: 'Club strength evolution', view: 'clubstr', sub: 'evo', filters: ['str-base'] }] },
+    ];
+    for (const s of SECTIONS) for (const p of s.pages) { p.sec = s; p.href = p.href || '#/' + s.id + (p.id ? '/' + p.id : ''); }
+    const VIEWS = ['home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr'];
+    const BAR = [...F_ALL, 'fc-mode', 'str-type', 'str-base', 'q'];
+
+    $('secnav').innerHTML = SECTIONS.map(s => '<a href="' + s.pages[0].href + '" data-sec="' + s.id + '">' + s.title + '</a>').join('');
+    // Home (Bart, second pass 2026-11-19): a card is the section with its pictogram and its pages, each a row to tap. Nothing else.
+    // A section of one page is one row: its title is the link.
+    $('v-home').innerHTML = '<div class="home">' + SECTIONS.map(s => '<section class="hcard' + (s.wide ? ' wide' : '') + '"><h2><a href="' + s.pages[0].href + '">' + badge(s.icon, s.tone) + '<span>' + s.title + '</span>' +
+      (s.pages.length < 2 ? icon('go') : '') + '</a></h2>' + (s.pages.length < 2 ? '' : '<ul>' + s.pages.map(p => '<li><a href="' + p.href + '">' + p.title + icon('go') + '</a></li>').join('') + '</ul>') + '</section>').join('') + '</div>';
+
+    // The address -> the page. #/club/<name> and #/definitions/<topic> carry an argument, the Team strength
+    // table its age, gender and team after a question mark. Anything unknown is Home.
+    function resolve() {
+      const raw = location.hash.replace(/^#\/?/, ''), cut = raw.indexOf('?');
+      const seg = (cut < 0 ? raw : raw.slice(0, cut)).split('/').filter(Boolean).map(s => { try { return decodeURIComponent(s); } catch (e) { return s; } });
+      const sec = SECTIONS.find(s => s.id === seg[0]);
+      if (!sec) return { home: true };
+      const page = sec.pages.find(p => p.id === seg[1]) || sec.pages[0];
+      return { sec, page, arg: page.id ? seg[2] : seg[1], q: new URLSearchParams(cut < 0 ? '' : raw.slice(cut + 1)) };
+    }
+    function showPage(r) {
+      const v = r.home ? 'home' : r.page.view, sub = r.home ? null : r.page.sub, shown = r.home ? [] : r.page.filters || [];
+      for (const k of VIEWS) $('v-' + k).hidden = k !== v;
+      for (const id of BAR) $(id).hidden = !shown.includes(id);
+      $('filterbar').hidden = !shown.length;
+      strView = v === 'clubstr'; flowView = v === 'flow'; ledenView = v === 'leden';
+      if (v === 'table') {
+        ovSub = sub;
+        for (const k of ['table', 'fields', 'fees']) $('ov-' + k).hidden = k !== sub;
+        if (sub === 'fields') drawFieldChart();
+        if (sub === 'fees') drawFees();
+      }
+      if (v === 'clubstr') {
+        strSub = sub;
+        for (const k of ['table', 'chart', 'evo']) $('str-' + k).hidden = k !== sub;
+        drawStrength();
+      }
+      if (v === 'sterkte') drawSterkte(sub, r.q);
+      if (v === 'olteams') drawOlympiaTeams();
+      if (v === 'club') drawClubPage(r.arg || 'Olympia');
+      if (v === 'defs') drawDefinitions(r.arg);
       if (v === 'leden') drawLeden();
       if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
       if (v === 'flow') drawFlow();
-      if (v === 'table' && ovSub === 'fields') drawFieldChart();
-      if (v === 'table' && ovSub === 'fees') { drawFees(); $('f-age').disabled = $('f-gender').disabled = true; }
-      if (v === 'sterkte') { if (!drawSterkte) drawSterkte = strengthView(D.standings, rankedTeams, rankedGroups, clubCompare(rankedTeams, firstTeam), D.evolution); drawSterkte(); }
+      document.title = (r.home ? '' : (v === 'club' ? r.arg || 'Olympia' : r.page.title) + ' · ') + 'Clubs and teams';
     }
-    $('tabs').hidden = false;
-    $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) showView(b.dataset.v); });
+    function route() {
+      const r = resolve();
+      nav.key = location.hash;
+      for (const a of $('secnav').children) a.classList.toggle('active', !r.home && a.dataset.sec === r.sec.id);
+      $('homebtn').classList.toggle('active', !!r.home);
+      const pages = r.home || r.sec.pages.length < 2 ? [] : r.sec.pages;   // a section of one page needs no second row
+      $('subnav').innerHTML = pages.map(p => '<a href="' + p.href + '"' + (p === r.page ? ' class="active"' : '') + '>' + p.title + '</a>').join('');
+      $('subrow').classList.toggle('nopages', !pages.length);
+      showPage(r);
+      for (const el of [$('secnav').querySelector('.active'), $('subnav').querySelector('.active')]) if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      // A click on a link starts the page at the top; back and forward return to where the reader was.
+      window.scrollTo(0, Date.now() - nav.clicked < 1000 ? 0 : nav.pos[nav.key] || 0);
+      nav.clicked = 0;
+    }
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('scroll', () => { if (nav.key !== null) nav.pos[nav.key] = window.scrollY; }, { passive: true });
+    document.addEventListener('click', e => { if (e.target.closest && e.target.closest('a[href^="#/"]')) nav.clicked = Date.now(); }, true);
+    window.addEventListener('hashchange', route);
+    for (const id of ['homebtn', 'secnav', 'subrow']) $(id).hidden = false;
 
-    $('q').hidden = false;
     function draw() {
       COLS = cols();
       if (!COLS.some(([k]) => k === sortKey)) { sortKey = 'players'; sortDir = -1; }
@@ -1532,22 +1899,22 @@
         COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'players' ? ' total' : '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
           (k === 'members' ? ' bar" style="--w:' + barW(c) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
     }
+    // A click on a column header sorts. The club name is a link to the club page, which took over the team list
+    // that used to open under the row.
     $('clubs').addEventListener('click', e => {
-      if (e.target.closest('tr.detail')) return;
       const th = e.target.closest('th');
-      if (th) { const k = th.dataset.k; if (!k || k === 'rank') return; sortDir = k === sortKey ? -sortDir : (['club', 'town', 'prov', 'type'].includes(k) ? 1 : -1); sortKey = k; draw(); return; }
-      const tr = e.target.closest('tr.club');
-      if (!tr) return;
-      if (tr.nextElementSibling && tr.nextElementSibling.classList.contains('detail')) { tr.nextElementSibling.remove(); return; }
-      tr.insertAdjacentHTML('afterend', '<tr class="detail"><td colspan="' + COLS.length + '"><div class="typeline">' + esc(typeLine(tr.dataset.c)) + '</div>' +
-        clubDetail(clubs.get(tr.dataset.c), fmt1) + '</td></tr>');
+      if (!th) return;
+      const k = th.dataset.k;
+      if (!k || k === 'rank') return;
+      sortDir = k === sortKey ? -sortDir : (['club', 'town', 'prov', 'type'].includes(k) ? 1 : -1); sortKey = k; draw();
     });
     const fieldsShown = () => !$('v-table').hidden && ovSub === 'fields', feesShown = () => !$('v-table').hidden && ovSub === 'fees';
     $('q').addEventListener('input', () => { draw(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); });
 
-    function apply() { compute(); drawSummary(); draw(); if (map) drawMap(); if (flowView) drawFlow(); if (ledenView) drawLeden(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); }
+    function apply() { compute(); draw(); if (map) drawMap(); if (flowView) drawFlow(); if (ledenView) drawLeden(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); }
     for (const id of ['f-age', 'f-gender', 'f-prov']) $(id).addEventListener('change', apply);
     apply();
+    route();   // the page in the address: Home, or the page a link or a refresh asked for
   }
 })();
 </script>
