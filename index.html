@@ -392,6 +392,53 @@
     #club-str th, #club-str td { white-space:normal; padding:7px 4px; } #club-str td { min-width:0; }
     #club-str td.row, #club-str th.row { padding-left:10px; }
   }
+
+  /* Catchment (2026-11-21): bike is green, car is blue, everywhere in this section. */
+  #catch-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-bottom:14px; }
+  #catch-bar .cb { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-weight:600; }
+  #catch-bar .cb.bike { color:#7adfb0; } #catch-bar .cb.car { color:#5fb4ff; }
+  #catch-bar .seg { flex:none; } #catch-bar .seg button { padding:6px 12px; flex:none; white-space:nowrap; }
+  #catch-bar .cb.bike .seg button.active { background:#7adfb0; } #catch-bar .cb.car .seg button.active { background:#5fb4ff; }
+  #catch-bar .unit { color:var(--muted); font-weight:400; }
+  #catch-t tr.ghead th { position:static; cursor:default; text-align:center; font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text); border-bottom:none; padding-top:8px; }
+  #catch-t th.g-bike { background-color:rgba(122,223,176,.10); } #catch-t tr.ghead th.g-bike { color:#7adfb0; } #catch-t td.g-bike { background-color:rgba(122,223,176,.03); }
+  #catch-t th.g-car { background-color:rgba(58,163,255,.10); } #catch-t tr.ghead th.g-car { color:#5fb4ff; } #catch-t td.g-car { background-color:rgba(58,163,255,.03); }
+  #catch-t .gstart { border-left:2px solid var(--line); }
+  #catch-t th.on { color:var(--text); }
+  #catch-t td.bar { background-size:calc(100% - 12px) 60%; background-position:6px 50%; background-repeat:no-repeat; }   /* also in Olympia's row, where the page resets the background */
+  #catch-t td.g-bike.bar { background-image:linear-gradient(90deg, rgba(122,223,176,.20) var(--w), transparent var(--w)); }
+  .catch-kpis .kpi.bike { border-color:rgba(122,223,176,.35); } .catch-kpis .kpi.car { border-color:rgba(58,163,255,.35); }
+  .catch-kpis .kpi .l { font-size:12px; }
+  #catch-charts { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
+  .catch-wrap { position:relative; } .catch-wrap svg { display:block; touch-action:pan-y; }
+  .catch-wrap svg text { fill:var(--muted); font-size:11px; } .catch-wrap svg text.sc-label { fill:var(--text); font-size:12px; font-weight:600; }
+  .catch-wrap svg.onclub { cursor:pointer; }
+  #catch-map { height:min(62vh, 560px); min-height:340px; border-radius:12px; border:1px solid var(--line); background:var(--panel); position:relative; z-index:0; isolation:isolate; }
+  #catch-map .leaflet-tile-pane { filter:invert(1) hue-rotate(180deg) grayscale(1) brightness(.62) contrast(1.15); }
+  #catch-ct th { position:static; cursor:default; } #catch-ct td.l b { font-weight:600; }
+  #catch-ct i, #catch-legend i.box { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:7px; vertical-align:-1px; }
+  #catch-legend i.box { height:12px; }
+  #catch-near { margin-top:10px; } #catch-near p { margin:6px 0; color:var(--muted); font-size:13px; line-height:1.6; } #catch-near b { color:var(--text); font-weight:600; }
+  .catch-near-n { grid-template-columns:repeat(4, minmax(0, 1fr)); max-width:560px; margin-bottom:0; } .catch-near-n .kpi { padding:10px 14px; } .catch-near-n .kpi.car { border-color:rgba(58,163,255,.45); }
+  .catch-near-n .kpi .v { font-size:21px; } .catch-near-n .kpi .l { font-size:12px; }
+  #catch-how { margin-top:22px; max-width:860px; }
+  .catch-sm { display:none; }
+  @media (max-width: 900px) { #catch-charts { grid-template-columns:minmax(0, 1fr); } }
+  @media (max-width: 600px) {
+    #catch-bar { gap:8px 14px; margin-bottom:10px; } #catch-bar .seg button { padding:7px 12px; }
+    /* the table fits the screen: fixed column widths (see the colgroup in drawRank), headers may wrap, long club names end in … */
+    #catch-t { font-size:13px; table-layout:fixed; } #catch-t th, #catch-t td { padding:7px 3px; overflow:hidden; }
+    #catch-t tr.ghead th { font-size:10px; letter-spacing:.2px; }
+    #catch-t tr:not(.ghead) th { white-space:normal; vertical-align:bottom; line-height:1.25; font-size:10.5px; letter-spacing:0; }
+    #catch-t td.l { text-overflow:ellipsis; }
+    #catch-t td.rk, #catch-t th.rk { padding-left:6px; padding-right:0; } #catch-t td:last-child, #catch-t th:last-child { padding-right:8px; }
+    .catch-kpis { grid-template-columns:1fr 1fr; gap:8px; } .catch-kpis .kpi { padding:11px 12px; } .catch-kpis .kpi .v { font-size:21px; }
+    .catch-kpis .kpi.wide { grid-column:1 / -1; }
+    .catch-near-n { gap:6px; } .catch-near-n .kpi { padding:9px 8px; } .catch-near-n .kpi .v { font-size:19px; } .catch-near-n .kpi .l { font-size:11px; }
+    #catch-ct { font-size:13px; } #catch-ct th, #catch-ct td { padding:7px 5px; white-space:normal; } #catch-ct td.l { white-space:nowrap; padding-left:10px; }
+    #catch-map { height:58vh; min-height:300px; }
+    .catch-lg { display:none; } .catch-sm { display:inline; }
+  }
 </style>
 </head>
 <body>
@@ -512,7 +559,7 @@
     } catch (e) { console.warn('strength refresh not loaded, showing the built-in tables', e); }
     try {
       const x = await loadStrength(pw, 'extras.json');
-      for (const k of ['moves', 'history', 'members', 'labels', 'umpires']) if (x[k] && !data[k]) data[k] = x[k];
+      for (const k of ['moves', 'history', 'members', 'labels', 'umpires', 'catchment']) if (x[k] && !data[k]) data[k] = x[k];
     } catch (e) { console.warn('extra pages not loaded', e); }
     render(data);   // outside the try: a page bug must not look like a wrong password
   }
@@ -851,6 +898,272 @@
     return draw;
   }
 
+  function catchmentView(X) {
+  const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord } = X;
+  ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
+  const GREEN = '#7adfb0', BLUE = '#3aa3ff';
+  const REACH = [['Bike', 10, GREEN], ['Bike', 15, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE]];   // the order of every array in C
+  let bike = 15, car = 15, split = false, sortKey = 'cRate', sortDir = -1, sub = 'rank', club = 'Olympia', map = null, layer = null, built = false;
+  const bi = () => bike === 10 ? 0 : 1, ci = () => car === 15 ? 2 : 3;
+  const rate1 = v => v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const short = n => n >= 99500 ? Math.round(n / 1000) + 'k' : n >= 9950 ? (n / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) + 'k' : fmt(n);
+  const num = n => '<span class="catch-lg">' + fmt(n) + '</span><span class="catch-sm">' + short(n) + '</span>';
+  const reachHref = name => '#/unsorted/catchment-club/' + encodeURIComponent(name);
+  const reachLink = name => '<a class="clublink" href="' + reachHref(name) + '">' + esc(name) + '</a>';
+  const median = a => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return !s.length ? null : s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+  // One row per club of the census that has a travel-time area. Youth players = estimated U7-U19 players, as on the
+  // club overview without filters.
+  const youthOf = n => CLUBS_ALL.has(n) ? CLUBS_ALL.get(n).youthP : 0;
+  const ALLROWS = Object.keys(C.clubs).filter(n => CLUBS_ALL.has(n)).map(n => {
+    const c = C.clubs[n], youth = youthOf(n);
+    // The clubs around this one by drive time, nearest first: [club, minutes]. Only clubs with youth teams count:
+    // an adults-only club on the same pitch (Langeveld at Leopold) does not compete for children.
+    const drive = c.drive.map(([k, min]) => [C.names[k], min]).filter(([o]) => youthOf(o) > 0);
+    const per = list => list.map(k => k > 0 ? youth / k * 1000 : null);
+    return { club: n, prov: provinceOf(n), nl: c.country === 'NL', youth, allKids: c.kids, splitKids: c.shared, people: c.people, km2: c.km2, drive,
+      allRate: per(c.kids), splitRate: per(c.shared) };
+  });
+  const within = (r, min) => r.drive.filter(d => d[1] <= min).length;
+  // Overlap: a child within reach of several clubs counts in full for each of them, or is split equally between them
+  // (three clubs each get a third). `split` is the reader's choice; K and RT give the figures that go with it, or with
+  // the other choice when asked (s).
+  const K = (r, i, s) => ((s === undefined ? split : s) ? r.splitKids : r.allKids)[i];
+  const RT = (r, i, s) => ((s === undefined ? split : s) ? r.splitRate : r.allRate)[i];
+  const neg = v => v == null ? -1 : v;   // a club without a figure sorts last
+  // Ranked: the clubs with youth teams. Left out: clubs without youth teams (mostly adult clubs that share a pitch)
+  // and the two Dutch clubs, which have no youth teams in the Belgian competition either.
+  const ROWS = ALLROWS.filter(r => !r.nl && r.youth > 0);
+  // The typical club: the median over the ranked clubs, whatever the province filter says.
+  const MEDS = [false, true].map(s => ({ rate: REACH.map((_, i) => median(ROWS.filter(r => RT(r, i, s) != null).map(r => RT(r, i, s)))),
+    kids: REACH.map((_, i) => median(ROWS.map(r => K(r, i, s)))) }));
+  const MED = i => MEDS[+split].rate[i], MEDKIDS = i => MEDS[+split].kids[i];
+  const MEDNEAR = { 15: median(ROWS.map(r => within(r, 15))), 20: median(ROWS.map(r => within(r, 20))) };
+  const placeOf = (name, f) => {
+    const s = ROWS.slice().sort((a, b) => f(b) - f(a));
+    let place = 0, out = null;
+    s.forEach((r, i) => { if (!i || Math.abs(f(s[i - 1]) - f(r)) >= 1e-9) place = i + 1; if (r.club === name) out = place; });
+    return out;
+  };
+  const tile = (v, l, s, cls) => '<div class="kpi ' + cls + '"><div><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div></div>';
+  // The five tiles of one club: children in reach and youth players per 1,000 of them, by bike and by car, and the
+  // number of clubs within the chosen drive time.
+  function tiles(name) {
+    const r = ALLROWS.find(x => x.club === name);
+    if (!r) return '';
+    const ranked = ROWS.includes(r), n = within(r, car), next = r.drive.filter(d => d[1] > car)[0];
+    return [[bi(), 'bike'], [ci(), 'car']].map(([i, cls]) => {
+      const how = REACH[i][1] + ' min by ' + cls, place = (f, v) => !ranked || v == null ? '' : ord(placeOf(name, f)) + ' of ' + ROWS.length + ' clubs';
+      // the small line ends with the same figure under the other choice, so both are always in view
+      const kids = K(r, i), other = K(r, i, !split), otherRate = RT(r, i, !split);
+      return tile(kids == null ? '–' : fmt(kids), 'Children within ' + how + (split ? ', split between clubs' : ''),
+          [place(x => neg(K(x, i)), kids), 'typical club ' + fmt(Math.round(MEDKIDS(i))), other == null ? '' : fmt(other) + (split ? ' before the split' : ' after the split')].filter(Boolean).join(' · '), cls) +
+        tile(rate1(RT(r, i)), 'Youth players per 1,000 children' + (split ? ', split' : ''),
+          [place(x => neg(RT(x, i)), RT(r, i)), 'typical club ' + rate1(MED(i)), otherRate == null ? '' : rate1(otherRate) + (split ? ' before the split' : ' after the split')].filter(Boolean).join(' · '), cls);
+    }).join('') +
+      tile(n, (n === 1 ? 'Other club' : 'Other clubs') + ' within ' + car + ' min drive',
+        (n ? r.drive.slice(0, Math.min(n, 4)).map(d => esc(d[0]) + ' ' + Math.round(d[1])).join(', ') + ' min' + (n > 4 ? ' and ' + (n - 4) + ' more' : '') : next ? 'nearest: ' + esc(next[0]) + ', ' + Math.round(next[1]) + ' min' : 'none within 30 min') +
+        ' · typical club ' + MEDNEAR[car], 'car wide');
+  }
+
+  function skeleton() {
+    built = true;
+    const seg = (id, opts) => '<div class="seg" id="' + id + '">' + opts.map(o => '<button type="button" data-v="' + o + '">' + o + '</button>').join('') + '</div>';
+    $('v-catch').innerHTML =
+      '<div id="catch-bar"><span class="cb bike">Bike' + seg('catch-bike', [10, 15]) + '<span class="unit">min</span></span>' +
+        '<span class="cb car">Car' + seg('catch-car', [15, 20]) + '<span class="unit">min</span></span>' +
+        '<span class="cb">Overlap<div class="seg" id="catch-split"><button type="button" data-v="0">Count all</button><button type="button" data-v="1">Split</button></div></span></div>' +
+      '<div id="catch-rank"><div class="kpis catch-kpis" id="catch-kpis"></div><div class="card"><table id="catch-t"><colgroup id="catch-cols"></colgroup><thead></thead><tbody></tbody></table></div><div class="note" id="catch-tnote"></div></div>' +
+      '<div id="catch-chart" hidden><div id="catch-charts">' + ['b', 'c'].map(m => '<div class="chart"><h2 class="sec" id="catch-' + m + 'title"></h2>' +
+        '<div class="catch-wrap" id="catch-' + m + 'wrap"><svg id="catch-' + m + 'sc" width="100%"></svg><div class="sc-tip" id="catch-' + m + 'tip" hidden></div></div></div>').join('') + '</div>' +
+        '<div class="flowlegend"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Typical club</span></div>' +
+        '<div class="note" id="catch-cnote"></div></div>' +
+      '<div id="catch-club" hidden></div>' +
+      '<details class="dcard t-purple" id="catch-how"><summary><span class="icb t-purple"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICONS.reach + '</svg></span><h3>How this is counted</h3>' +
+        '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICONS.go + '</svg>' +
+        '<p class="short">Children who live within a travel time of the club’s main pitch, and how many youth players the club has for every 1,000 of them.</p></summary><div class="more"><ul>' +
+        ['Children = residents under 15 on 1 January 2021, from the EU census. The census gives them per square of 1 km; a square that lies half inside the area counts for half.',
+         'By car = normal driving speeds for each road, without traffic. By bike = 15 km/h, a child’s pace.',
+         'Only residents of Belgium count. The Luxembourg club also counts residents of Luxembourg.',
+         'Ranked: the ' + ROWS.length + ' clubs with youth teams. Left out: clubs without youth teams (mostly adult clubs that play on another club’s pitch) and the two Dutch clubs.',
+         'Youth players per 1,000 children = estimated U7–U19 players ÷ children in reach × 1,000. Players are 5 to 18 years old and the children are 0 to 14, so the figure compares clubs. It is not the share of children who play hockey.',
+         'Overlap. Count all: a child within reach of several clubs counts in full for each of them. Split: the child is divided equally between the clubs with youth teams that reach it, so three clubs each get a third.',
+         'Other clubs within a drive time = clubs with youth teams whose main pitch is at most that many minutes by car from this club’s pitch.',
+         'Typical club = the middle club (median) of the ranked clubs.',
+         'Sources: Eurostat census grid 2021; travel times from OpenStreetMap data (© OpenStreetMap contributors, ODbL), calculated by the FOSSGIS routing server. <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">Report a map error</a>.']
+          .map(t => '<li>' + t + '</li>').join('') + '</ul></div></details>';
+    $('catch-bike').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { bike = +b.dataset.v; redraw(); } });
+    $('catch-car').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { car = +b.dataset.v; redraw(); } });
+    $('catch-split').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { split = b.dataset.v === '1'; redraw(); } });
+    $('catch-t').addEventListener('click', e => {
+      const th = e.target.closest('th[data-k]');
+      if (!th) return;
+      const k = th.dataset.k;
+      sortDir = k === sortKey ? -sortDir : (k === 'club' || k === 'prov' ? 1 : -1); sortKey = k; drawRank();
+    });
+    $('f-prov').addEventListener('change', () => { if (!$('v-catch').hidden) redraw(); });
+    $('q').addEventListener('input', () => { if (!$('v-catch').hidden) redraw(); });
+    let timer = null;   // a turned phone or a resized window: the charts and the table follow the new width
+    window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(() => { if (!$('v-catch').hidden) redraw(); }, 150); });
+  }
+
+  // ----- Ranking: one row per club, bike and car side by side. A phone gets the four numbers that matter. -----
+  function drawRank() {
+    const small = window.matchMedia('(max-width: 600px)').matches, b = bi(), c = ci();
+    const prov = $('f-prov').value, q = $('q').value.trim().toLowerCase();
+    const val = { club: r => r.club, prov: r => provLabel(r.prov), youth: r => r.youth,
+      bKids: r => neg(K(r, b)), bRate: r => neg(RT(r, b)), cKids: r => neg(K(r, c)), cRate: r => neg(RT(r, c)), cNear: r => within(r, car) };
+    // key, header, group, extra class
+    const COLS = [['rank', '#', '', 'rk'], ['club', 'Club', '', 'l']]
+      .concat(small ? [] : [['prov', 'Province', '', 'l sec2'], ['youth', 'Youth players', '', '']])
+      .concat([['bKids', 'Children', 'bike', ''], ['bRate', small ? 'Per 1,000' : 'Players per 1,000', 'bike', '']])
+      .concat([['cKids', 'Children', 'car', ''], ['cRate', small ? 'Per 1,000' : 'Players per 1,000', 'car', ''], ['cNear', small ? 'Clubs' : 'Other clubs within ' + car + ' min', 'car', '']]);
+    if (!COLS.some(([k]) => k === sortKey)) { sortKey = 'cRate'; sortDir = -1; }
+    // On a phone the seven columns get fixed widths, so nothing is cut off at the right edge.
+    $('catch-cols').innerHTML = small ? '<col style="width:30px"><col><col style="width:52px"><col style="width:45px"><col style="width:52px"><col style="width:45px"><col style="width:42px">' : '';
+    const rate = v => small && v >= 100 ? fmt(Math.round(v)) : rate1(v);
+    const list = ROWS.filter(r => !prov || r.prov === prov);
+    const sorted = list.slice().sort((x, y) => { const p = val[sortKey](x), s = val[sortKey](y); return (typeof p === 'string' ? p.localeCompare(s) : p - s) * sortDir; });
+    sorted.forEach((r, i) => { const v = val[sortKey](r), prev = sorted[i - 1]; r.rank = i && typeof v === 'number' && Math.abs(val[sortKey](prev) - v) < 1e-9 ? prev.rank : i + 1; });
+    const shown = sorted.filter(r => !q || r.club.toLowerCase().includes(q));
+    const gcls = (g, i) => (g ? 'g-' + g : '') + (i && COLS[i - 1][2] !== g ? ' gstart' : '');
+    const spans = [];
+    COLS.forEach(([, , g]) => { if (spans.length && spans[spans.length - 1].g === g) spans[spans.length - 1].n++; else spans.push({ g, n: 1 }); });
+    const glabel = g => g === 'bike' ? 'By bike · ' + bike + ' min' : g === 'car' ? 'By car · ' + car + ' min' + (split ? ' · split' : '') : '';
+    $('catch-t').tHead.innerHTML = '<tr class="ghead">' + spans.map((s, i) => '<th colspan="' + s.n + '" class="' + (s.g ? 'g-' + s.g : '') + (i ? ' gstart' : '') + '">' + glabel(s.g) + '</th>').join('') + '</tr>' +
+      '<tr>' + COLS.map(([k, t, g, cl], i) => '<th' + (k === 'rank' ? '' : ' data-k="' + k + '"') + ' class="' + cl + ' ' + gcls(g, i) + (k === sortKey ? ' on' : '') + '">' + t + (k === sortKey ? (sortDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
+    const max = { bRate: Math.max(1e-9, ...list.map(val.bRate)), cRate: Math.max(1e-9, ...list.map(val.cRate)) };
+    const cell = (r, k) => k === 'rank' ? r.rank : k === 'club' ? reachLink(r.club) : k === 'prov' ? esc(provLabel(r.prov)) : k === 'youth' ? fmt(Math.round(r.youth)) :
+      k === 'bKids' ? num(K(r, b)) : k === 'cKids' ? num(K(r, c)) : k === 'bRate' ? rate(RT(r, b)) : k === 'cRate' ? rate(RT(r, c)) : within(r, car);
+    $('catch-t').tBodies[0].innerHTML = shown.map(r => '<tr class="' + (r.club === 'Olympia' ? 'st-ours' : '') + '">' + COLS.map(([k, , g, cl], i) =>
+      '<td class="' + cl + ' ' + gcls(g, i) + (k in max ? ' total bar" style="--w:' + Math.round(Math.max(0, val[k](r)) / max[k] * 100) + '%' : '') + '">' + cell(r, k) + '</td>').join('') + '</tr>').join('');
+    $('catch-kpis').innerHTML = tiles('Olympia');
+    $('catch-tnote').innerHTML = shown.length + ' clubs. Children = residents under 15 within the travel time of the club’s main pitch' +
+      (split ? ', divided equally between the clubs that reach them. ' : '; a child within reach of several clubs counts for each. ') +
+      'Players per 1,000 = estimated U7–U19 players for every 1,000 of those children; a low figure means room to grow, or many clubs sharing the same children. ' +
+      'A very high figure by bike means few children live within cycling distance: the club depends on cars. ' +
+      (small ? 'Clubs' : 'Other clubs within ' + car + ' min') + ' = clubs with youth teams at most ' + car + ' minutes by car from this club’s pitch. ' +
+      (small ? 'Tap' : 'Click') + ' a column to sort, a club for its map. The tiles show Olympia.';
+  }
+
+  // ----- Chart: children in reach (each step to the right is a doubling or more) against youth players. -----
+  function drawChart(mode) {
+    const i = mode === 'b' ? bi() : ci(), prov = $('f-prov').value, q = $('q').value.trim().toLowerCase();
+    const el = $('catch-' + mode + 'sc'), W = Math.max(280, $('catch-' + mode + 'wrap').clientWidth);
+    const pts = ROWS.filter(r => (!prov || r.prov === prov) && K(r, i) > 0 && r.youth > 0)
+      .map(r => ({ club: r.club, x: K(r, i), y: r.youth, rate: RT(r, i), ol: r.club === 'Olympia', hit: !!q && r.club.toLowerCase().includes(q) }))
+      .sort((a, b) => (a.ol ? 2 : a.hit ? 1 : 0) - (b.ol ? 2 : b.hit ? 1 : 0));
+    const H = Math.round(Math.max(300, Math.min(460, W * 0.72))), L = 44, R = 18, T = 14, B = 44;
+    const down = v => { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return (m >= 5 ? 5 : m >= 2 ? 2 : 1) * e; };
+    const up = v => { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * e; };
+    const xs = pts.map(p => p.x), lo = down(Math.max(1, Math.min(...xs, 1000))), hi = up(Math.max(...xs, lo * 10));
+    const yMax = Math.max(100, Math.ceil(Math.max(0, ...pts.map(p => p.y)) / 100) * 100), yStep = yMax > 600 ? 200 : 100;
+    const px = v => L + (Math.log10(v) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) * (W - L - R), py = v => H - B - v / yMax * (H - T - B);
+    let svg = '';
+    for (let v = 0; v <= yMax; v += yStep) svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + py(v) + '" y2="' + py(v) + '" stroke="#2a2f3a"/><text x="' + (L - 8) + '" y="' + (py(v) + 4) + '" text-anchor="end">' + v + '</text>';
+    // Grid lines at 1, 2 and 5 times every power of ten. The round numbers (1,000, 10k) get their label first,
+    // the others only where there is room.
+    const ticks = [], labelled = [], tick = v => v >= 1000 ? v / 1000 + 'k' : String(v);
+    for (let e = Math.pow(10, Math.floor(Math.log10(lo))); e <= hi; e *= 10) for (const m of [1, 2, 5]) { const v = m * e; if (v >= lo - 1e-9 && v <= hi + 1e-9) ticks.push([v, m]); }
+    for (const [v] of ticks) svg += '<line x1="' + px(v) + '" x2="' + px(v) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="#20242d"/>';
+    for (const first of [true, false]) for (const [v, m] of ticks) {
+      if ((m === 1) !== first || labelled.some(x => Math.abs(x - px(v)) < 34)) continue;
+      svg += '<text x="' + px(v) + '" y="' + (H - B + 18) + '" text-anchor="middle">' + tick(v) + '</text>'; labelled.push(px(v));
+    }
+    // The typical club: the line of the median number of players per 1,000 children.
+    const med = MED(i), line = [];
+    if (med) for (let s = 0; s <= 60; s++) { const v = lo * Math.pow(hi / lo, s / 60), y = med * v / 1000; if (y > yMax) { line.push([px(yMax * 1000 / med), py(yMax)]); break; } line.push([px(v), py(y)]); }
+    if (line.length > 1) svg += '<polyline fill="none" stroke="#e6e8ec" stroke-width="1.5" stroke-dasharray="5 4" opacity=".75" points="' + line.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '"/>';
+    svg += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">Children within ' + REACH[i][1] + ' min by ' + REACH[i][0].toLowerCase() + '</text>' +
+      '<text transform="translate(12,' + ((T + H - B) / 2) + ') rotate(-90)" text-anchor="middle">Youth players</text>';
+    svg += pts.map((p, n) => '<circle data-i="' + n + '" cx="' + px(p.x).toFixed(1) + '" cy="' + py(p.y).toFixed(1) + '" r="' + (p.ol || p.hit ? 6 : 4.5) + '" fill="' + (p.ol ? SC_OL : p.hit ? SC_HIT : SC_BASE) + '" stroke="#171a21" stroke-width="2"/>').join('');
+    svg += pts.filter(p => p.ol || p.hit).slice(-6).map(p => { const right = px(p.x) > W - 110;
+      return '<text class="sc-label" x="' + (px(p.x) + (right ? -10 : 10)) + '" y="' + (py(p.y) + 4) + '" text-anchor="' + (right ? 'end' : 'start') + '">' + esc(p.club) + '</text>'; }).join('');
+    el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
+    $('catch-' + mode + 'title').innerHTML = '<span style="color:' + (mode === 'b' ? GREEN : '#5fb4ff') + '">By ' + REACH[i][0].toLowerCase() + ' · ' + REACH[i][1] + ' min</span>' + (split ? ' · split' : '') + ' · typical club ' + rate1(med) + ' per 1,000';
+    dotChart(el, $('catch-' + mode + 'tip'), pts, W, p => [px(p.x), py(p.y)],
+      p => ' · ' + fmt(p.x) + ' children · ' + fmt(Math.round(p.y)) + ' youth players · ' + rate1(p.rate) + ' per 1,000');
+    return pts.length;
+  }
+  function drawCharts() {
+    const n = drawChart('b'); drawChart('c');
+    $('catch-cnote').innerHTML = n + ' clubs with youth teams. Each dot is a club; the dashed line is the typical club. A club under the line has fewer youth players than its number of children suggests. ' +
+      'Each step to the right is two to two and a half times more children.';
+  }
+
+  // ----- One club: its four areas on a map, and the numbers. -----
+  const decode = s => { const pts = []; let i = 0, lat = 0, lon = 0;
+    while (i < s.length) { for (let k = 0; k < 2; k++) { let r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32);
+      const d = r & 1 ? ~(r >> 1) : r >> 1; if (k) lon += d; else lat += d; } pts.push([lat / 1e5, lon / 1e5]); }
+    return pts; };
+  function drawClub(name) {
+    if (name) club = name;
+    const c = C.clubs[club], r = ALLROWS.find(x => x.club === club), names = Object.keys(C.clubs).sort((a, b) => a.localeCompare(b));
+    const picker = '<label class="pick">Club <select id="catch-pick">' + (c ? '' : '<option selected disabled>Choose a club</option>') +
+      names.map(n => '<option' + (n === club ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label>';
+    let html = '<div class="clubtop"><h2 class="ptitle">' + (club === 'Olympia' ? '<img src="olympia-logo.png" alt="" />' : '') + esc(c ? club : 'Club not found') + '</h2>' +
+      (r ? '<span class="where">' + esc(provLabel(r.prov)) + ' · <a class="clublink" href="' + clubHref(club) + '">club page</a></span>' : '') + picker + '</div>';
+    if (!c || !r) { $('catch-club').innerHTML = html + '<div class="note">There is no reach for a club called “' + esc(club) + '”. Choose a club from the list.</div>'; map = null; $('catch-pick').onchange = e => go(reachHref(e.target.value)); return; }
+    const shade = [.30, .16, .14, .07];
+    html += '<div class="kpis catch-kpis">' + tiles(club) + '</div>' +
+      '<h2 class="sec">Reach on the map</h2><div id="catch-map"></div>' +
+      '<div class="flowlegend" id="catch-legend">' + REACH.map(([m, t, col], i) => '<span><i class="box" style="background:' + col + ';opacity:' + (i % 2 ? .45 : .9) + '"></i>' + m + ' ' + t + ' min</span>').join('') +
+        '<span><i class="box" style="background:#8b93a3;border-radius:50%"></i>Other clubs</span></div>' +
+      '<h2 class="sec">The numbers</h2><div class="card"><table id="catch-ct"><thead><tr><th class="l">Reach</th><th class="hide-sm">Area</th><th class="hide-sm">Residents</th><th>Children</th><th>Players per 1,000</th><th>Rank</th></tr></thead><tbody>' +
+      REACH.map(([m, t, col], i) => '<tr><td class="l"><i style="background:' + col + ';opacity:' + (i % 2 ? .45 : .9) + '"></i><b>' + m + ' ' + t + ' min</b></td>' +
+        '<td class="hide-sm">' + fmt(Math.round(r.km2[i])) + ' km²</td><td class="hide-sm">' + fmt(r.people[i]) + '</td><td>' + (K(r, i) == null ? '–' : num(K(r, i))) + '</td><td class="total">' + rate1(RT(r, i)) + '</td>' +
+        '<td>' + (!ROWS.includes(r) || RT(r, i) == null ? '–' : ord(placeOf(club, x => neg(RT(x, i)))) + '<span class="catch-lg"> of ' + ROWS.length + '</span>') + '</td></tr>').join('') +
+      '</tbody></table></div>' +
+      // The other clubs by drive time from this club's pitch: how many within 10, 15, 20 and 30 minutes, and which.
+      '<h2 class="sec">Other clubs by drive time</h2><div class="kpis catch-near-n">' + [10, 15, 20, 30].map(t =>
+        '<div class="kpi' + (t === car ? ' car' : '') + '"><div class="v">' + within(r, t) + '</div><div class="l">within ' + t + ' min</div></div>').join('') + '</div>' +
+      '<div id="catch-near">' + [[0, 10], [10, 15], [15, 20], [20, 30]].map(([lo, hi]) => { const list = r.drive.filter(d => d[1] > lo && d[1] <= hi);
+        return list.length ? '<p><b>' + (lo ? lo + ' to ' + hi : 'Up to ' + hi) + ' min:</b> ' + list.map(d => reachLink(d[0]) + ' ' + Math.round(d[1])).join(' · ') + '</p>' : ''; }).join('') +
+        (r.drive.length ? '' : '<p>No other club with youth teams within 30 minutes by car.</p>') + '</div>' +
+      '<div class="note">' + esc(club) + ' has ' + fmt(Math.round(r.youth)) + ' estimated youth players (U7–U19). Rank = place on players per 1,000 children among ' + ROWS.length + ' clubs; 1st has the most players for its children. ' +
+        (split ? 'Children are divided equally between the clubs that reach them. ' : '') +
+        'Drive times are from pitch to pitch, without traffic; only clubs with youth teams are counted. ' +
+        (ROWS.includes(r) ? '' : 'This club has no youth teams in the Belgian competition, so it has no rank. ') +
+        (c.country === 'LU' ? 'For this club, residents of Luxembourg count too. ' : '') + 'The pin is the main pitch according to hockey.be.</div>';
+    $('catch-club').innerHTML = html;
+    $('catch-pick').onchange = e => go(reachHref(e.target.value));
+    if (!window.L) { $('catch-map').textContent = 'The map library could not load. Check your internet connection.'; return; }
+    map = L.map('catch-map', { zoomSnap: 0.25, scrollWheelZoom: false });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+    layer = L.layerGroup().addTo(map);
+    let bounds = null;
+    for (const i of [3, 2, 1, 0]) {   // widest first, so the smaller areas lie on top
+      const rings = c.shape[i].map(decode), on = i === bi() || i === ci();
+      const poly = L.polygon(rings, { color: REACH[i][2], weight: on ? 2.5 : 1.2, opacity: on ? .95 : .6, dashArray: i % 2 ? '6 5' : null, fillColor: REACH[i][2], fillOpacity: shade[i], interactive: false }).addTo(layer);
+      if (i === 3) bounds = poly.getBounds();
+    }
+    for (const n of names) {
+      if (n === club) continue;
+      L.circleMarker(C.clubs[n].pin, { radius: 4.5, color: '#171a21', weight: 1.5, fillColor: '#aeb5c2', fillOpacity: .95 })
+        .bindTooltip(esc(n)).on('click', () => go(reachHref(n))).addTo(layer);
+    }
+    const here = c.pin;   // the pins travel with the catchment data: the page's own pins date from its last build with the password
+    if (here) L.circleMarker(here, { radius: 7.5, color: '#fff', weight: 2.5, fillColor: club === 'Olympia' ? '#ffb86b' : '#e6e8ec', fillOpacity: 1 }).bindTooltip(esc(club), { permanent: false }).addTo(layer);
+    if (bounds) map.fitBounds(bounds, { padding: [14, 14] });
+  }
+
+  function redraw() {
+    for (const [id, v] of [['catch-bike', bike], ['catch-car', car], ['catch-split', +split]]) for (const b of $(id).children) b.classList.toggle('active', +b.dataset.v === v);
+    for (const k of ['rank', 'chart', 'club']) $('catch-' + k).hidden = k !== sub;
+    if (map) { map.remove(); map = null; }
+    if (sub === 'rank') drawRank(); else if (sub === 'chart') drawCharts(); else drawClub();
+  }
+  return {
+    // Three pages for the Unsorted section (Bart, 21 Nov 2026: "publish this under unsorted for now").
+    pages: [
+      { id: 'catchment-ranking', title: 'Catchment ranking', view: 'catch', sub: 'rank', filters: ['f-prov', 'q'] },
+      { id: 'catchment-chart', title: 'Catchment chart', view: 'catch', sub: 'chart', filters: ['f-prov', 'q'] },
+      { id: 'catchment-club', title: 'Catchment club map', view: 'catch', sub: 'club', href: '#/unsorted/catchment-club/Olympia' }],
+    // showPage calls this with the part and, for the club map, the club in the address.
+    draw(part, arg) { if (!built) skeleton(); sub = part || 'rank'; if (sub === 'club') club = arg || 'Olympia'; redraw(); },
+  };
+}
+
   function render(D) {
     // A combined team ("Ping/Well M-1") arrives once per club with share 0.5 and half the players.
     const ALL = D.teams.map(([club, town, code, age, gender, comp, division, group, size, kind, share]) =>
@@ -1010,6 +1323,7 @@
       '<div id="v-sterkte" hidden></div>' +
       '<div id="v-olteams" hidden></div>' +
       '<div id="v-club" hidden></div>' +
+      '<div id="v-catch" hidden></div>' +   // catchment pages
       '<div id="v-defs" hidden></div>' +
       '<div id="v-moves" hidden></div><div id="v-members" hidden></div><div id="v-labels" hidden></div><div id="v-umpires" hidden></div><div id="v-changes" hidden></div>' +
       '<div id="v-stats" hidden><iframe id="stats-frame" title="Statistics" style="width:100%;min-height:70vh;border:0;display:block"></iframe></div>' +
@@ -1905,6 +2219,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.3.0', '2026-11-21', { Added: ['Unsorted: Catchment ranking, Catchment chart and Catchment club map. Children who live within 10 or 15 minutes by bike and 15 or 20 minutes by car of every club, youth players per 1,000 of them, and the other clubs within a drive time. Children within reach of several clubs can be counted for each or split between them.'] }],
       ['2.2.0', '2026-11-21', { Added: ['Sorting on every column of Season moves, Official members, Club labels, Umpires and the earlier-seasons tables: click a header, click again to reverse.', 'Club labels: a Points column (gold 3, silver 2, bronze 1).'] }],
       ['2.1.1', '2026-11-21', { Changed: ['Change log follows the Keep a Changelog format.'] }],
       ['2.1.0', '2026-11-21', { Added: ['Unsorted: Season moves, Official members, Club labels, Umpires, Changes and updates.', 'Earlier seasons from 2018-19 in Club strength evolution and Olympia evolution.'] }],
@@ -2142,6 +2457,8 @@
     // hash (#/section/page), so the back button, a refresh and a saved link all work. A page names its view
     // (the container v-...), the part of that view and the filters that apply to it; the others are hidden. -----
     const F_ALL = ['f-age', 'f-gender', 'f-prov'];
+    // Catchment (catchment_view.js): its pages exist only when the data came with extras.json or a preview build.
+    const catchView = D.catchment ? catchmentView({ D, C: D.catchment, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord }) : null;
     const SECTIONS = [
       { id: 'membership', title: 'Club membership', icon: 'people', tone: 'blue', pages: [
         { id: 'clubs', title: 'Club overview', view: 'table', sub: 'table', filters: [...F_ALL, 'q'] },
@@ -2170,10 +2487,11 @@
         ...(D.members ? [{ id: 'members', title: 'Official members', view: 'members', filters: ['f-prov'] }] : []),
         ...(D.labels ? [{ id: 'labels', title: 'Club labels', view: 'labels', filters: ['f-prov'] }] : []),
         ...(D.umpires ? [{ id: 'umpires', title: 'Umpires', view: 'umpires', filters: ['f-prov'] }] : []),
+        ...(catchView ? catchView.pages : []),   // catchment: ranking, chart and club map
         { id: 'changes', title: 'Changes and updates', view: 'changes' }] },   // preview builds only until Bart publishes it
     ];
     for (const s of SECTIONS) for (const p of s.pages) { p.sec = s; p.href = p.href || '#/' + s.id + (p.id ? '/' + p.id : ''); }
-    const VIEWS = ['home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr', 'moves', 'members', 'labels', 'umpires', 'changes'];
+    const VIEWS = ['catch', 'home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr', 'moves', 'members', 'labels', 'umpires', 'changes'];
     const BAR = [...F_ALL, 'fc-mode', 'str-type', 'str-base', 'q'];
 
     $('secnav').innerHTML = SECTIONS.map(s => '<a href="' + s.pages[0].href + '" data-sec="' + s.id + '">' + s.title + '</a>').join('');
@@ -2218,6 +2536,7 @@
       if (v === 'labels') drawLabels();
       if (v === 'umpires') drawUmpires();
       if (v === 'changes') drawChanges();
+      if (v === 'catch') catchView.draw(sub, r.arg);
       if (v === 'leden') drawLeden();
       if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
