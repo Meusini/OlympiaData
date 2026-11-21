@@ -110,6 +110,23 @@
   #v-sterkte { max-width:1100px; }
   #v-sterkte th, #v-olteams th, #v-club th { position:static; cursor:default; }
   #v-sterkte td.pos, #v-olteams td.pos, #v-club td.pos { color:var(--accent2); } #v-sterkte td.neg, #v-olteams td.neg, #v-club td.neg { color:var(--bad); }
+  /* Season moves (Unsorted) */
+  #v-moves th { position:static; cursor:default; } #v-moves th.grp { text-align:center; color:var(--text); border-bottom:none; }
+  #v-moves td.hi, #v-moves .mv-up { color:var(--accent2); } #v-moves td.lo, #v-moves .mv-down { color:var(--bad); } #v-moves td.hi, #v-moves td.lo { font-weight:600; }
+  #v-moves tr.mvband td { font-weight:600; color:var(--muted); background:var(--panel2); text-align:left; }
+  #v-moves ul.mvrules, #v-changes ul.mvrules { margin:0; padding:10px 14px 10px 30px; } #v-moves ul.mvrules li, #v-changes ul.mvrules li { margin:5px 0; } #v-changes ul.mvrules ul { padding-left:18px; color:var(--muted); }
+  #v-moves .kpi .l { font-size:12px; }
+  #v-members th, #v-labels th, #v-umpires th { position:static; cursor:default; } #v-members th[data-k] { cursor:pointer; }
+  #v-members th.grp, #v-umpires th.grp { text-align:center; color:var(--text); border-bottom:none; }
+  #v-members tr.ol td, #v-labels tr.ol td, #v-umpires tr.ol td { background:rgba(208,126,42,.14); font-weight:600; }
+  #v-umpires td.lo { color:var(--bad); font-weight:600; } #v-umpires th .sub, #v-umpires td .sub, #v-labels td .sub { display:block; font-size:11px; color:var(--muted); font-weight:400; }
+  .medal { display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px; color:#1b1b1b; }
+  .medal.gold { background:#e2b740; } .medal.silver { background:#c9ced6; } .medal.bronze { background:#c98a52; }
+  @media (max-width: 600px) { #v-members table, #v-labels table, #v-umpires table { font-size:13px; } #v-members th, #v-members td, #v-labels th, #v-labels td, #v-umpires th, #v-umpires td { padding:6px 4px; white-space:normal; } .medal { padding:1px 5px; } }
+  @media (max-width: 600px) {   /* phones: the tables fit the width, headers wrap, the move column keeps only its arrow */
+    #v-moves table { font-size:13px; } #v-moves th, #v-moves td { padding:6px 4px; } #v-moves th { white-space:normal; vertical-align:bottom; }
+    #v-moves .mvword { display:none; }
+  }
   .stbar { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
   #st-main { margin-top:14px; }
   th.st-team, td.st-team { text-align:left; white-space:normal; width:100%; }
@@ -414,9 +431,10 @@
 
   // Daily strength data (2026-11-14): strength.json is encrypted with the Statistiek data key, which the password
   // unwraps from stats_key.json. It replaces the strength tables frozen inside the census box. Any failure keeps those.
-  async function loadStrength(pw) {
+  // extras.json (2026-11-21) holds the Unsorted pages' data under the same data key (extras_box.js).
+  async function loadStrength(pw, file) {
     const get = f => fetch(f + '?t=' + Date.now(), { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    const [wk, sb] = await Promise.all([get('stats_key.json'), get('strength.json')]);
+    const [wk, sb] = await Promise.all([get('stats_key.json'), get(file || 'strength.json')]);
     const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
     const kek = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: unb64(wk.salt), iterations: wk.iter, hash: 'SHA-256' },
       base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
@@ -439,6 +457,10 @@
       if (s.evolution && s.evolution.rounds) data.evolution = s.evolution;
       data.strengthAsOf = s.asOf;
     } catch (e) { console.warn('strength refresh not loaded, showing the built-in tables', e); }
+    try {
+      const x = await loadStrength(pw, 'extras.json');
+      for (const k of ['moves', 'history', 'members', 'labels', 'umpires']) if (x[k] && !data[k]) data[k] = x[k];
+    } catch (e) { console.warn('extra pages not loaded', e); }
     render(data);   // outside the try: a page bug must not look like a wrong password
   }
   $('unlock').addEventListener('submit', e => { e.preventDefault(); unlock($('pw').value); });
@@ -673,7 +695,7 @@
 
   // The three pages that share #v-sterkte: the Team strength table (teams), the Olympia club overview (club)
   // and the Olympia evolution (evo). Fills the container once and returns its draw function.
-  function strengthView(S, teams, GROUPS, compare, evolution) {
+  function strengthView(S, teams, GROUPS, compare, evolution, history) {
     const OUR_CLUB = 'Olympia';
     const AGES = ST_AGES;
     let focus = null, jump = false;   // the team a link pointed at: marked in the table and scrolled into view once
@@ -706,17 +728,23 @@
     }
 
     // Olympia per team label and round. The label stays, the players move up: U14 team 1 is another age group next season.
+    let olEvoHist = false;   // earlier seasons switch, kept while the page is open
     function renderEvolution() {
       const NAMES = ['', 'First teams', 'Second teams', 'Third teams', 'Fourth teams', 'Fifth teams'];
       const G = { M: 'Boys', F: 'Girls' };
-      const heads = evolution.rounds.map(([, name]) => '<th>' + esc(name) + '</th>').join('');
+      // Earlier seasons (history/, preview builds only): with the switch on, the rounds from 2018-19 come first, team by team label
+      const H = history, longView = !!(H && olEvoHist);
+      const EV = !longView ? evolution : { rounds: H.rounds.concat(evolution.rounds),
+        teams: (() => { const m = new Map(); for (const t of H.teams.concat(evolution.teams)) { const k = t.nr + '|' + t.age + '|' + t.gender, o = m.get(k) || { nr: t.nr, age: t.age, gender: t.gender, rounds: {} }; Object.assign(o.rounds, t.rounds); m.set(k, o); }
+          return [...m.values()].sort((a, b) => a.nr - b.nr || a.age - b.age || a.gender.localeCompare(b.gender)); })() };
+      const heads = EV.rounds.map(([, name]) => '<th>' + esc(name) + '</th>').join('');
       let body = '';
-      for (const nr of [...new Set(evolution.teams.map(t => t.nr))].sort((a, b) => a - b)) {
-        body += '<tr class="st-group"><td colspan="' + (3 + evolution.rounds.length) + '">' + esc(NAMES[nr] || 'Team ' + nr) + '</td></tr>';
-        for (const t of evolution.teams.filter(x => x.nr === nr)) {
+      for (const nr of [...new Set(EV.teams.map(t => t.nr))].sort((a, b) => a - b)) {
+        body += '<tr class="st-group"><td colspan="' + (3 + EV.rounds.length) + '">' + esc(NAMES[nr] || 'Team ' + nr) + '</td></tr>';
+        for (const t of EV.teams.filter(x => x.nr === nr)) {
           // The current round (now) is the Team strength table of today: its band leads to that team there.
           const cur = teams.find(x => x.clubs.includes(OUR_CLUB) && x.age === t.age && x.gender === t.gender && x.nr === t.nr);
-          body += '<tr><td class="l">U' + t.age + '</td><td class="l">' + G[t.gender] + '</td><td class="l">' + t.nr + '</td>' + evolution.rounds.map(([r]) => {
+          body += '<tr><td class="l">U' + t.age + '</td><td class="l">' + G[t.gender] + '</td><td class="l">' + t.nr + '</td>' + EV.rounds.map(([r]) => {
             const x = t.rounds[r];
             if (!x) return '<td><span class="none">–</span></td>';
             const tip = 'Place ' + x.pos + ' of ' + x.of + ', goal difference ' + signed(x.gd) + ' in ' + x.played + ' matches';
@@ -725,7 +753,8 @@
           }).join('') + '</tr>';
         }
       }
-      $('st-main').innerHTML = '<div class="card"><table class="st-mx" id="st-evo"><thead><tr><th class="l">Age</th><th class="l">Gender</th><th class="l">Team</th>' + heads + '</tr></thead><tbody>' + body + '</tbody></table></div>';
+      $('st-main').innerHTML = (H ? '<label class="pick"><input type="checkbox" id="ol-evo-hist"' + (olEvoHist ? ' checked' : '') + '> Show earlier seasons (from 2018-19)</label>' : '') + '<div class="card"><table class="st-mx" id="st-evo"><thead><tr><th class="l">Age</th><th class="l">Gender</th><th class="l">Team</th>' + heads + '</tr></thead><tbody>' + body + '</tbody></table></div>';
+      if ($('ol-evo-hist')) $('ol-evo-hist').addEventListener('change', e => { olEvoHist = e.target.checked; renderEvolution(); });
     }
     // One short line under each of the three pages; the explanations are on the Definitions page.
     const NOTES = {
@@ -928,6 +957,7 @@
       '<div id="v-olteams" hidden></div>' +
       '<div id="v-club" hidden></div>' +
       '<div id="v-defs" hidden></div>' +
+      '<div id="v-moves" hidden></div><div id="v-members" hidden></div><div id="v-labels" hidden></div><div id="v-umpires" hidden></div><div id="v-changes" hidden></div>' +
       '<div id="v-stats" hidden><iframe id="stats-frame" title="Statistics" style="width:100%;min-height:70vh;border:0;display:block"></iframe></div>' +
       '<div id="v-clubstr" hidden>' +
         '<div id="str-table"><div class="card"><table id="clubstr"><thead></thead><tbody></tbody></table></div></div>' +
@@ -1396,8 +1426,17 @@
     const EVO_ROUNDS = [['o1', 'H1 2025-26 outdoor'], ['o2', 'H2 2025-26 outdoor'], ['now', 'H1 2026-27 outdoor']];
     const EVO_ROWS = [['A', 'Overall'], ['M', 'Boys'], ['F', 'Girls']];
     let evoClub = 'Victory';
+    // Earlier seasons (history/, preview builds only): with the switch on, one row per half-season from 2018-19, which reads on a phone.
+    let evoHist = false;
     function evoTable(club) {
       const data = D.evolution.clubs[club] || {};
+      const cellOf = x => x ? '<td>' + bandChip(Math.ceil(10 * x[1] / x[2]) * 10) + '<span class="sub">Score ' + Math.round(x[0]) + ' · #' + x[1] + ' of ' + x[2] + '</span></td>' : '<td><span class="none">–</span></td>';
+      if (D.history && evoHist) {
+        const hd = D.history.clubs[club] || {};
+        const rows = D.history.rounds.map(([r, n]) => [n, hd[r]]).concat(EVO_ROUNDS.map(([r, n]) => [n, data[r]]));
+        return '<div class="card"><table class="st-mx evo-long"><thead><tr><th class="row">Round</th>' + EVO_ROWS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' +
+          rows.map(([n, d]) => '<tr><td class="row">' + esc(n.replace(' outdoor', '')) + '</td>' + EVO_ROWS.map(([g]) => cellOf(((d || {})[strBase] || {})[g])).join('') + '</tr>').join('') + '</tbody></table></div>';
+      }
       const cell = (r, g) => { const x = ((data[r] || {})[strBase] || {})[g]; return x ? '<td>' + bandChip(Math.ceil(10 * x[1] / x[2]) * 10) + '<span class="sub">Score ' + Math.round(x[0]) + ' · #' + x[1] + ' of ' + x[2] + '</span></td>' : '<td><span class="none">–</span></td>'; };
       return '<div class="card"><table class="st-mx" id="' + (club === 'Olympia' ? 'evo-ol' : 'evo-other') + '"><thead><tr><th class="row"></th>' + EVO_ROUNDS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' +
         EVO_ROWS.map(([g, n]) => '<tr><td class="row">' + n + '</td>' + EVO_ROUNDS.map(([r]) => cell(r, g)).join('') + '</tr>').join('') + '</tbody></table></div>';
@@ -1407,10 +1446,12 @@
     function drawClubEvo() {
       const options = Object.keys(D.evolution.clubs).filter(c => c !== 'Olympia').sort((a, b) => a.localeCompare(b))
         .map(c => '<option' + (c === evoClub ? ' selected' : '') + '>' + esc(c) + '</option>').join('');
-      $('str-evo').innerHTML = evoBlock('Olympia') +
+      $('str-evo').innerHTML = (D.history ? '<label class="pick"><input type="checkbox" id="evo-hist"' + (evoHist ? ' checked' : '') + '> Show earlier seasons (from 2018-19)</label>' : '') + evoBlock('Olympia') +
         '<label class="pick">Compare with <select id="evo-club">' + options + '</select></label><div id="evo-other">' + evoBlock(evoClub) + '</div>' +
-        '<div class="note">First-team strength (0–100) per outdoor round, with the place among the clubs in that round. This follows the club, not the same squads. Indoor is not included.' + more('rounds', 'How rounds work') + '</div>';
+        '<div class="note">First-team strength (0–100) per outdoor round, with the place among the clubs in that round. This follows the club, not the same squads. Indoor is not included.' + more('rounds', 'How rounds work') +
+        (D.history ? ' Earlier seasons come from the federation&#39;s final standings, ranked the same way; spring 2019-20 (Covid) and 2020-21 are missing, and 2024-25 is not in the federation files.' : '') + '</div>';
       $('evo-club').addEventListener('change', e => { evoClub = e.target.value; $('evo-other').innerHTML = evoBlock(evoClub); });
+      if ($('evo-hist')) $('evo-hist').addEventListener('change', e => { evoHist = e.target.checked; drawClubEvo(); });
     }
     function drawStrength() {
       if (strSub === 'chart') { drawScatter(); return; }
@@ -1536,7 +1577,7 @@
     window.addEventListener('resize', () => { if (!$('v-table').hidden && ovSub === 'fields') drawFieldChart(); });
 
     const compare = clubCompare(rankedTeams, firstTeam);
-    const drawSterkte = strengthView(D.standings, rankedTeams, rankedGroups, compare, D.evolution);
+    const drawSterkte = strengthView(D.standings, rankedTeams, rankedGroups, compare, D.evolution, D.history);
 
     // ----- Olympia teams: every Olympia team that has a ranking (U10-U19 outdoor), one row each, with the same
     // numbers as the Team strength table. A row leads to that table, on the team's age and gender. A click on a
@@ -1577,6 +1618,262 @@
         (list.length ? '<div class="card"><table id="olteams"><thead><tr>' + head + '</tr></thead><tbody>' + rowsT + '</tbody></table></div>'
           : '<div class="note">No Olympia teams in the current standings.</div>') +
         '<div class="note">The U10–U19 outdoor teams; younger and adult teams are not ranked. Click a row to see the team in the Team strength table.' + more('ranking', 'How the ranking works') + '</div>';
+    }
+
+    // ----- Season moves (Unsorted; Bart 20 Nov 2026, not published yet). Outdoor 2025-26: who moved up or down from
+    // the autumn half to the spring half, how they did after the move, and what that says for a club's teams now.
+    // season_moves.js matches the teams (D.moves.pairs); the shares are computed here so the province filter and the
+    // club choice work. Address: #/unsorted/moves/<club>. -----
+    let mvClub = 'Olympia', mvFin = '', mvDiv = '', mvSeason = '', MVX = null;   // club, autumn place, autumn division and season chosen on the page, kept while it is open
+    const MV_AGES = [10, 11, 12, 14, 16, 19];
+    const mvFinish = (k, n) => k === 1 ? '1st' : k === n ? 'last' : k === 2 ? '2nd' : k === n - 1 ? '2nd last' : k === 3 ? '3rd' : 'middle';
+    const mvLevel = d => { d = String(d).replace(/\s+/g, ' ').trim(); if (/honou?r/i.test(d)) return 0; const n = (d.match(/(\d)\s*$/) || [])[1]; return n ? (/^nat/i.test(d) ? +n : 3 + +n) : null; };
+    const mvClubOf = t => { const m = String(t).match(/^(.*\S)\s+U\d+[BG]-\d+$/); return m ? m[1] : String(t); };
+    const mvNr = t => +((String(t).match(/-(\d+)$/) || [])[1] || 1);
+    // Prepared once: the pairs with club and places, the autumn divisions where a move up or down happened at all,
+    // and the spring pools where teams that moved meet teams that stayed (only those say how movers compare).
+    function mvPrep() {
+      if (MVX || !D.moves) return MVX;
+      // seasons (21 Nov 2026): 2018-19, 2021-22, 2022-23, 2023-24 from the hockey.be files, 2025-26 from our archive; every key includes the season
+      const pairs = D.moves.pairs.map(p => Object.assign({}, p, { se: p.se || '2025-26', club: mvClubOf(p.t), nr: mvNr(p.t), f1: mvFinish(p.k1, p.n1),
+        sh1: p.n1 > 1 ? 1 - (p.k1 - 1) / (p.n1 - 1) : 0.5, sh2: p.n2 > 1 ? 1 - (p.k2 - 1) / (p.n2 - 1) : 0.5, pool: (p.se || '') + '|' + p.a + p.g + '|' + p.d2 + '|' + p.q2 }));
+      const key = (se, a, g, lv) => se + '|' + a + g + '|' + lv;
+      const upOpen = new Set(pairs.filter(p => p.m === 'up').map(p => key(p.se, p.a, p.g, p.l1))), downOpen = new Set(pairs.filter(p => p.m === 'down').map(p => key(p.se, p.a, p.g, p.l1)));
+      const seasons = [...new Set(pairs.map(p => p.se))].sort();
+      const pools = new Map();
+      for (const p of pairs) { if (!pools.has(p.pool)) pools.set(p.pool, []); pools.get(p.pool).push(p); }
+      const mixed = new Set([...pools].filter(([, l]) => l.some(p => p.m === 'same') && l.some(p => p.m !== 'same')).map(([k]) => k));
+      MVX = { pairs, key, upOpen, downOpen, pools, mixed, seasons };
+      return MVX;
+    }
+    // Share of teams that moved after a given autumn finish, among teams whose autumn division saw at least one such move.
+    function mvRates(list, f) {
+      const X = mvPrep(), l = list.filter(p => p.f1 === f), u = l.filter(p => X.upOpen.has(X.key(p.se, p.a, p.g, p.l1))), d = l.filter(p => X.downOpen.has(X.key(p.se, p.a, p.g, p.l1)));
+      return { up: u.filter(p => p.m === 'up').length, canUp: u.length, down: d.filter(p => p.m === 'down').length, canDown: d.length };
+    }
+    // Spring results of the teams in the list that moved m, in mixed pools only; head to head against every stayer in the same pool.
+    function mvAfter(list, m) {
+      const X = mvPrep(), l = list.filter(p => p.m === m && X.mixed.has(p.pool));
+      let w = 0, n = 0;
+      if (m !== 'same') for (const a of l) for (const b of X.pools.get(a.pool)) if (b.m === 'same') { n++; if (a.k2 < b.k2) w++; }
+      return { n: l.length, top: l.filter(p => p.sh2 > 0.5).length, won: l.filter(p => p.k2 === 1).length, last: l.filter(p => p.k2 === p.n2).length, w, nn: n };
+    }
+    function drawMoves(arg) {
+      const el = $('v-moves'), M = D.moves, X = mvPrep();
+      if (!X) { el.innerHTML = '<div class="note">No season-moves data in this version.</div>'; return; }
+      if (arg) mvClub = arg;
+      const prov = $('f-prov').value, where = prov ? provLabel(prov) : 'All provinces';
+      if (!mvSeason) mvSeason = X.seasons[X.seasons.length - 1];
+      const latest = X.seasons[X.seasons.length - 1], oneSeason = mvSeason === 'all' ? latest : mvSeason;
+      // season (SP), then province (FP), then the autumn division chosen on the page (F); the R1/R2/R3 comparison uses FP
+      const SP = mvSeason === 'all' ? X.pairs : X.pairs.filter(p => p.se === mvSeason);
+      const FP = prov ? SP.filter(p => provinceOf(p.club) === prov) : SP, FPset = new Set(FP);
+      const DIVS = [['', 'All autumn divisions'], ['nat', 'Autumn: national'], ['4', 'Autumn: Reg. 1'], ['5', 'Autumn: Reg. 2'], ['6', 'Autumn: Reg. 3']];
+      const F = !mvDiv ? FP : FP.filter(p => mvDiv === 'nat' ? p.l1 <= 3 : p.l1 === +mvDiv), divName = (DIVS.find(d => d[0] === mvDiv) || DIVS[0])[1];
+      const P = (x, n) => n ? Math.round(100 * x / n) + '%' : '–';
+      const cell = (x, n, cls) => '<td title="' + x + ' of ' + n + ' teams"' + (n && x / n >= 0.5 ? ' class="' + cls + '"' : '') + '>' + P(x, n) + '</td>';
+      const G = { F: 'Girls', M: 'Boys' };
+      const kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+      const r1 = mvRates(F, '1st'), rl = mvRates(F, 'last'), aU = mvAfter(F, 'up'), aD = mvAfter(F, 'down');
+      const SEASON_OPTS = [['all', 'All seasons (' + X.seasons.length + ')']].concat(X.seasons.slice().reverse().map(s => [s, 'Season ' + s]));
+      let h = '<div class="stbar" style="margin-bottom:10px"><select id="mv-season" title="Season">' +
+        SEASON_OPTS.map(([v, t]) => '<option value="' + v + '"' + (v === mvSeason ? ' selected' : '') + '>' + t + '</option>').join('') + '</select><select id="mv-div" title="Division in the autumn">' +
+        DIVS.map(([v, t]) => '<option value="' + v + '"' + (v === mvDiv ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>';
+      const h1n = (M.seasons || []).filter(x => mvSeason === 'all' || x.season === mvSeason).reduce((t, x) => t + x.h1, 0);
+      h += '<div class="note" style="margin:0 0 14px">' + (mvSeason === 'all' ? 'Outdoor ' + X.seasons.join(', ') : 'Outdoor ' + mvSeason) + ': every U10–U19 team followed from the autumn half to the spring half. ' + esc(where) + ', ' + divName.replace('Autumn: ', '').toLowerCase().replace('reg.', 'Reg.') + ': ' + fmt(F.length) +
+        ' teams found in both halves' + (prov || mvDiv || !h1n ? '' : ' (of ' + fmt(h1n) + ' in autumn)') + '. Up or down means a higher or lower division name in spring. The season and province filters apply to every part; the division filter to all but the national rules, the Reg. 1/2/3 comparison and the club at the bottom. Spring 2019-20 (stopped by Covid after about 2 matches) and 2020-21 (not played) are left out, and 2024-25 is not in the federation files.</div>';
+      h += '<div class="kpis">' + kpi(P(r1.up, r1.canUp), 'of autumn winners moved up') + kpi(P(rl.down, rl.canDown), 'of last-placed teams moved down') +
+        kpi(P(aU.w, aU.nn), 'chance that a team that moved up finishes above a team already in that division') + kpi(P(aD.w, aD.nn), 'the same for a team that moved down') + '</div>';
+
+      // (a) who moves, regional divisions
+      h += '<h2 class="sec">Who moves: regional divisions</h2><div class="card"><table class="mv"><thead><tr><th class="l"></th><th colspan="3" class="grp">Moved up after finishing</th>' +
+        '<th colspan="2" class="grp">Moved down after finishing</th></tr><tr><th class="l">Age</th><th>1st</th><th>2nd</th><th>3rd</th><th>2nd last</th><th>Last</th></tr></thead><tbody>' +
+        MV_AGES.map(a => { const l = F.filter(p => p.a === a && p.l1 >= 4), r = f => mvRates(l, f);
+          return '<tr><td class="l">U' + a + '</td>' + ['1st', '2nd', '3rd'].map(f => cell(r(f).up, r(f).canUp, 'hi')).join('') + ['2nd last', 'last'].map(f => cell(r(f).down, r(f).canDown, 'lo')).join('') + '</tr>'; }).join('') +
+        '</tbody></table></div><div class="note">Reg. 1 to 3 (VHL, LFH and VHL/LFH), autumn to spring of the chosen season(s), boys and girls together' + (mvDiv === 'nat' ? ': empty while the national divisions are chosen' : '') +
+        '. Share of teams that moved, counting only divisions where at least one team moved that way. Hover a number for the count; with a filter on, the counts get small.</div>';
+      // Reg. 1, 2 and 3 side by side (Bart, 20 Nov 2026: "is there a difference between R1/R2/R3")
+      const nat3 = (() => { let w = 0, n = 0; for (const [k, l] of X.pools) { if (!/\|Nat\. 3\|/.test(k)) continue;
+        for (const a of l) if (a.m === 'up' && a.l1 === 4 && FPset.has(a)) for (const b of l) if (b.m === 'down') { n++; if (a.k2 < b.k2) w++; } } return { w, n }; })();
+      h += '<h2 class="sec">Reg. 1, 2 and 3 compared</h2><div class="card"><table class="mv"><thead><tr><th class="l">Autumn</th><th>Up after 1st</th><th>Up after 2nd</th><th>Down after last</th><th>Up: above a stayer</th><th>Down: above a stayer</th></tr></thead><tbody>' +
+        [4, 5, 6].map(lv => { const l = FP.filter(p => p.l1 === lv), a = mvRates(l, '1st'), b = mvRates(l, '2nd'), c = mvRates(l, 'last'), u = mvAfter(l, 'up'), d = mvAfter(l, 'down');
+          return '<tr><td class="l">Reg. ' + (lv - 3) + '</td>' + cell(a.up, a.canUp, 'hi') + cell(b.up, b.canUp, 'hi') + cell(c.down, c.canDown, 'lo') +
+            '<td title="' + u.nn + ' pairs">' + P(u.w, u.nn) + '</td><td title="' + d.nn + ' pairs">' + P(d.w, d.nn) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<div class="note">All ages' + (prov ? ', ' + esc(where) : '') + '. Above a stayer: how often a team that moved finishes above a team already in its new division. Reg. 3 cannot go down. Reg. 1 teams that move up land in divisions that exist only in spring, so there is no team that stayed to compare with' +
+        (nat3.n ? '; in the spring Nat. 3 (U14–U19) they finish above the teams that dropped from Nat. 2 ' + P(nat3.w, nat3.n) + ' of the time (' + nat3.n + ' pairs)' : '') + '.</div>';
+      const rng = a => { const o = []; for (let i = 0; i < a.length; i++) { let j = i; while (j + 1 < a.length && a[j + 1] === a[j] + 1) j++; o.push(i === j ? String(a[i]) : a[i] + '–' + a[j]); i = j; } return o.join(', '); };
+      const rule = r => r.band.replace('-', '–') + ' ' + r.division + ': places ' + [r.up.length ? rng(r.up) + ' up' : '', r.same.length ? rng(r.same) + ' stay' : '', r.down.length ? rng(r.down) + ' down' : ''].filter(Boolean).join(', ');
+      // the rules change between seasons, so they are read from one season's moves (the chosen one, or the latest)
+      const RS = X.pairs.filter(p => p.se === oneSeason);
+      const natRules = [[[14], 'U14'], [[16, 19], 'U16-U19']].flatMap(([ages, band]) => [0, 1, 2, 3].map(lv => {
+        const l = RS.filter(p => ages.includes(p.a) && p.l1 === lv); if (!l.length) return null;
+        const places = m => [...new Set(l.filter(p => p.m === m).map(p => p.k1))].sort((a, b) => a - b);
+        return { band, division: ['Honour', 'Nat. 1', 'Nat. 2', 'Nat. 3'][lv], up: places('up'), same: places('same'), down: places('down') };
+      }).filter(Boolean));
+      const r1y = RS.filter(p => p.a <= 12 && p.l1 === 4), toH = r1y.filter(p => p.l2 === 0), toN1 = r1y.filter(p => p.l2 === 1), toN3 = RS.filter(p => p.a >= 14 && p.l1 === 4 && p.l2 === 3).length;
+      const youngNat = RS.some(p => p.a <= 12 && p.l1 <= 3);
+      h += '<h2 class="sec">National divisions: fixed rules, ' + oneSeason + '</h2><div class="card pad"><ul class="mvrules">' +
+        (toH.length || toN1.length ? '<li>U10–U12: ' + (youngNat ? '' : 'no national division in autumn. ') + 'In spring the top of Reg. 1 moves to Honour (' + toH.length + ' teams, ' + toH.filter(p => p.k1 === 1).length + ' of them autumn winners) and Nat. 1 (' + toN1.length + ' teams).</li>' : '') +
+        natRules.map(r => '<li>' + esc(rule(r)) + '.</li>').join('') +
+        (toN3 ? '<li>U14–U19: ' + toN3 + ' Reg. 1 teams move up to Nat. 3 in spring, mostly the winners.</li>' : '') + '</ul></div>' +
+        '<div class="note">All provinces' + (mvSeason === 'all' ? '; the latest season, as the rules change between seasons' : '') + '. Read from the moves themselves, not from the federation rule book.</div>';
+
+      // (b) how they do after the move
+      const MV = { up: 'Moved up', same: 'Stayed', down: 'Moved down' };
+      const BANDS = [['All ages', MV_AGES], ['U10–U12', [10, 11, 12]], ['U14', [14]], ['U16–U19', [16, 19]]];
+      // one results row: teams, top half, won the pool, last, above a stayer (movers only)
+      const resRow = (label, cls, r, m) => '<tr><td class="l' + (cls ? ' ' + cls : '') + '">' + label + '</td><td>' + r.n + '</td><td>' + P(r.top, r.n) + '</td><td>' + P(r.won, r.n) + '</td><td>' + P(r.last, r.n) + '</td><td>' + (m === 'same' ? '–' : P(r.w, r.nn)) + '</td></tr>';
+      const resHead = first => '<thead><tr><th class="l">' + first + '</th><th>Teams</th><th>Top half</th><th>Won pool</th><th>Last</th><th>Above a stayer</th></tr></thead>';
+      // side by side: the autumn place a mover came from (Bart, 20 Nov 2026: "first and moving up vs second and moving up")
+      const FIN_UP = [['1st', ['1st']], ['2nd', ['2nd']], ['3rd', ['3rd']], ['lower', ['middle', '2nd last', 'last']]];
+      const FIN_DOWN = [['last', ['last']], ['2nd last', ['2nd last']], ['higher', ['1st', '2nd', '3rd', 'middle']]];
+      const byFin = (m, groups) => groups.map(([label, fs]) => { const r = mvAfter(F.filter(p => fs.includes(p.f1)), m);
+        return r.n ? resRow('after ' + label, '', r, m) : ''; }).join('');
+      h += '<h2 class="sec">How they do in spring, by autumn place</h2><div class="card"><table class="mv">' + resHead('') + '<tbody>' +
+        '<tr class="mvband"><td colspan="6"><span class="mv-up">Moved up</span></td></tr>' + byFin('up', FIN_UP) +
+        '<tr class="mvband"><td colspan="6"><span class="mv-down">Moved down</span></td></tr>' + byFin('down', FIN_DOWN) +
+        '</tbody></table></div><div class="note">All ages' + (prov ? ', ' + esc(where) : '') + '. Read across: a team that moved up after finishing 1st, against one that moved up after finishing 2nd.</div>';
+      // by age band, for any autumn place or one chosen place
+      const FF = mvFin ? F.filter(p => p.f1 === mvFin) : F;
+      const FIN_OPTS = [['', 'Any autumn place'], ['1st', 'Autumn place: 1st'], ['2nd', 'Autumn place: 2nd'], ['3rd', 'Autumn place: 3rd'], ['middle', 'Autumn place: middle'], ['2nd last', 'Autumn place: 2nd last'], ['last', 'Autumn place: last']];
+      h += '<h2 class="sec">How they do in spring, by age</h2><div class="stbar" style="margin-bottom:10px"><select id="mv-fin" title="Place in the autumn pool">' +
+        FIN_OPTS.map(([v, t]) => '<option value="' + v + '"' + (v === mvFin ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' +
+        '<div class="card"><table class="mv">' + resHead('') + '<tbody>' +
+        BANDS.map(([name, ages]) => { const l = FF.filter(p => ages.includes(p.a));
+          return '<tr class="mvband"><td colspan="6">' + name + '</td></tr>' + ['up', 'same', 'down'].map(m => resRow(MV[m], 'mv-' + m, mvAfter(l, m), m)).join(''); }).join('') +
+        '</tbody></table></div>';
+      const st = F.filter(p => p.m === 'same'), stTop = st.filter(p => p.sh1 > 0.5), stWin = st.filter(p => p.k1 === 1);
+      h += '<div class="note">Above a stayer: how often a team that moved finishes above a team that was already in that division, in the same spring pool; 50% would mean it is as strong as the teams it joins. ' +
+        'Only the ' + X.mixed.size + ' of ' + X.pools.size + ' spring pools where both kinds meet: the new U10–U12 national divisions hold promoted teams only. ' +
+        (mvFin ? 'The place filter applies to every row, so Stayed shows teams that finished there and stayed. ' : '') +
+        'Teams that stayed only partly keep their order: ' + P(stTop.filter(p => p.sh2 > 0.5).length, stTop.length) + ' of the autumn top half were top half again, and ' + stWin.filter(p => p.k2 === 1).length + ' of the ' + stWin.length + ' autumn winners that stayed won again.</div>';
+
+      // the club: its moves last season and its odds now
+      const nowPools = (D.standings && D.standings.pools) || [];
+      const clubs = [...new Set(X.pairs.map(p => p.club).concat(nowPools.flatMap(pl => pl.rows.map(r => mvClubOf(r[1])))))]
+        .filter(c => !prov || provinceOf(c) === prov || c === mvClub).sort((a, b) => a.localeCompare(b));
+      const tn = p => 'U' + p.a + ' ' + G[p.g] + ' ' + p.nr;
+      const ARROW = { up: '▲<span class="mvword"> up</span>', same: '=<span class="mvword"> same</span>', down: '▼<span class="mvword"> down</span>' };
+      const CP = X.pairs.filter(p => p.club === mvClub && p.se === oneSeason).sort((a, b) => a.a - b.a || (a.g === 'F' ? 0 : 1) - (b.g === 'F' ? 0 : 1) || a.nr - b.nr);
+      const nC = k => CP.filter(p => p.m === k).length, won = CP.filter(p => p.k2 === 1);
+      h += '<h2 class="sec">Club</h2><div class="stbar" style="margin-bottom:10px"><select id="mv-club" title="Club">' +
+        clubs.map(c => '<option value="' + esc(c) + '"' + (c === mvClub ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></div>';
+      h += '<h2 class="sec" style="margin-top:6px">' + esc(mvClub) + ' in ' + oneSeason + '</h2>' + (CP.length ? '<div class="card"><table class="mv"><thead><tr><th class="l">Team</th><th class="l">Autumn</th><th class="l">Spring</th><th class="l">Move</th></tr></thead><tbody>' +
+        CP.map(p => '<tr><td class="l">' + tn(p) + '</td><td class="l">' + esc(p.d1) + ' · ' + p.k1 + '/' + p.n1 + '</td><td class="l">' + esc(p.d2) + ' · ' + p.k2 + '/' + p.n2 + '</td><td class="l mv-' + p.m + '">' + ARROW[p.m] + '</td></tr>').join('') +
+        '</tbody></table></div><div class="note">' + CP.length + ' teams in both halves: ' + nC('up') + ' moved up, ' + nC('down') + ' moved down. ' + (won.length ? won.length + ' won their spring pool: ' + won.map(tn).join(', ') + '. ' : 'None won its spring pool. ') + 'Place = place in the pool / teams in the pool.</div>'
+        : '<div class="note">No U10–U19 team of this club played both halves of 2025-26.</div>');
+      // odds now: regional teams from last season's share for the same age and place, national teams from the same age, level and place
+      const regional = SP.filter(p => p.l1 >= 4);   // the chosen season, or all seasons pooled
+      const NOW = nowPools.flatMap(pl => pl.rows.filter(r => mvClubOf(r[1]) === mvClub).map(r => ({ a: pl.age, g: pl.gender, nr: mvNr(r[1]), division: pl.division, group: pl.group, k: +r[0], n: pl.rows.length, lv: mvLevel(pl.division) })))
+        .filter(t => t.lv !== null).sort((a, b) => a.a - b.a || (a.g === 'F' ? 0 : 1) - (b.g === 'F' ? 0 : 1) || a.nr - b.nr);
+      const odds = t => {
+        if (t.lv <= 3) { const band = t.a >= 16 ? [16, 19] : [t.a], l = SP.filter(p => band.includes(p.a) && p.l1 === t.lv && p.k1 === t.k);
+          return l.length ? { up: P(l.filter(p => p.m === 'up').length, l.length), down: P(l.filter(p => p.m === 'down').length, l.length), upN: l.filter(p => p.m === 'up').length / l.length, downN: l.filter(p => p.m === 'down').length / l.length } : { up: '–', down: '–', upN: 0, downN: 0 }; }
+        const r = mvRates(regional.filter(p => p.a === t.a), mvFinish(t.k, t.n)), used = mvSeason === 'all' ? X.seasons : [mvSeason];
+        const open = set => used.some(se => set.has(X.key(se, t.a, t.g, t.lv)));
+        const up = open(X.upOpen) ? (r.canUp ? r.up / r.canUp : null) : 0, down = open(X.downOpen) ? (r.canDown ? r.down / r.canDown : null) : 0;
+        return { up: up == null ? '–' : Math.round(100 * up) + '%', down: down == null ? '–' : Math.round(100 * down) + '%', upN: up || 0, downN: down || 0 };
+      };
+      const asOf = Math.max(0, ...nowPools.map(p => Date.parse(p.fetchedAt) || 0));
+      h += '<h2 class="sec">' + esc(mvClub) + ' now: what the past says</h2>' + (NOW.length ? '<div class="card"><table class="mv"><thead><tr><th class="l">Team</th><th class="l">Now</th><th>Up</th><th>Down</th></tr></thead><tbody>' +
+        NOW.map(t => { const o = odds(t); return '<tr><td class="l">' + tn({ a: t.a, g: t.g, nr: t.nr }) + '</td><td class="l">' + esc(t.division) + ' · ' + t.k + '/' + t.n + '</td><td' + (o.upN >= 0.5 ? ' class="hi"' : '') + '>' + o.up +
+          '</td><td' + (o.downN >= 0.5 ? ' class="lo"' : '') + '>' + o.down + '</td></tr>'; }).join('') + '</tbody></table></div>'
+        : '<div class="note">This club has no U10–U19 team in the current outdoor standings.</div>') +
+        '<div class="note">Place in the autumn standings of ' + (asOf ? new Date(asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '?') +
+        ' (the autumn is not over), with the share of teams of the same age and place that moved in ' + (mvSeason === 'all' ? 'the ' + X.seasons.length + ' seasons' : mvSeason) + ', all provinces. A place counts the same in a pool of 5 or of 10. An indication, not a forecast: rules and pool sizes can change.</div>';
+      el.innerHTML = h;
+    }
+    $('v-moves').addEventListener('change', e => {
+      if (e.target.id === 'mv-fin') { mvFin = e.target.value; drawMoves(); return; }
+      if (e.target.id === 'mv-div') { mvDiv = e.target.value; drawMoves(); return; }
+      if (e.target.id === 'mv-season') { mvSeason = e.target.value; drawMoves(); return; }
+      if (e.target.id !== 'mv-club') return;
+      mvClub = e.target.value;
+      history.replaceState(null, '', '#/unsorted/moves/' + encodeURIComponent(mvClub));   // the address follows, without a page jump
+      drawMoves();
+    });
+
+    // ----- Unsorted, preview builds only (Bart 21 Nov 2026): official members, club labels, umpires. Data from history/
+    // (members.py, labels.js, umpires.py); these functions only lay it out. All three follow the province filter. -----
+    const inProv = club => { const p = $('f-prov').value; return !p || provinceOf(club) === p; };
+    const x2 = v => v == null ? '–' : v.toFixed(2) + '×';
+    const n0 = v => v == null ? '–' : fmt(v);
+    let memSort = 'o23';
+    function drawMembers() {
+      const M = D.members, el = $('v-members');
+      if (!M) { el.innerHTML = '<div class="note">No member data in this version.</div>'; return; }
+      const rows = M.clubs.map(([club, o21, b21, o23, b23, b26]) => ({ club, o21, b21, f21: o21 && b21 ? o21 / b21 : null, o23, b23, f23: o23 && b23 ? o23 / b23 : null, b26 }))
+        .filter(r => inProv(r.club));
+      const KEY = { o23: r => -(r.o23 || 0), f23: r => -(r.f23 || 0), club: r => r.club };
+      rows.sort((a, b) => { const x = KEY[memSort](a), y = KEY[memSort](b); return typeof x === 'string' ? x.localeCompare(y) : x - y; });
+      const S = M.summary, kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+      const th = (k, label, cls) => '<th data-k="' + k + '" class="' + (cls || '') + (k === memSort ? ' on' : '') + '">' + label + '</th>';
+      el.innerHTML = '<div class="note" style="margin:0 0 14px">Official member counts of the Flemish clubs (Hockey Vlaanderen club files of Sep 2021 and Dec 2023) against our own estimate for the same moment: teams entered × players per team, plus the youngest and start-to-hockey members at Olympia&#39;s ratios. The factor is official ÷ ours. The two are counted differently, so the official number is not a replacement for ours: it shows how far our estimate sits from the federation&#39;s count, club by club.</div>' +
+        '<div class="kpis">' + kpi(x2(S.factor2021.median), 'median factor, Sep 2021 (half the clubs between ' + x2(S.factor2021.p25) + ' and ' + x2(S.factor2021.p75) + ')') +
+        kpi(x2(S.factor2023.median), 'median factor, Dec 2023 (half between ' + x2(S.factor2023.p25) + ' and ' + x2(S.factor2023.p75) + ')') +
+        kpi(fmt(M.totals.official2021) + ' → ' + fmt(M.totals.official2023), 'official members in Flanders, Sep 2021 → Dec 2023') + '</div>' +
+        '<div class="card"><table class="mv" id="memt"><thead><tr><th class="l"></th><th colspan="3" class="grp">Sep 2021</th><th colspan="3" class="grp">Dec 2023</th><th class="hide-sm"></th></tr><tr>' +
+        th('club', 'Club', 'l') + '<th>Official</th><th class="hide-sm">Ours</th><th>Factor</th>' + th('o23', 'Official') + '<th class="hide-sm">Ours</th>' + th('f23', 'Factor') + '<th class="hide-sm">Ours 2026</th></tr></thead><tbody>' +
+        rows.map(r => '<tr' + (r.club === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.club) + '</td><td>' + n0(r.o21) + '</td><td class="hide-sm">' + n0(r.b21) + '</td><td>' + x2(r.f21) + '</td><td>' + n0(r.o23) + '</td><td class="hide-sm">' + n0(r.b23) + '</td><td>' + x2(r.f23) + '</td><td class="hide-sm">' + n0(r.b26) + '</td></tr>').join('') +
+        '</tbody></table></div><div class="note">Ours = teams in the autumn standings of 2021-22 and 2023-24 (hockey.be) × players per team, plus the youngest and start-to-hockey members; Trimmers have no standings and are left out in every year, 2026 included, and teams shared by two clubs are left out. ' +
+        'Small or new clubs with few competition teams (e.g. Red Wings, Arcus, Rotselaar) show very high factors: most of their members play no league. Not in our census, so not shown: ' + esc(M.unmatched.join(', ')) + '. Only Flemish clubs: the French-speaking league publishes no member counts per club. Click Official or Factor (Dec 2023) to sort.</div>';
+    }
+    $('v-members').addEventListener('click', e => { const th = e.target.closest('th[data-k]'); if (th) { memSort = th.dataset.k; drawMembers(); } });
+
+    let labYear = null;
+    const MEDAL = { gold: 3, silver: 2, bronze: 1 };
+    const medal = lv => lv ? '<span class="medal ' + lv + '">' + lv[0].toUpperCase() + lv.slice(1) + '</span>' : '<span class="none">–</span>';
+    function drawLabels() {
+      const L = D.labels, el = $('v-labels');
+      if (!L) { el.innerHTML = '<div class="note">No label data in this version.</div>'; return; }
+      const A = L.awards.map(([club, league, year, academy, level]) => ({ club, league, year, academy, level }));
+      const years = [...new Set(A.map(a => a.year))].sort((a, b) => b - a);
+      if (!labYear) labYear = years[0];
+      const ACAD = ['Club Manager', 'Coach', 'Umpire', 'Ethics'];
+      const by = new Map();
+      for (const a of A.filter(a => a.year === labYear && inProv(a.club))) { const o = by.get(a.club) || { club: a.club, league: a.league, pts: 0 }; o[a.academy] = a.level; o.pts += MEDAL[a.level]; by.set(a.club, o); }
+      if (inProv('Olympia') && !by.has('Olympia')) by.set('Olympia', { club: 'Olympia', league: 'VHL', pts: 0 });
+      const rows = [...by.values()].sort((a, b) => b.pts - a.pts || a.club.localeCompare(b.club));
+      const ol = years.slice().reverse().map(y => { const o = { y }; A.filter(a => a.club === 'Olympia' && a.year === y).forEach(a => { o[a.academy] = a.level; }); return o; });
+      const lfh = A.some(a => a.league === 'LFH' && a.year === labYear);
+      el.innerHTML = '<div class="stbar" style="margin-bottom:10px"><select id="lab-year" title="Label year">' + years.map(y => '<option' + (y === labYear ? ' selected' : '') + '>' + y + '</option>').join('') + '</select></div>' +
+        '<div class="note" style="margin:0 0 14px">Hockey Academy labels: bronze, silver or gold per academy, awarded once a year. Flemish clubs: Hockey Vlaanderen, March assemblies 2021–2026 (Ethics from 2026). French-speaking clubs: LFH, season 2024-25 only (shown under 2025)' + (lfh ? '' : '; none for ' + labYear) + '. Club Manager = governance and club management, Coach = qualified coaches per youth member and courses, Umpire = club umpires and umpire training, Ethics = integrity, fair play and inclusion.</div>' +
+        '<div class="card"><table class="mv" id="labt"><thead><tr><th class="l">Club</th>' + ACAD.map(a => '<th>' + a + '</th>').join('') + '</tr></thead><tbody>' +
+        rows.map(r => '<tr' + (r.club === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.club) + (r.league === 'LFH' ? ' <span class="sub">LFH</span>' : '') + '</td>' + ACAD.map(a => '<td>' + medal(r[a]) + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div><div class="note">' + rows.filter(r => r.pts).length + ' clubs with at least one label in ' + labYear + '. Sorted by gold 3, silver 2, bronze 1 points. The French-speaking league pays €5,000 per gold, €3,000 per silver and €2,000 per bronze label (minutes, June 2025).</div>' +
+        '<h2 class="sec">Olympia over the years</h2><div class="card"><table class="mv"><thead><tr><th class="l">Year</th>' + ACAD.map(a => '<th>' + a + '</th>').join('') + '</tr></thead><tbody>' +
+        ol.map(o => '<tr><td class="l">' + o.y + '</td>' + ACAD.map(a => '<td>' + medal(o[a]) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>';
+    }
+    $('v-labels').addEventListener('change', e => { if (e.target.id === 'lab-year') { labYear = +e.target.value; drawLabels(); } });
+
+    const CHANGES = [
+      ['21 Nov 2026', ['New in Unsorted: Season moves (5 seasons), Official members, Club labels, Umpires, and this log.', 'Earlier seasons from 2018-19 in Club strength evolution and Olympia evolution (switch at the top).']],
+      ['19 Nov 2026', ['New layout: Home menu, sections, club pages, Olympia teams, Definitions.', 'All text in English.']],
+      ['14 Nov 2026', ['Team and club strength refresh daily.', 'Phone layout.']],
+      ['5 Nov 2026', ['Site on its own address; Statistics behind the same password.']],
+    ];
+    function drawChanges() {
+      $('v-changes').innerHTML = '<div class="card pad"><ul class="mvrules">' + CHANGES.map(([d, items]) => '<li><b>' + d + '</b><ul>' + items.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></li>').join('') + '</ul></div>';
+    }
+    function drawUmpires() {
+      const U = D.umpires, el = $('v-umpires');
+      if (!U) { el.innerHTML = '<div class="note">No umpire data in this version.</div>'; return; }
+      const nat = U.lists.find(l => l.level === 'national'), lfh = U.lists.filter(l => l.league === 'LFH').sort((a, b) => b.asOf.localeCompare(a.asOf))[0], vhl = U.lists.find(l => l.league === 'VHL');
+      const needT = k => Object.values(U.need).reduce((s, v) => s + v[k], 0);
+      const kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+      const clubs = [...new Set([...Object.keys(U.need), ...Object.keys(nat.clubs), ...Object.keys(lfh.clubs), ...Object.keys(vhl.clubs)])].filter(inProv);
+      const rows = clubs.map(c => { const n = U.need[c] || { national: 0, clubUmpire: 0 }, cu = lfh.clubs[c] != null ? [lfh.clubs[c], lfh.asOf.slice(0, 4)] : vhl.clubs[c] != null ? [vhl.clubs[c], vhl.asOf.slice(0, 4)] : null;
+        return { c, nat: nat.clubs[c] || 0, needN: n.national, cu, needC: n.clubUmpire }; })
+        .sort((a, b) => (b.needN + b.needC) - (a.needN + a.needC) || b.nat - a.nat || a.c.localeCompare(b.c));
+      const half = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+      el.innerHTML = '<div class="note" style="margin:0 0 14px">Supply: umpires per club in the lists the federation and the leagues publish (counts only). Need: the 2026-27 outdoor teams whose matches require appointed national umpires, or club umpires at Club Umpire level (federation table "Umpires club assigned outdoor 26-27"). All other matches can be umpired by someone with only the theory exam, or by anyone.</div>' +
+        '<div class="kpis">' + kpi(fmt(nat.total), 'national officials, ' + Object.keys(nat.clubs).length + ' clubs (list of ' + nat.asOf + ')') +
+        kpi(fmt(lfh.total), 'club umpires, French-speaking clubs (' + lfh.asOf + ')') + kpi(fmt(vhl.total), 'club umpires, Flemish clubs (' + vhl.asOf + ', outdated)') +
+        kpi(half(needT('national')) + ' / ' + half(needT('clubUmpire')), 'teams in 2026-27 needing national / Club Umpire level umpires') + '</div>' +
+        '<div class="card"><table class="mv" id="umpt"><thead><tr><th class="l"></th><th colspan="2" class="grp">National</th><th colspan="2" class="grp">Club Umpire level</th></tr><tr><th class="l">Club</th><th>Officials<span class="sub">Mar 2026</span></th><th>Teams<span class="sub">2026-27</span></th><th>Umpires<span class="sub">list year</span></th><th>Teams<span class="sub">2026-27</span></th></tr></thead><tbody>' +
+        rows.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td><td' + (r.needN > r.nat ? ' class="lo"' : '') + '>' + r.nat + '</td><td>' + half(r.needN) + '</td><td>' + (r.cu ? r.cu[0] + '<span class="sub">' + r.cu[1] + '</span>' : '<span class="none">–</span>') + '</td><td>' + half(r.needC) + '</td></tr>').join('') +
+        '</tbody></table></div><div class="note">Red: fewer national officials than teams that need national umpires. The rule book (2026-27, art. 22) asks each club for at least as many national-umpire availabilities as its teams play matches in those divisions, or €75 per match short; an umpire counts only if available at least 9 times a season. ' +
+        'The national list has no grade column, so it may also hold technical officers. Club umpires: the French-speaking list of ' + lfh.asOf + ' where a club is on it, otherwise the Flemish list of ' + vhl.asOf + '; there is no newer public Flemish list. A team shared by two clubs counts half for each.</div>';
     }
     $('v-olteams').addEventListener('click', e => {
       const th = e.target.closest('th[data-k]'), pick = e.target.closest('#ol-show button'), tr = e.target.closest('tr.go');
@@ -1804,10 +2101,15 @@
       { id: 'unsorted', title: 'Unsorted', icon: 'tray', tone: 'grey', wide: true, pages: [   // not placed yet: one strip under the others
         { id: 'statistics', title: 'Statistics', view: 'stats' },
         { id: 'actuals', title: 'Actuals', view: 'leden', filters: ['f-gender'] },   // Olympia only, all ages
-        { id: 'club-evolution', title: 'Club strength evolution', view: 'clubstr', sub: 'evo', filters: ['str-base'] }] },
+        { id: 'club-evolution', title: 'Club strength evolution', view: 'clubstr', sub: 'evo', filters: ['str-base'] },
+        ...(D.moves ? [{ id: 'moves', title: 'Season moves', view: 'moves', filters: ['f-prov'] }] : []),
+        ...(D.members ? [{ id: 'members', title: 'Official members', view: 'members', filters: ['f-prov'] }] : []),
+        ...(D.labels ? [{ id: 'labels', title: 'Club labels', view: 'labels', filters: ['f-prov'] }] : []),
+        ...(D.umpires ? [{ id: 'umpires', title: 'Umpires', view: 'umpires', filters: ['f-prov'] }] : []),
+        { id: 'changes', title: 'Changes and updates', view: 'changes' }] },   // preview builds only until Bart publishes it
     ];
     for (const s of SECTIONS) for (const p of s.pages) { p.sec = s; p.href = p.href || '#/' + s.id + (p.id ? '/' + p.id : ''); }
-    const VIEWS = ['home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr'];
+    const VIEWS = ['home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr', 'moves', 'members', 'labels', 'umpires', 'changes'];
     const BAR = [...F_ALL, 'fc-mode', 'str-type', 'str-base', 'q'];
 
     $('secnav').innerHTML = SECTIONS.map(s => '<a href="' + s.pages[0].href + '" data-sec="' + s.id + '">' + s.title + '</a>').join('');
@@ -1847,6 +2149,11 @@
       if (v === 'olteams') drawOlympiaTeams();
       if (v === 'club') drawClubPage(r.arg || 'Olympia');
       if (v === 'defs') drawDefinitions(r.arg);
+      if (v === 'moves') drawMoves(r.arg);
+      if (v === 'members') drawMembers();
+      if (v === 'labels') drawLabels();
+      if (v === 'umpires') drawUmpires();
+      if (v === 'changes') drawChanges();
       if (v === 'leden') drawLeden();
       if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
@@ -1911,7 +2218,7 @@
     const fieldsShown = () => !$('v-table').hidden && ovSub === 'fields', feesShown = () => !$('v-table').hidden && ovSub === 'fees';
     $('q').addEventListener('input', () => { draw(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); });
 
-    function apply() { compute(); draw(); if (map) drawMap(); if (flowView) drawFlow(); if (ledenView) drawLeden(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); }
+    function apply() { compute(); draw(); if (!$('v-moves').hidden) drawMoves(); if (!$('v-members').hidden) drawMembers(); if (!$('v-labels').hidden) drawLabels(); if (!$('v-umpires').hidden) drawUmpires(); if (map) drawMap(); if (flowView) drawFlow(); if (ledenView) drawLeden(); if (strView) drawStrength(); if (fieldsShown()) drawFieldChart(); if (feesShown()) drawFees(); }
     for (const id of ['f-age', 'f-gender', 'f-prov']) $(id).addEventListener('change', apply);
     apply();
     route();   // the page in the address: Home, or the page a link or a refresh asked for
