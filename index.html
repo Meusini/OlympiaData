@@ -121,10 +121,10 @@
   #v-moves th.s-on, #v-members th.s-on, #v-labels th.s-on, #v-umpires th.s-on, #str-evo th.s-on, #st-evo th.s-on { color:var(--text); }
   #v-members th.grp, #v-umpires th.grp { text-align:center; color:var(--text); border-bottom:none; }
   #v-members tr.ol td, #v-labels tr.ol td, #v-umpires tr.ol td { background:rgba(208,126,42,.14); font-weight:600; }
-  #v-umpires td.lo { color:var(--bad); font-weight:600; } #v-umpires th .sub, #v-umpires td .sub, #v-labels td .sub { display:block; font-size:11px; color:var(--muted); font-weight:400; }
+  #v-umpires td.lo { color:var(--bad); font-weight:600; } #umpcu .gs { border-left:1px solid var(--line); } #v-umpires th .sub, #v-umpires td .sub, #v-labels td .sub { display:block; font-size:11px; color:var(--muted); font-weight:400; }
   .medal { display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px; color:#1b1b1b; }
   .medal.gold { background:#e2b740; } .medal.silver { background:#c9ced6; } .medal.bronze { background:#c98a52; }
-  @media (max-width: 600px) { #v-members table, #v-labels table, #v-umpires table { font-size:13px; } #v-members th, #v-members td, #v-labels th, #v-labels td, #v-umpires th, #v-umpires td { padding:6px 4px; white-space:normal; } .medal { padding:1px 6px; } #v-labels .mword { display:none; } }
+  @media (max-width: 600px) { #v-members table, #v-labels table, #v-umpires table { font-size:13px; } #v-members th, #v-members td, #v-labels th, #v-labels td, #v-umpires th, #v-umpires td { padding:6px 4px; white-space:normal; } .medal { padding:1px 6px; } #v-labels .mword { display:none; } #umpcu th, #umpcu td { padding:6px 3px; } }
   @media (max-width: 600px) {   /* phones: the tables fit the width, headers wrap, the move column keeps only its arrow */
     #v-moves table { font-size:13px; } #v-moves th, #v-moves td { padding:6px 4px; } #v-moves th { white-space:normal; vertical-align:bottom; }
     #v-moves .mvword { display:none; }
@@ -2335,6 +2335,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.6.0', '2026-11-21', { Added: ['Umpires: the French-speaking club-umpire list of 2020-21, so both leagues can be compared in the same season.'], Changed: ['Umpires: each list is compared with the teams of its own season; national officials and club umpires each get their own per-team figure instead of one combined figure.'] }],
       ['2.5.0', '2026-11-21', { Added: ['Umpires: qualified umpires per team that needs them, to rank clubs; someone on both the national and a club list counts once.'] }],
       ['2.4.0', '2026-11-21', { Added: ['Unsorted: Catchment areas. The travel-time areas of several clubs on one map, by bike or by car, with the clubs to choose. Antwerp clubs for now.'] }],
       ['2.3.0', '2026-11-21', { Added: ['Unsorted: Catchment ranking, Catchment chart and Catchment club map. Children who live within 10 or 15 minutes by bike and 15 or 20 minutes by car of every club, youth players per 1,000 of them, and the other clubs within a drive time. Children within reach of several clubs can be counted for each or split between them.'] }],
@@ -2354,26 +2355,45 @@
     function drawUmpires() {
       const U = D.umpires, el = $('v-umpires');
       if (!U) { el.innerHTML = '<div class="note">No umpire data in this version.</div>'; return; }
-      const nat = U.lists.find(l => l.level === 'national'), lfh = U.lists.filter(l => l.league === 'LFH').sort((a, b) => b.asOf.localeCompare(a.asOf))[0], vhl = U.lists.find(l => l.league === 'VHL');
-      const needT = k => Object.values(U.need).reduce((s, v) => s + v[k], 0);
+      const nat = U.lists.find(l => l.level === 'national');
       const kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
-      const clubs = [...new Set([...Object.keys(U.need), ...Object.keys(nat.clubs), ...Object.keys(lfh.clubs), ...Object.keys(vhl.clubs)])].filter(inProv);
-      const rows = clubs.map(c => { const n = U.need[c] || { national: 0, clubUmpire: 0 }, list = lfh.clubs[c] != null ? lfh : vhl.clubs[c] != null ? vhl : null, cu = list ? [list.clubs[c], list.asOf.slice(0, 4)] : null;
-        const people = (nat.clubs[c] || 0) + (cu ? cu[0] - ((list.alsoNational || {})[c] || 0) : 0), need = n.national + n.clubUmpire;
-        return { c, nat: nat.clubs[c] || 0, needN: n.national, cu, needC: n.clubUmpire, people, need, per: need >= 1 ? people / need : null }; })
-        .sort((a, b) => (b.needN + b.needC) - (a.needN + a.needC) || b.nat - a.nat || a.c.localeCompare(b.c));
       const half = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
-      const ranked = rows.filter(r => r.per !== null), short = ranked.filter(r => r.per < 1).length;
-      el.innerHTML = '<div class="note" style="margin:0 0 14px">Supply: umpires per club in the lists the federation and the leagues publish (counts only). Need: the 2026-27 outdoor teams whose matches require appointed national umpires, or club umpires at Club Umpire level (federation table "Umpires club assigned outdoor 26-27"). All other matches can be umpired by someone with only the theory exam, or by anyone.</div>' +
+      const plural = (n, w) => half(n) + ' ' + w + (n === 1 ? '' : 's');
+      // a ratio cell: umpires per team, red below 1, the counts on hover
+      const perCell = (u, t) => { const v = u !== null && t >= 1 ? u / t : null;
+        return '<td data-v="' + (v === null ? '' : v.toFixed(3)) + '"' + (v === null ? '' : ' title="' + plural(u, 'umpire') + ' for ' + plural(t, 'team') + '"') + (v !== null && v < 1 ? ' class="lo"' : '') + '>' + (v === null ? '<span class="none">–</span>' : v.toFixed(1)) + '</td>'; };
+      const none = '<td data-v=""><span class="none">–</span></td>';
+      // Now: national officials (list of March 2026) against the teams that need national umpires in 2026-27
+      const now = [...new Set([...Object.keys(U.need), ...Object.keys(nat.clubs)])].filter(inProv).map(c => { const n = U.need[c] || { national: 0, clubUmpire: 0 };
+        return { c, nat: nat.clubs[c] || 0, needN: n.national, needC: n.clubUmpire }; }).sort((a, b) => b.needN - a.needN || a.c.localeCompare(b.c));
+      const rankedN = now.filter(r => r.needN >= 1), shortN = rankedN.filter(r => r.nat < r.needN).length;
+      // Same season (Bart, 21 Nov 2026: "compare to the teams for the period for which you have the umpires"): each league's
+      // club-umpire list against the teams of its own season that need Club Umpire level. A club is measured on its own league's list.
+      const NS = U.needBySeason || {}, SEASONS = Object.keys(NS).sort(), LG = U.league || {};
+      const listOf = (s, lg) => U.lists.find(l => l.season === s && l.league === lg);
+      const both = SEASONS.find(s => listOf(s, 'VHL') && listOf(s, 'LFH'));
+      const cu = [...new Set(SEASONS.flatMap(s => Object.keys(NS[s]).filter(c => NS[s][c].clubUmpire >= 1)))].filter(inProv).sort((a, b) => a.localeCompare(b))
+        .map(c => ({ c, s: SEASONS.map(s => { const l = listOf(s, LG[c]), t = (NS[s][c] || {}).clubUmpire || 0; return { l, t, u: l ? l.clubs[c] || 0 : null }; }) }));
+      const rankedC = both ? cu.map(r => r.s[SEASONS.indexOf(both)]).filter(x => x.l && x.t >= 1) : [], shortC = rankedC.filter(x => x.u < x.t).length;
+      const sLabel = s => listOf(s, 'VHL') && listOf(s, 'LFH') ? 'both leagues' : listOf(s, 'LFH') ? 'French-speaking only' : 'Flemish only';
+      const vb = both && listOf(both, 'VHL'), lb = both && listOf(both, 'LFH'), lfhNew = U.lists.filter(l => l.league === 'LFH').sort((a, b) => b.asOf.localeCompare(a.asOf))[0];
+      const olNone = !SEASONS.some(s => (NS[s].Olympia || {}).clubUmpire >= 1);
+      el.innerHTML = '<div class="note" style="margin:0 0 14px">Umpires per club against the teams that need them, each from the same season. Need: teams whose matches require appointed national umpires, or club umpires at Club Umpire level; all other matches can be umpired by someone with only the theory exam, or by anyone. Counts only. Click a column header to sort.</div>' +
         '<div class="kpis">' + kpi(fmt(nat.total), 'national officials, ' + Object.keys(nat.clubs).length + ' clubs (list of ' + nat.asOf + ')') +
-        kpi(fmt(lfh.total), 'club umpires, French-speaking clubs (' + lfh.asOf + ')') + kpi(fmt(vhl.total), 'club umpires, Flemish clubs (' + vhl.asOf + ', outdated)') +
-        kpi(half(needT('national')) + ' / ' + half(needT('clubUmpire')), 'teams in 2026-27 needing national / Club Umpire level umpires') + kpi(short + ' of ' + ranked.length, 'clubs with fewer qualified umpires than teams that need them') + '</div>' +
-        '<div class="card"><table class="mv" id="umpt" data-sort="5:1"><thead><tr><th class="l"></th><th colspan="2" class="grp">National</th><th colspan="2" class="grp">Club Umpire level</th><th class="grp">Both</th></tr><tr><th class="l">Club</th><th>Officials<span class="sub">Mar 2026</span></th><th>Teams<span class="sub">2026-27</span></th><th>Umpires<span class="sub">list year</span></th><th>Teams<span class="sub">2026-27</span></th><th>Per team<span class="sub">umpires</span></th></tr></thead><tbody>' +
-        rows.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td><td' + (r.needN > r.nat ? ' class="lo"' : '') + '>' + r.nat + '</td><td>' + half(r.needN) + '</td><td data-v="' + (r.cu ? r.cu[0] : '') + '">' + (r.cu ? r.cu[0] + '<span class="sub">' + r.cu[1] + '</span>' : '<span class="none">–</span>') + '</td><td>' + half(r.needC) + '</td><td data-v="' + (r.per === null ? '' : r.per.toFixed(3)) + '"' + (r.per === null ? '' : ' title="' + r.people + ' qualified umpire' + (r.people === 1 ? '' : 's') + ' for ' + half(r.need) + ' team' + (r.need === 1 ? '' : 's') + '"') + (r.per !== null && r.per < 1 ? ' class="lo"' : '') + '>' + (r.per === null ? '<span class="none">–</span>' : r.per.toFixed(1)) + '</td></tr>').join('') +
-        '</tbody></table></div><div class="note">Per team: qualified umpires (national officials plus club umpires; someone on both lists counts once) for each team whose matches need them. 1.0 means one per team, enough only if every umpire is free on every match day. A team plays 22 league matches and a national umpire signs up for at least 12 a season, so about 1.8 per team covers the need at that minimum. Red: below 1. ' +
-        'Flemish club umpires come from the 2020 list and French-speaking ones from 2024, so compare clubs within one league with the province filter. With 1 or 2 teams, one umpire more or less moves the number a lot. Clubs without such teams have no number.</div>' +
-        '<div class="note">Red under Officials: fewer national officials than teams that need national umpires. The rule book (2026-27, art. 22) asks each club for at least as many national-umpire availabilities as its teams play matches in those divisions, or €75 per match short; an umpire counts only if available at least 9 times a season. ' +
-        'The national list has no grade column, so it may also hold technical officers. Club umpires: the French-speaking list of ' + lfh.asOf + ' where a club is on it, otherwise the Flemish list of ' + vhl.asOf + '; there is no newer public Flemish list. A team shared by two clubs counts half for each. Click a column header to sort.</div>';
+        kpi(shortN + ' of ' + rankedN.length, 'clubs with fewer national officials than teams that need them, 2026-27') +
+        (both ? kpi(fmt(vb.total) + ' / ' + fmt(lb.total), 'club umpires ' + both + ', Flemish / French-speaking lists') + kpi(shortC + ' of ' + rankedC.length, 'clubs with fewer club umpires than teams that need them, ' + both) : '') + '</div>' +
+        '<h2 class="sec">National umpires now</h2>' +
+        '<div class="card"><table class="mv" id="umpt" data-sort="3:1"><thead><tr><th class="l"></th><th colspan="3" class="grp">National</th><th class="grp">Club Umpire level</th></tr><tr><th class="l">Club</th><th>Officials<span class="sub">Mar 2026</span></th><th>Teams<span class="sub">2026-27</span></th><th>Per team</th><th>Teams<span class="sub">2026-27</span></th></tr></thead><tbody>' +
+        now.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td><td>' + r.nat + '</td><td>' + half(r.needN) + '</td>' + perCell(r.nat, r.needN) + '<td>' + half(r.needC) + '</td></tr>').join('') +
+        '</tbody></table></div><div class="note">Per team: national officials per team that needs national umpires. 1.0 means one per team, enough only if every official is free on every match day. A team plays 22 league matches and a national umpire signs up for at least 12 a season, so about 1.8 per team covers the need at that minimum. Red: below 1. ' +
+        'The rule book (2026-27, art. 22) asks each club for at least as many national-umpire availabilities as its teams play matches in those divisions, or €75 per match short; an umpire counts only if available at least 9 times a season. The list (March 2026) falls in the 2025-26 season; its teams are compared with 2026-27, the nearest season with adult teams in our data. The national list has no grade column, so it may also hold technical officers. A team shared by two clubs counts half for each.</div>' +
+        '<h2 class="sec">Club umpires, same season</h2>' +
+        '<div class="card"><table class="mv" id="umpcu" data-sort="3:1"><thead><tr><th class="l"></th>' + SEASONS.map(s => '<th colspan="3" class="grp gs">' + s + '<span class="sub">' + sLabel(s) + '</span></th>').join('') + '</tr><tr><th class="l">Club</th>' +
+        SEASONS.map(() => '<th class="gs">Umpires</th><th>Teams</th><th>Per team</th>').join('') + '</tr></thead><tbody>' +
+        cu.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td>' + r.s.map(x => (x.l ? '<td class="gs">' + x.u + '</td>' : '<td class="gs" data-v=""><span class="none">–</span></td>') + '<td>' + half(x.t) + '</td>' + (x.l ? perCell(x.u, x.t) : none)).join('') + '</tr>').join('') +
+        '</tbody></table></div><div class="note">Each league&#39;s club-umpire list against the teams of its own season that need Club Umpire level: the autumn&#39;s U14, U16 and U19 teams in the national divisions below the top one (the top one gets national umpires). ' +
+        (both ? both + ' is the only season with a list from both leagues, so it is the fair ranking across them. ' : '') + 'A dash under Umpires: no list for that club&#39;s league in that season. ' +
+        'The newest French-speaking list (' + lfhNew.asOf + ', ' + fmt(lfhNew.total) + ' umpires, for 2024-25) has no season of team data to go with it, and there is no Flemish list after 2020. Only clubs with at least one such team in these seasons are shown' + (olNone ? '; Olympia had none.' : '.') + '</div>';
       sortAll(el);
     }
     $('v-olteams').addEventListener('click', e => {
