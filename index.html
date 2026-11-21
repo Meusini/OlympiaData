@@ -1846,14 +1846,21 @@
     }
     $('v-labels').addEventListener('change', e => { if (e.target.id === 'lab-year') { labYear = +e.target.value; drawLabels(); } });
 
+    // Change log in the Keep a Changelog format (Bart, 21 Nov 2026: "use market standards"): newest release first, a
+    // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
+    // Security. Add a release here with every site change.
     const CHANGES = [
-      ['21 Nov 2026', ['New in Unsorted: Season moves (5 seasons), Official members, Club labels, Umpires, and this log.', 'Earlier seasons from 2018-19 in Club strength evolution and Olympia evolution (switch at the top).']],
-      ['19 Nov 2026', ['New layout: Home menu, sections, club pages, Olympia teams, Definitions.', 'All text in English.']],
-      ['14 Nov 2026', ['Team and club strength refresh daily.', 'Phone layout.']],
-      ['5 Nov 2026', ['Site on its own address; Statistics behind the same password.']],
+      ['2.1.1', '2026-11-21', { Changed: ['Change log follows the Keep a Changelog format.'] }],
+      ['2.1.0', '2026-11-21', { Added: ['Unsorted: Season moves, Official members, Club labels, Umpires, Changes and updates.', 'Earlier seasons from 2018-19 in Club strength evolution and Olympia evolution.'] }],
+      ['2.0.0', '2026-11-19', { Added: ['Club pages, Olympia teams, Definitions.'], Changed: ['New layout: Home menu and sections, a web address per page.', 'All text in English.'] }],
+      ['1.1.0', '2026-11-14', { Added: ['Daily refresh of team and club strength.'], Changed: ['Phone layout.'] }],
+      ['1.0.0', '2026-11-05', { Added: ['Site on its own address, with Statistics behind the same password.'] }],
     ];
+    const CHANGE_TYPES = ['Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security'];
     function drawChanges() {
-      $('v-changes').innerHTML = '<div class="card pad"><ul class="mvrules">' + CHANGES.map(([d, items]) => '<li><b>' + d + '</b><ul>' + items.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></li>').join('') + '</ul></div>';
+      $('v-changes').innerHTML = CHANGES.map(([v, d, g]) => '<h2 class="sec">' + v + ' · ' + d + '</h2><div class="card pad"><ul class="mvrules">' +
+        CHANGE_TYPES.filter(t => g[t]).map(t => '<li><b>' + t + '</b><ul>' + g[t].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></li>').join('') + '</ul></div>').join('') +
+        '<div class="note">Format: Keep a Changelog. Versions: major for a new layout, minor for new pages or data, patch for fixes and small changes.</div>';
     }
     function drawUmpires() {
       const U = D.umpires, el = $('v-umpires');
