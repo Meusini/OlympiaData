@@ -411,7 +411,8 @@
   .catch-kpis .kpi .l { font-size:12px; }
   #catch-charts { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
   .catch-wrap { position:relative; } .catch-wrap svg { display:block; touch-action:pan-y; }
-  .catch-wrap svg text { fill:var(--muted); font-size:11px; } .catch-wrap svg text.sc-label { fill:var(--text); font-size:12px; font-weight:600; }
+  .catch-wrap svg text { fill:var(--muted); font-size:11px; } .catch-wrap svg text.sc-label { fill:var(--text); font-size:12px; font-weight:600; paint-order:stroke; stroke:#171a21; stroke-width:3px; stroke-linejoin:round; }
+  .catch-wrap svg text.sc-label.sc-name { font-size:11px; font-weight:500; fill:#c9ced8; }
   .catch-wrap svg.onclub { cursor:pointer; }
   #catch-map { height:min(62vh, 560px); min-height:340px; border-radius:12px; border:1px solid var(--line); background:var(--panel); position:relative; z-index:0; isolation:isolate; }
   #catch-map .leaflet-tile-pane { filter:invert(1) hue-rotate(180deg) grayscale(1) brightness(.62) contrast(1.15); }
@@ -919,7 +920,7 @@
   ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
   const GREEN = '#7adfb0', BLUE = '#3aa3ff';
   const REACH = [['Bike', 10, GREEN], ['Bike', 15, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE]];   // the order of every array in C
-  let bike = 15, car = 15, split = false, sortKey = 'cRate', sortDir = -1, sub = 'rank', club = 'Olympia', map = null, layer = null, built = false;
+  let bike = 15, car = 15, split = false, sortKey = 'cKids', sortDir = -1, sub = 'rank', club = 'Olympia', map = null, layer = null, built = false;
   const bi = () => bike === 10 ? 0 : 1, ci = () => car === 15 ? 2 : 3;
   const rate1 = v => v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const short = n => n >= 99500 ? Math.round(n / 1000) + 'k' : n >= 9950 ? (n / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) + 'k' : fmt(n);
@@ -989,7 +990,7 @@
       '<div id="catch-bar"><span class="cb bike">Bike' + seg('catch-bike', [10, 15]) + '<span class="unit">min</span></span>' +
         '<span class="cb car">Car' + seg('catch-car', [15, 20]) + '<span class="unit">min</span></span>' +
         '<span class="cb">Overlap<div class="seg" id="catch-split"><button type="button" data-v="0">Count all</button><button type="button" data-v="1">Split</button></div></span></div>' +
-      '<div id="catch-rank"><div class="kpis catch-kpis" id="catch-kpis"></div><div class="card"><table id="catch-t"><colgroup id="catch-cols"></colgroup><thead></thead><tbody></tbody></table></div><div class="note" id="catch-tnote"></div></div>' +
+      '<div id="catch-rank"><div class="card"><table id="catch-t"><colgroup id="catch-cols"></colgroup><thead></thead><tbody></tbody></table></div><div class="note" id="catch-tnote"></div></div>' +
       '<div id="catch-chart" hidden><div id="catch-charts">' + ['b', 'c'].map(m => '<div class="chart"><h2 class="sec" id="catch-' + m + 'title"></h2>' +
         '<div class="catch-wrap" id="catch-' + m + 'wrap"><svg id="catch-' + m + 'sc" width="100%"></svg><div class="sc-tip" id="catch-' + m + 'tip" hidden></div></div></div>').join('') + '</div>' +
         '<div class="flowlegend"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Typical club</span></div>' +
@@ -1047,7 +1048,7 @@
       .concat(small ? [] : [['prov', 'Province', '', 'l sec2'], ['youth', 'Youth players', '', '']])
       .concat([['bKids', 'Children', 'bike', ''], ['bRate', small ? 'Per 1,000' : 'Players per 1,000', 'bike', '']])
       .concat([['cKids', 'Children', 'car', ''], ['cRate', small ? 'Per 1,000' : 'Players per 1,000', 'car', ''], ['cNear', small ? 'Clubs' : 'Other clubs within ' + car + ' min', 'car', '']]);
-    if (!COLS.some(([k]) => k === sortKey)) { sortKey = 'cRate'; sortDir = -1; }
+    if (!COLS.some(([k]) => k === sortKey)) { sortKey = 'cKids'; sortDir = -1; }
     // On a phone the seven columns get fixed widths, so nothing is cut off at the right edge.
     $('catch-cols').innerHTML = small ? '<col style="width:30px"><col><col style="width:52px"><col style="width:45px"><col style="width:52px"><col style="width:45px"><col style="width:42px">' : '';
     const rate = v => small && v >= 100 ? fmt(Math.round(v)) : rate1(v);
@@ -1066,16 +1067,15 @@
       k === 'bKids' ? num(K(r, b)) : k === 'cKids' ? num(K(r, c)) : k === 'bRate' ? rate(RT(r, b)) : k === 'cRate' ? rate(RT(r, c)) : within(r, car);
     $('catch-t').tBodies[0].innerHTML = shown.map(r => '<tr class="' + (r.club === 'Olympia' ? 'st-ours' : '') + '">' + COLS.map(([k, , g, cl], i) =>
       '<td class="' + cl + ' ' + gcls(g, i) + (k in max ? ' total bar" style="--w:' + Math.round(Math.max(0, val[k](r)) / max[k] * 100) + '%' : '') + '">' + cell(r, k) + '</td>').join('') + '</tr>').join('');
-    $('catch-kpis').innerHTML = tiles('Olympia');
     $('catch-tnote').innerHTML = shown.length + ' clubs. Children = residents under 15 within the travel time of the club’s main pitch' +
       (split ? ', divided equally between the clubs that reach them. ' : '; a child within reach of several clubs counts for each. ') +
       'Players per 1,000 = estimated U7–U19 players for every 1,000 of those children; a low figure means room to grow, or many clubs sharing the same children. ' +
       'A very high figure by bike means few children live within cycling distance: the club depends on cars. ' +
       (small ? 'Clubs' : 'Other clubs within ' + car + ' min') + ' = clubs with youth teams at most ' + car + ' minutes by car from this club’s pitch. ' +
-      (small ? 'Tap' : 'Click') + ' a column to sort, a club for its map. The tiles show Olympia.';
+      (small ? 'Tap' : 'Click') + ' a column to sort, a club for its map.';
   }
 
-  // ----- Chart: children in reach (each step to the right is a doubling or more) against youth players. -----
+  // ----- Chart: children in reach against youth players, both on a straight scale from zero. -----
   function drawChart(mode) {
     const i = mode === 'b' ? bi() : ci(), prov = $('f-prov').value, q = $('q').value.trim().toLowerCase();
     const el = $('catch-' + mode + 'sc'), W = Math.max(280, $('catch-' + mode + 'wrap').clientWidth);
@@ -1083,31 +1083,59 @@
       .map(r => ({ club: r.club, x: K(r, i), y: r.youth, rate: RT(r, i), ol: r.club === 'Olympia', hit: !!q && r.club.toLowerCase().includes(q) }))
       .sort((a, b) => (a.ol ? 2 : a.hit ? 1 : 0) - (b.ol ? 2 : b.hit ? 1 : 0));
     const H = Math.round(Math.max(300, Math.min(460, W * 0.72))), L = 44, R = 18, T = 14, B = 44;
-    const down = v => { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return (m >= 5 ? 5 : m >= 2 ? 2 : 1) * e; };
-    const up = v => { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * e; };
-    const xs = pts.map(p => p.x), lo = down(Math.max(1, Math.min(...xs, 1000))), hi = up(Math.max(...xs, lo * 10));
+    // The smallest round step (1, 2, 2.5 or 5 times a power of ten) that needs at most one label per 64 pixels
+    // (and at most 8); the axis ends on the first step past the largest club.
+    const xMax = Math.max(1000, ...pts.map(p => p.x)), slots = Math.min(8, Math.max(3, Math.floor((W - L - R) / 64)));
+    let xStep = 0;
+    for (let e = Math.pow(10, Math.floor(Math.log10(xMax / slots))); !xStep; e *= 10) xStep = [1, 2, 2.5, 5, 10].map(m => m * e).find(v => Math.ceil(xMax / v) <= slots) || 0;
+    const hi = Math.ceil(xMax / xStep) * xStep;
     const yMax = Math.max(100, Math.ceil(Math.max(0, ...pts.map(p => p.y)) / 100) * 100), yStep = yMax > 600 ? 200 : 100;
-    const px = v => L + (Math.log10(v) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) * (W - L - R), py = v => H - B - v / yMax * (H - T - B);
+    const px = v => L + v / hi * (W - L - R), py = v => H - B - v / yMax * (H - T - B);
     let svg = '';
     for (let v = 0; v <= yMax; v += yStep) svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + py(v) + '" y2="' + py(v) + '" stroke="#2a2f3a"/><text x="' + (L - 8) + '" y="' + (py(v) + 4) + '" text-anchor="end">' + v + '</text>';
-    // Grid lines at 1, 2 and 5 times every power of ten. The round numbers (1,000, 10k) get their label first,
-    // the others only where there is room.
-    const ticks = [], labelled = [], tick = v => v >= 1000 ? v / 1000 + 'k' : String(v);
-    for (let e = Math.pow(10, Math.floor(Math.log10(lo))); e <= hi; e *= 10) for (const m of [1, 2, 5]) { const v = m * e; if (v >= lo - 1e-9 && v <= hi + 1e-9) ticks.push([v, m]); }
-    for (const [v] of ticks) svg += '<line x1="' + px(v) + '" x2="' + px(v) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="#20242d"/>';
-    for (const first of [true, false]) for (const [v, m] of ticks) {
-      if ((m === 1) !== first || labelled.some(x => Math.abs(x - px(v)) < 34)) continue;
-      svg += '<text x="' + px(v) + '" y="' + (H - B + 18) + '" text-anchor="middle">' + tick(v) + '</text>'; labelled.push(px(v));
-    }
+    const tick = v => v >= 1000 ? (v / 1000).toLocaleString('en-GB') + 'k' : String(v);
+    for (let v = 0; v <= hi + 1e-9; v += xStep) svg += (v ? '<line x1="' + px(v) + '" x2="' + px(v) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="#20242d"/>' : '') +
+      '<text x="' + px(v) + '" y="' + (H - B + 18) + '" text-anchor="' + (v ? 'middle' : 'start') + '">' + tick(v) + '</text>';
     // The typical club: the line of the median number of players per 1,000 children.
-    const med = MED(i), line = [];
-    if (med) for (let s = 0; s <= 60; s++) { const v = lo * Math.pow(hi / lo, s / 60), y = med * v / 1000; if (y > yMax) { line.push([px(yMax * 1000 / med), py(yMax)]); break; } line.push([px(v), py(y)]); }
+    // On straight scales it is a straight line from zero, up to the edge of the chart.
+    const med = MED(i), xEnd = med ? Math.min(hi, yMax * 1000 / med) : 0, line = med ? [[px(0), py(0)], [px(xEnd), py(med * xEnd / 1000)]] : [];
     if (line.length > 1) svg += '<polyline fill="none" stroke="#e6e8ec" stroke-width="1.5" stroke-dasharray="5 4" opacity=".75" points="' + line.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '"/>';
     svg += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">Children within ' + REACH[i][1] + ' min by ' + REACH[i][0].toLowerCase() + '</text>' +
       '<text transform="translate(12,' + ((T + H - B) / 2) + ') rotate(-90)" text-anchor="middle">Youth players</text>';
     svg += pts.map((p, n) => '<circle data-i="' + n + '" cx="' + px(p.x).toFixed(1) + '" cy="' + py(p.y).toFixed(1) + '" r="' + (p.ol || p.hit ? 6 : 4.5) + '" fill="' + (p.ol ? SC_OL : p.hit ? SC_HIT : SC_BASE) + '" stroke="#171a21" stroke-width="2"/>').join('');
-    svg += pts.filter(p => p.ol || p.hit).slice(-6).map(p => { const right = px(p.x) > W - 110;
-      return '<text class="sc-label" x="' + (px(p.x) + (right ? -10 : 10)) + '" y="' + (py(p.y) + 4) + '" text-anchor="' + (right ? 'end' : 'start') + '">' + esc(p.club) + '</text>'; }).join('');
+    // Names, in this order: Olympia and search results; the five clubs nearest to Olympia on the chart (similar
+    // children and players, wherever they are on the map); then the clubs that stand out: among clubs with more youth
+    // players than the middle club, the three with the most players for their children, and among clubs with more
+    // children than the middle club, the three with the fewest. A name goes where it overlaps no other name; if
+    // there is no such place it is left out (a tap on the dot still shows it).
+    const order = pts.filter(p => p.ol || p.hit).reverse().slice(0, 6).map(p => [p, true]);
+    const has = p => order.some(o => o[0] === p), ol = pts.find(p => p.ol);
+    if (ol) pts.filter(p => !has(p)).map(p => [p, Math.hypot((p.x - ol.x) / xMax * 1.4, (p.y - ol.y) / yMax)])
+      .sort((a, b) => a[1] - b[1]).slice(0, 5).forEach(([p]) => order.push([p, false]));
+    const midY = median(pts.map(p => p.y)), midX = median(pts.map(p => p.x));
+    pts.filter(p => !has(p) && p.y >= midY).sort((a, b) => b.y / b.x - a.y / a.x).slice(0, 3).forEach(p => order.push([p, false]));
+    pts.filter(p => !has(p) && p.x >= midX).sort((a, b) => a.y / a.x - b.y / b.x).slice(0, 3).forEach(p => order.push([p, false]));
+    const cv = drawChart.cv || (drawChart.cv = document.createElement('canvas').getContext('2d')), family = getComputedStyle(document.body).fontFamily;
+    const boxes = [], dots = pts.map(p => [px(p.x), py(p.y)]);
+    for (const [p, big] of order) {
+      cv.font = (big ? '600 12px ' : '500 11px ') + family;
+      const x = px(p.x), y = py(p.y), w = cv.measureText(p.club).width, h = big ? 15 : 14, g = big ? 8 : 6;   // h: the line height of the text
+      // right, left, the four corners, above, below: [left, top] of the name
+      const spots = [[x + g, y - h / 2], [x - g - w, y - h / 2], [x + 4, y - g - h], [x + 4, y + g], [x - 4 - w, y - g - h], [x - 4 - w, y + g], [x - w / 2, y - g - h - 2], [x - w / 2, y + g + 2]];
+      let best = null, fewest = Infinity;
+      for (const [k, [bx, by]] of spots.entries()) {
+        if (bx < L + 2 || bx + w > W - 2 || by < 2 || by + h > H - B - 2) continue;
+        if (boxes.some(b => bx < b[2] + 4 && bx + w + 4 > b[0] && by < b[3] + 2 && by + h + 2 > b[1])) continue;
+        const covered = dots.filter(([dx, dy]) => (dx !== x || dy !== y) && dx + 5 > bx && dx - 5 < bx + w && dy + 5 > by && dy - 5 < by + h).length;
+        if (covered < fewest) { best = [bx, by, k]; fewest = covered; if (!covered) break; }
+      }
+      if (!best) continue;
+      boxes.push([best[0], best[1], best[0] + w, best[1] + h]);
+      // A name at a corner, above or below its dot gets a short line to it, so it is clear which dot it names.
+      if (best[2] > 1) { const cx = Math.min(Math.max(x, best[0]), best[0] + w), cy = Math.min(Math.max(y, best[1] + 2), best[1] + h - 2), d = Math.hypot(cx - x, cy - y) || 1;
+        svg += '<line x1="' + (x + (cx - x) / d * 5).toFixed(1) + '" y1="' + (y + (cy - y) / d * 5).toFixed(1) + '" x2="' + cx.toFixed(1) + '" y2="' + cy.toFixed(1) + '" stroke="#c9ced8" stroke-width="1"/>'; }
+      svg += '<text class="sc-label' + (big ? '' : ' sc-name') + '" x="' + best[0].toFixed(1) + '" y="' + (best[1] + h * 0.76).toFixed(1) + '">' + esc(p.club) + '</text>';
+    }
     el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
     $('catch-' + mode + 'title').innerHTML = '<span style="color:' + (mode === 'b' ? GREEN : '#5fb4ff') + '">By ' + REACH[i][0].toLowerCase() + ' · ' + REACH[i][1] + ' min</span>' + (split ? ' · split' : '') + ' · typical club ' + rate1(med) + ' per 1,000';
     dotChart(el, $('catch-' + mode + 'tip'), pts, W, p => [px(p.x), py(p.y)],
@@ -1117,7 +1145,8 @@
   function drawCharts() {
     const n = drawChart('b'); drawChart('c');
     $('catch-cnote').innerHTML = n + ' clubs with youth teams. Each dot is a club; the dashed line is the typical club. A club under the line has fewer youth players than its number of children suggests. ' +
-      'Each step to the right is two to two and a half times more children.';
+      'Named: Olympia; the five clubs closest to it on the chart (similar numbers, wherever they are); three clubs with many youth players for few children; three with many children for few youth players. ' +
+      'A name that does not fit is left out; ' + (window.matchMedia('(max-width: 600px)').matches ? 'tap' : 'point at') + ' a dot for any club.';
   }
 
   // ----- One club: its four areas on a map, and the numbers. -----
@@ -2335,6 +2364,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.6.1', '2026-11-22', { Changed: ['Catchment ranking: sorted on children within reach by car, most first. The Olympia tiles above the table are gone; Olympia stays highlighted in the table.', 'Catchment chart: children on a straight scale from zero instead of doubling steps. Named on the chart: the five clubs closest to Olympia on it, and six clubs that stand out (many youth players for few children, or the other way around).'] }],
       ['2.6.0', '2026-11-21', { Added: ['Umpires: the French-speaking club-umpire list of 2020-21, so both leagues can be compared in the same season.'], Changed: ['Umpires: each list is compared with the teams of its own season; national officials and club umpires each get their own per-team figure instead of one combined figure.'] }],
       ['2.5.0', '2026-11-21', { Added: ['Umpires: qualified umpires per team that needs them, to rank clubs; someone on both the national and a club list counts once.'] }],
       ['2.4.0', '2026-11-21', { Added: ['Unsorted: Catchment areas. The travel-time areas of several clubs on one map, by bike or by car, with the clubs to choose. Antwerp clubs for now.'] }],
