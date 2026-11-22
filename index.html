@@ -87,7 +87,7 @@
   .projt td, .projt th { text-align:right; }
   .projt .gs { border-left:2px solid var(--line); }
   .projt th.ncc, .projt td.ncc { background:rgba(169,136,255,.08); }
-  .projt tr.now td { color:var(--accent); font-weight:600; }
+  .projt tr.now td { color:var(--text); font-weight:700; }   /* bold, not link blue */
   .chart { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; min-width:0; }
   .chart h2.sec { margin:0 0 6px; }
   .chart svg text { font-family:inherit; }
@@ -361,6 +361,8 @@
     .pair > div:not(.grow) > .note, .pair > div:not(.grow) > h2.sec { width:0; min-width:100%; }   /* notes and headings follow the table width instead of widening the column */
     #fee-cats th, #fee-cats td, #fee-clubs th, #fee-clubs td { padding-left:8px; padding-right:8px; } }
   .pair > .grow > .chart + h2.sec { margin-top:30px; }
+  #pagebar:empty { display:none; } .filterbar #catch-bar { margin:0; }
+  @media (max-width: 600px) { .filterbar #catch-bar, .filterbar #fsel { grid-column:1 / -1; } }
   #ov-fees > .pair > div:first-child > h2.sec { margin-top:4px; }
   @media (min-width: 1000px) { #ov-fees > .pair > div > h2.sec { margin-top:4px; } #ov-fields > .pair > div > h2.sec { margin-top:0; } }
   .kpi.pic { display:flex; align-items:center; gap:14px; } .kpi .s { margin-top:3px; color:var(--muted); font-size:11.5px; }
@@ -422,7 +424,7 @@
      maps green would mix with parks and woods). Text on the dark page uses the lighter shades. */
   #catch-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-bottom:14px; }
   #catch-bar .cb { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-weight:600; }
-  #catch-bar .cb.bike { color:#e07ab8; } #catch-bar .cb.car { color:#5fb4ff; }
+  #catch-bar .cb.bike, #catch-bar .cb.car { color:var(--text); }   /* words in text colour; the chosen button carries the bike or car colour */
   #catch-bar .seg { flex:none; } #catch-bar .seg button { padding:6px 12px; flex:none; white-space:nowrap; }
   #catch-bar .cb.bike .seg button.active { background:#e07ab8; } #catch-bar .cb.car .seg button.active { background:#5fb4ff; }
   #catch-bar .unit { color:var(--muted); font-weight:400; }
@@ -480,11 +482,20 @@
     .catch-lg { display:none; } .catch-sm { display:inline; }
   }
 
+  /* ===== Design pass (2026-11-22): one colour per meaning, normal case. ===== */
+  #clubs th[class*="grp-"], #clubs td[class*="grp-"], #clubstr th[class*="grp-"], #clubstr td[class*="grp-"] { background-color:transparent; }
+  #clubs tr.ghead th, #clubstr tr.ghead th { color:var(--text) !important; }
+  #clubs tr.st-ours td, #clubstr tr.st-ours td { background-color:var(--ol-bg) !important; }
+  .mxh { text-transform:none; letter-spacing:0; font-size:13px; }
+  .flowbar:empty { display:none; }
+  @media (max-width: 600px) { #v-labels th, #v-labels td { padding:6px 2px; } #v-labels th { font-size:12px; } #v-labels td.l { max-width:118px; overflow:hidden; text-overflow:ellipsis; } }   /* the Points column fits a phone */
+  #str-evo .clubblock { width:fit-content; max-width:100%; } #str-evo table.st-mx { width:auto; } #str-evo table.st-mx th.row, #str-evo table.st-mx td.row { width:auto; } #str-evo table.st-mx td:not(.row), #str-evo table.st-mx th:not(.row) { min-width:150px; }
+  .ttl-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px; vertical-align:0; }
   /* ===== Readability (2026-11-22, both phone and computer): column names 13 px in normal case, chart text 13 px, notes 14 px. ===== */
   th { font-size:13px; }
   h2.sec, .chart h2.sec { text-transform:none; letter-spacing:0; font-size:14px; }   /* section headings in normal case (Bart 22 Nov 2026) */
   tr.ghead th, #clubs tr.ghead th, #clubstr tr.ghead th, #catch-t tr.ghead th { text-transform:none; letter-spacing:0; font-size:12.5px; }
-  #sc text, #fc text, .catch-wrap svg text { font-size:13px; } #sc text.sc-label, #fc text.sc-label, .catch-wrap svg text.sc-label { font-size:13px; } .catch-wrap svg text.sc-label.sc-name { font-size:12.5px; }
+  #sc text, #fc text, .catch-wrap svg text { font-size:13px; } #fc text.sc-avg { fill:var(--text); font-weight:600; paint-order:stroke; stroke:var(--panel); stroke-width:3px; } #sc text.sc-label, #fc text.sc-label, .catch-wrap svg text.sc-label { font-size:13px; } .catch-wrap svg text.sc-label.sc-name { font-size:12.5px; }
   .note { font-size:14px; line-height:1.5; }
   .chart .note, .srcline { font-size:13.5px; }
   /* ===== Desktop layer (2026-11-22, Bart: "do all the desktop improvements"). Phones are untouched: every rule
@@ -534,12 +545,6 @@
     thead { position:sticky; top:var(--hdrh, 0px); z-index:3; background:var(--panel); }
     thead th { position:static !important; }
     thead tr:last-child th { box-shadow:inset 0 -1px 0 var(--line); }
-    /* chart pages: the choices in a column beside the chart, as on Our World in Data */
-    body.side .filterbar { position:fixed; z-index:4; top:calc(var(--hdrh, 140px) + 18px); left:var(--gut); width:220px; padding:0;
-      display:flex; flex-direction:column; gap:8px; }
-    body.side .filters { display:flex; flex-direction:column; gap:8px; }
-    body.side .filterbar select, body.side .filterbar input { width:100%; }
-    body.side main { padding-left:calc(var(--gut) + 244px); }
   }
 </style>
 </head>
@@ -552,7 +557,7 @@
   <nav class="tabs" id="secnav" aria-label="Sections" hidden></nav>
   <div class="subrow" id="subrow" hidden><nav class="tabs" id="subnav" aria-label="Pages of this section"></nav><span class="sub" id="sub">Belgium · outdoor</span></div>
 </header>
-<div class="filterbar" id="filterbar" hidden><div class="filters" id="filters"></div><input id="q" type="search" placeholder="Search club…" hidden /></div>
+<div class="filterbar" id="filterbar" hidden><div class="filters" id="filters"></div><div class="filters" id="pagebar"><div class="filters" id="mv-bar" data-view="moves" hidden></div><div class="filters" id="lab-bar" data-view="labels" hidden></div></div><input id="q" type="search" placeholder="Search club…" hidden /></div>
 <main id="main">
   <div class="lock">
     <img class="lockimg" src="olympia-logo.png" alt="" onerror="this.style.display='none'" />
@@ -571,6 +576,8 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
   const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
   const fmt = n => n.toLocaleString('en-GB');
+  // Round names in plain words (Bart 22 Nov 2026): the federation's H1 and H2 are the autumn and spring halves of the outdoor season.
+  const roundName = n => String(n).replace(/^Outdoor H1 (.+)$/, 'Autumn $1').replace(/^Outdoor H2 (.+)$/, 'Spring $1').replace(/^H1 (\S+) outdoor$/, 'Autumn $1').replace(/^H2 (\S+) outdoor$/, 'Spring $1');
 
   async function decrypt(pw) {
     const enc = new TextEncoder();
@@ -948,7 +955,7 @@
       const EV = !longView ? evolution : { rounds: H.rounds.concat(evolution.rounds),
         teams: (() => { const m = new Map(); for (const t of H.teams.concat(evolution.teams)) { const k = t.nr + '|' + t.age + '|' + t.gender, o = m.get(k) || { nr: t.nr, age: t.age, gender: t.gender, rounds: {} }; Object.assign(o.rounds, t.rounds); m.set(k, o); }
           return [...m.values()].sort((a, b) => a.nr - b.nr || a.age - b.age || a.gender.localeCompare(b.gender)); })() };
-      const heads = EV.rounds.map(([, name]) => '<th>' + esc(name) + '</th>').join('');
+      const heads = EV.rounds.map(([, name]) => '<th>' + esc(roundName(name)) + '</th>').join('');
       let body = '';
       for (const nr of [...new Set(EV.teams.map(t => t.nr))].sort((a, b) => a - b)) {
         body += '<tr class="st-group"><td colspan="' + (3 + EV.rounds.length) + '">' + esc(NAMES[nr] || 'Team ' + nr) + '</td></tr>';
@@ -1078,6 +1085,7 @@
         '<div class="catch-abtns"><button type="button" id="catch-areset" title="Olympia and the clubs within 20 minutes by car of it">Reset</button><button type="button" id="catch-aall">All</button><button type="button" id="catch-anone">None</button></div>' +
         '<div class="catch-chips" id="catch-chips"></div></div></div>' +
         '<h2 class="sec">Clubs on the map</h2><div class="card"><table id="catch-at"></table></div><div class="note" id="catch-anote"></div></div>';
+    { const pb = document.getElementById('pagebar'), cb = $('catch-bar'); if (pb) { cb.dataset.view = 'catch'; pb.appendChild(cb); } }   // one filter row
     $('catch-bike').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { bike = +b.dataset.v; redraw(); } });
     $('catch-car').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { car = +b.dataset.v; redraw(); } });
     // Catchment areas: the travel time (it also sets the minutes of the other pages), the clubs, the row to bring forward
@@ -1197,7 +1205,7 @@
       svg += '<text class="sc-label' + (big ? '' : ' sc-name') + '" x="' + best[0].toFixed(1) + '" y="' + (best[1] + h * 0.76).toFixed(1) + '">' + esc(p.club) + '</text>';
     }
     el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
-    $('catch-' + mode + 'title').innerHTML = '<span style="color:' + (mode === 'b' ? BIKE_UI : CAR_UI) + '">By ' + REACH[i][0].toLowerCase() + ' · ' + REACH[i][1] + ' min</span>';
+    $('catch-' + mode + 'title').innerHTML = '<i class="ttl-dot" style="background:' + (mode === 'b' ? BIKE_UI : CAR_UI) + '"></i>By ' + REACH[i][0].toLowerCase() + ' · ' + REACH[i][1] + ' min';
     if (chartData) chartData('catch-' + mode + 'sc', 'catchment_' + REACH[i][0].toLowerCase() + '_' + REACH[i][1] + 'min', ['Club', 'Children within ' + REACH[i][1] + ' min by ' + REACH[i][0].toLowerCase(), 'Youth players', 'Youth players per 1,000 children'],
       pts.slice().sort((a, b) => a.club.localeCompare(b.club)).map(p => [p.club, Math.round(p.x), Math.round(p.y), p.rate == null ? '' : Math.round(p.rate * 10) / 10]));
     dotChart(el, $('catch-' + mode + 'tip'), pts, W, p => [px(p.x), py(p.y)],
@@ -1381,7 +1389,7 @@
     // The pages of the Catchment section, after Club detail (Bart, 22 Nov 2026).
     pages: [
       { id: 'ranking', title: 'Ranking', view: 'catch', sub: 'rank', filters: ['f-prov', 'q'] },
-      { id: 'chart', title: 'Chart', view: 'catch', sub: 'chart', side: true, filters: ['f-prov', 'q'] },
+      { id: 'chart', title: 'Chart', view: 'catch', sub: 'chart', filters: ['f-prov', 'q'] },
       { id: 'areas', title: 'Areas', view: 'catch', sub: 'areas' }],
     // The card for the Definitions section: everything the pages used to explain under their tables.
     def,
@@ -1418,8 +1426,10 @@
       card.nextElementSibling.onclick = () => { SHOW_ALL.add(key); redraw(); };
     }
     // A combined team ("Ping/Well M-1") arrives once per club with share 0.5 and half the players.
+    // Town names arrive in capitals (WOLUWÉ-SAINT-PIERRE); shown as Woluwé-Saint-Pierre, like every other name on the page.
+    const townCase = t => String(t || '').toLowerCase().replace(/(^|[\s\-(])(\p{L})/gu, (m, p, ch) => p + ch.toUpperCase());
     const ALL = D.teams.map(([club, town, code, age, gender, comp, division, group, size, kind, share]) =>
-      ({ club, town, code, age, gender, comp, division, group, size, kind, share }));
+      ({ club, town: townCase(town), code, age, gender, comp, division, group, size, kind, share }));
     const nTeams = ts => ts.reduce((s, t) => s + t.share, 0);
     const fmt1 = n => Number.isInteger(n) ? fmt(n) : n.toLocaleString('en-GB', { maximumFractionDigits: 1 });
     const provinceOf = club => (D.geo[club] || [])[3] || 'Onbekend';
@@ -1564,10 +1574,9 @@
       '<div class="note">Players and members are estimates: teams × squad size, plus Pre U7 and Start to Hockey. Click a club name for its club page.' + more('members', 'How members are counted') + '</div></div>' +
       '<div id="ov-fees" hidden><div class="pair"><div><h2 class="sec">Fee per category (euro per season)</h2><div class="card"><table id="fee-cats"></table></div></div>' +
         '<div><h2 class="sec">Per club</h2><div class="card"><table id="fee-clubs"><thead></thead><tbody></tbody></table></div><div class="note" id="fee-note"></div></div></div></div>' +
-      '<div id="ov-fields" hidden><div class="pair"><div class="grow"><div class="chart"><h2 class="sec" id="fc-title"></h2>' +
+      '<div id="ov-fields" hidden><div class="chart"><h2 class="sec" id="fc-title"></h2>' +
         '<div class="flowlegend" style="padding-top:0"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Average</span></div>' +
-        '<div id="fcwrap"><svg id="fc" width="100%"></svg><div class="sc-tip" id="fc-tip" hidden></div></div></div></div>' +
-        '<div><h2 class="sec">By number of pitches</h2><div class="card"><table id="fc-table"></table></div><div class="note" id="fc-note"></div></div></div></div></div>' +
+        '<div id="fcwrap"><svg id="fc" width="100%"></svg><div class="sc-tip" id="fc-tip" hidden></div></div><div class="note" id="fc-note"></div></div></div></div>' +
       '<div id="v-map" hidden><div id="map"></div><div class="note" id="mapnote"></div></div>' +
       '<div id="v-leden" hidden><div class="kpis" id="ledenkpis"></div><div class="card"><table id="ledent"></table></div><div class="note" id="ledennote"></div></div>' +
       '<div id="v-sterkte" hidden></div>' +
@@ -1589,7 +1598,7 @@
         '<div id="fsel-list"></div></div></details></div>' +
         // Bart, 2026-11-19: the projection table first, then the two charts, then the notes.
         '<h2 class="sec" style="margin-top:4px">Olympia youth over 5 years</h2><div id="proj"></div>' +
-        '<div class="flowlegend" style="margin:26px 0 10px;padding-top:0"><span><i style="background:#ffb86b"></i>Olympia</span><span><i style="background:#7adfb0"></i>Average of the clubs shown (pooled)</span><span><i style="background:rgba(139,147,163,.6)"></i>Club (hover for name)</span></div>' +
+        '<div class="flowlegend" style="margin:26px 0 10px;padding-top:0"><span><i style="background:#ffb86b"></i>Olympia</span><span><i style="background:#e6e8ec"></i>Average of the clubs shown (pooled)</span><span><i style="background:rgba(139,147,163,.6)"></i>Club (hover for name)</span></div>' +
         '<div class="charts"><div class="chart"><h2 class="sec">Chart 1 · Players per youth stage, U7–U9 = 100</h2><svg id="ch1" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch1-hov"></div></div>' +
         '<div class="chart"><h2 class="sec">Chart 2 · Players per age group (per birth year), U7–U8 = 100</h2><svg id="ch2" viewBox="0 0 900 440" width="100%"></svg><div class="hov" id="ch2-hov"></div></div></div>' +
         '<div class="note" id="projnote"></div><div class="note" id="flownote"></div></div>';
@@ -1723,7 +1732,7 @@
       for (let v = 0; v <= maxV; v += step) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="' + (v === 100 ? '#5a6272' : '#2a2f3a') + '"' + (v === 100 ? ' stroke-dasharray="4 3"' : '') + '/>' +
         '<text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="13" fill="#8b93a3">' + v + '</text>';
       const xl0 = t => small ? String(t).replace(' youth', '').replace(/U(\d+)–U(\d+)/, 'U$1–$2') : t;   // a phone: Younger, U9–10
-      labels.forEach((t, i) => s += '<text x="' + x(i) + '" y="' + (H - 12) + '" text-anchor="' + (small && labels.length <= 3 ? (i ? i === labels.length - 1 ? 'end' : 'middle' : 'start') : 'middle') + '" font-size="' + (small ? 12 : 13) + '" fill="#8b93a3">' + xl0(t) + '</text>');
+      labels.forEach((t, i) => s += '<text x="' + x(i) + '" y="' + (H - 12) + '" text-anchor="' + (i ? i === labels.length - 1 ? 'end' : 'middle' : 'start') + '" font-size="' + (small ? 12 : 13) + '" fill="#8b93a3">' + xl0(t) + '</text>');
       const line = (v, attrs) => {
         if (!dashLast) return '<polyline fill="none" points="' + pts(v) + '" ' + attrs + '/>';
         const n = v.length;   // last segment (to adults) dashed: not a birth-year count
@@ -1736,7 +1745,7 @@
       const byEnd = clubSeries.map((c, i) => [i, c.vals[c.vals.length - 1]]).filter(([i, v]) => isFinite(v) && clubSeries[i].club !== 'Olympia').sort((a, b) => b[1] - a[1]);
       const named = new Set([...byEnd.slice(0, 2), ...byEnd.slice(-2)].map(([i]) => i));
       const ends = clubSeries.map((c, i) => ({ i, name: c.club, col: c.color, v: c.vals[c.vals.length - 1], w: 400, hide: !named.has(i) }));
-      if (avg) ends.push({ key: 'avg', name: 'Average', col: '#7adfb0', v: avg[avg.length - 1], w: 700, bold: true });
+      if (avg) ends.push({ key: 'avg', name: 'Average', col: '#e6e8ec', v: avg[avg.length - 1], w: 700, bold: true });
       if (ol) ends.push({ key: 'ol', name: 'Olympia', col: '#ffb86b', v: ol.vals[ol.vals.length - 1], w: 700, bold: true });
       ends.forEach(e => { e.y0 = y(e.v); e.ly = e.y0; });
       const shownEnds = ends.filter(e => !e.hide).sort((a, b) => a.y0 - b.y0);
@@ -1746,7 +1755,7 @@
       if (over > 0) { for (let k = shownEnds.length - 1; k >= 0; k--) { const lim = k === shownEnds.length - 1 ? H - B : shownEnds[k + 1].ly - gap; shownEnds[k].ly = Math.min(shownEnds[k].ly, lim); } }
       const xe = x(labels.length - 1), xl = W - R + 14;
       const label = e => '<g class="lbg"' + (e.hide ? ' visibility="hidden"' : '') + '><line x1="' + (xe + 4) + '" y1="' + e.y0 + '" x2="' + (xl - 3) + '" y2="' + e.ly + '" stroke="' + e.col + '" stroke-opacity=".45" stroke-width=".8"/>' +
-        '<text class="lb" x="' + xl + '" y="' + (e.ly + 3.5) + '" fill-opacity="' + (e.bold ? 1 : .75) + '" font-size="' + (e.bold ? 13 : 12) + '" font-weight="' + e.w + '" fill="' + e.col + '">' + esc(e.name) + '</text></g>';
+        '<text class="lb" x="' + xl + '" y="' + (e.ly + 3.5) + '" fill-opacity="' + (e.bold ? 1 : .75) + '" font-size="' + (e.bold ? 13 : 12) + '" font-weight="' + e.w + '" fill="' + (e.bold ? '#e6e8ec' : '#8b93a3') + '">' + esc(e.name) + (e.bold ? ' ' + Math.round(e.v) : '') + '</text></g>';   // names in text colour; the line carries the colour
 
       clubSeries.forEach((c, i) => {
         const e = ends.find(e => e.i === i);
@@ -1755,13 +1764,13 @@
       });
       const marked = (v, col, name) => line(v, 'stroke="' + col + '" stroke-width="3"') + v.map((p, i) =>
         '<circle cx="' + x(i) + '" cy="' + y(p) + '" r="3.5" fill="' + col + '"><title>' + name + ' · ' + labels[i] + ': ' + Math.round(p) + '</title></circle>' +
-        '<text x="' + x(i) + '" y="' + (y(p) - 7) + '" text-anchor="middle" font-size="12" font-weight="600" fill="' + col + '">' + Math.round(p) + '</text>').join('');
-      if (avg) s += marked(avg, '#7adfb0', 'Average') + label(ends.find(e => e.key === 'avg'));
+        '').join('');   // values: at the end of the line and in the table view, not on every point (chart design rules)
+      if (avg) s += marked(avg, '#e6e8ec', 'Average') + label(ends.find(e => e.key === 'avg'));
       if (ol) s += marked(ol.vals, '#ffb86b', 'Olympia') + label(ends.find(e => e.key === 'ol'));
       svg.innerHTML = s;
       const hov = $(id + '-hov');
       const clipped = clubSeries.flatMap(s => s.vals).concat(avg || [], ol ? ol.vals : []).some(v => v > maxV);
-      const hint = clipped ? 'Values above ' + maxV + ' are cut off at the top (the number shows the real value).' : '';
+      const hint = clipped ? 'Values above ' + maxV + ' are drawn at the top; the Table shows the real values.' : '';
       hov.textContent = hint;
       const paint = (g, on) => {
         const c = clubSeries[+g.dataset.i];
@@ -2065,7 +2074,7 @@
         const hd = D.history.clubs[club] || {};
         const rows = D.history.rounds.map(([r, n]) => [n, hd[r]]).concat(EVO_ROUNDS.map(([r, n]) => [n, data[r]]));
         return '<div class="card"><table class="st-mx evo-long" data-st="long-' + (club === 'Olympia' ? 'ol' : 'other') + '"><thead><tr><th class="row">Round</th>' + EVO_ROWS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' +
-          rows.map(([n, d], i) => '<tr><td class="row" data-v="' + i + '">' + esc(n.replace(' outdoor', '')) + '</td>' + EVO_ROWS.map(([g]) => cellOf(((d || {})[strBase] || {})[g])).join('') + '</tr>').join('') + '</tbody></table></div>';
+          rows.map(([n, d], i) => '<tr><td class="row" data-v="' + i + '">' + esc(roundName(n).replace(' outdoor', '')) + '</td>' + EVO_ROWS.map(([g]) => cellOf(((d || {})[strBase] || {})[g])).join('') + '</tr>').join('') + '</tbody></table></div>';
       }
       const cell = (r, g) => cellOf(((data[r] || {})[strBase] || {})[g]);
       return '<div class="card"><table class="st-mx" id="' + (club === 'Olympia' ? 'evo-ol' : 'evo-other') + '"><thead><tr><th class="row"></th>' + EVO_ROUNDS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' +
@@ -2150,16 +2159,16 @@
         groups.push({ v, n: ys.length, mean, mid, lo: ys[0], hi: ys[ys.length - 1] });
       }
       svg += pts.map((p, i) => '<circle data-i="' + i + '" data-c="' + esc(p.club) + '" data-x="' + p.x + '" data-y="' + Math.round(p.y) + '" cx="' + dotX(p) + '" cy="' + py(p.y) + '" r="' + (p.ol || p.hit ? 6 : 4.5) + '" fill="' + (p.ol ? SC_OL : p.hit ? SC_HIT : SC_BASE) + '" stroke="#171a21" stroke-width="2"/>').join('');
-      svg += groups.map(g => '<line x1="' + (cx(g.v) - band * 0.38) + '" x2="' + (cx(g.v) + band * 0.38) + '" y1="' + py(g.mean) + '" y2="' + py(g.mean) + '" stroke="#e6e8ec" stroke-width="2" stroke-linecap="round"/>').join('');
+      svg += groups.map(g => '<line x1="' + (cx(g.v) - band * 0.38) + '" x2="' + (cx(g.v) + band * 0.38) + '" y1="' + py(g.mean) + '" y2="' + py(g.mean) + '" stroke="#e6e8ec" stroke-width="2" stroke-linecap="round"/>' +
+        (W < 600 ? '' : '<text class="sc-avg" text-anchor="end" x="' + (cx(g.v) - band * 0.38 - 6) + '" y="' + (py(g.mean) + 4) + '">' + fmt(Math.round(g.mean)) + '</text>')).join('');   // a phone gets the averages in the note: the columns are too narrow for a label
       svg += pts.filter(p => p.ol || p.hit).slice(-6).map(p => { const right = dotX(p) > W - 110;
         return '<text class="sc-label" x="' + (dotX(p) + (right ? -10 : 10)) + '" y="' + (py(p.y) + 4) + '" text-anchor="' + (right ? 'end' : 'start') + '">' + esc(p.club) + '</text>'; }).join('');
       const el = $('fc');
       el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
       $('fc-title').textContent = 'Pitches against ' + (all ? 'members' : 'youth members') + ' per pitch';
-      $('fc-table').innerHTML = '<thead><tr><th class="l">Pitches</th><th>Clubs</th><th>Average per pitch</th><th>Median per pitch</th><th>Lowest</th><th>Highest</th></tr></thead><tbody>' +
-        groups.map(g => '<tr><td class="l">' + g.v + '</td><td>' + g.n + '</td><td class="total">' + fmt(Math.round(g.mean)) + '</td><td>' + fmt(Math.round(g.mid)) + '</td><td>' + fmt(Math.round(g.lo)) + '</td><td>' + fmt(Math.round(g.hi)) + '</td></tr>').join('') + '</tbody>';
+      // the average of each column is written on its line (the table that repeated these went, Bart 22 Nov 2026)
       const ol = pts.find(p => p.ol);
-      $('fc-note').innerHTML = (ol ? 'Olympia: ' + fmt(Math.round(ol.total)) + (all ? ' members' : ' youth members') + ' on ' + ol.x + (ol.x === 1 ? ' pitch, ' : ' pitches, ') + fmt(Math.round(ol.y)) + ' per pitch. ' : '') +
+      $('fc-note').innerHTML = (W < 600 && groups.length ? 'Average per pitch: ' + groups.map(g => g.v + (g.v === 1 ? ' pitch ' : ' pitches ') + fmt(Math.round(g.mean))).join(' · ') + '. ' : '') + (ol ? 'Olympia: ' + fmt(Math.round(ol.total)) + (all ? ' members' : ' youth members') + ' on ' + ol.x + (ol.x === 1 ? ' pitch, ' : ' pitches, ') + fmt(Math.round(ol.y)) + ' per pitch. ' : '') +
         'Each dot is a club; within a column the dots are spread out only to keep them readable. ' +
         'Not included: ' + (guests ? guests + ' club(s) without a pitch of their own and ' : '') + 'the Dutch clubs. ' + (showNC() ? '' : 'With these filters Pre U7 and S2H drop out.') + more('pitches', 'How pitches are counted');
       chartData('fc', all ? 'pitches_members_per_pitch' : 'pitches_youth_members_per_pitch', ['Club', 'Pitches', all ? 'Members (estimate)' : 'Youth members (estimate)', 'Per pitch'],
@@ -2313,9 +2322,10 @@
       const kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
       const r1 = mvRates(F, '1st'), rl = mvRates(F, 'last'), aU = mvAfter(F, 'up'), aD = mvAfter(F, 'down');
       const SEASON_OPTS = [['all', 'All seasons (' + X.seasons.length + ')']].concat(X.seasons.slice().reverse().map(s => [s, 'Season ' + s]));
-      let h = '<div class="stbar" style="margin-bottom:10px"><select id="mv-season" title="Season">' +
+      $('mv-bar').innerHTML = '<select id="mv-season" title="Season">' +
         SEASON_OPTS.map(([v, t]) => '<option value="' + v + '"' + (v === mvSeason ? ' selected' : '') + '>' + t + '</option>').join('') + '</select><select id="mv-div" title="Division in the autumn">' +
-        DIVS.map(([v, t]) => '<option value="' + v + '"' + (v === mvDiv ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>';
+        DIVS.map(([v, t]) => '<option value="' + v + '"' + (v === mvDiv ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>';
+      let h = '';
       const h1n = (M.seasons || []).filter(x => mvSeason === 'all' || x.season === mvSeason).reduce((t, x) => t + x.h1, 0);
       h += '<div class="note" style="margin:0 0 14px">' + (mvSeason === 'all' ? 'Outdoor ' + X.seasons.join(', ') : 'Outdoor ' + mvSeason) + ': ' + fmt(F.length) + ' U10–U19 teams followed from the autumn half to the spring half' + (prov || mvDiv || !h1n ? '' : ' (of ' + fmt(h1n) + ' in autumn)') + '.' + more('moves', 'How moves are counted') + '</div>';
         ' teams found in both halves' + (prov || mvDiv || !h1n ? '' : ' (of ' + fmt(h1n) + ' in autumn)') + '. Click a column header to sort. Up or down means a higher or lower division name in spring. The season and province filters apply to every part; the division filter to all but the national rules, the Reg. 1/2/3 comparison and the club at the bottom. Spring 2019-20 (stopped by Covid after about 2 matches) and 2020-21 (not played) are left out, and 2024-25 is not in the federation files.</div>';
@@ -2426,7 +2436,7 @@
       sortAll(el);
     }
     let mvOpen = false;
-    $('v-moves').addEventListener('change', e => {
+    for (const el of [$('v-moves'), $('mv-bar')]) el.addEventListener('change', e => {
       if (e.target.id === 'mv-fin') { mvFin = e.target.value; drawMoves(); return; }
       if (e.target.id === 'mv-div') { mvDiv = e.target.value; drawMoves(); return; }
       if (e.target.id === 'mv-season') { mvSeason = e.target.value; drawMoves(); return; }
@@ -2448,15 +2458,13 @@
         .filter(r => inProv(r.club));
       rows.sort((a, b) => (b.o23 || 0) - (a.o23 || 0));
       const S = M.summary, kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
-      el.innerHTML = '<div class="note" style="margin:0 0 14px">Official member counts of the Flemish clubs (Hockey Vlaanderen club files of Sep 2021 and Dec 2023) against our own estimate for the same moment: teams entered × players per team, plus the youngest and start-to-hockey members at Olympia&#39;s ratios. The factor is official ÷ ours. The two are counted differently, so the official number is not a replacement for ours: it shows how far our estimate sits from the federation&#39;s count, club by club.</div>' +
-        '<div class="kpis">' + kpi(x2(S.factor2021.median), 'median factor, Sep 2021 (half the clubs between ' + x2(S.factor2021.p25) + ' and ' + x2(S.factor2021.p75) + ')') +
-        kpi(x2(S.factor2023.median), 'median factor, Dec 2023 (half between ' + x2(S.factor2023.p25) + ' and ' + x2(S.factor2023.p75) + ')') +
-        kpi(fmt(M.totals.official2021) + ' → ' + fmt(M.totals.official2023), 'official members in Flanders, Sep 2021 → Dec 2023') + '</div>' +
+      // Design pass (Bart 22 Nov 2026): one sentence on top, the three summary figures in one line, the method on Definitions.
+      el.innerHTML = '<div class="note" style="margin:0 0 10px">Official member counts of the Flemish clubs against this site’s estimate; factor = official ÷ ours.' + more('official', 'How they compare') + '</div>' +
+        '<div class="figline sm"><span><b>' + x2(S.factor2021.median) + '</b> median factor, Sep 2021</span><span><b>' + x2(S.factor2023.median) + '</b> median factor, Dec 2023</span><span><b>' + fmt(M.totals.official2021) + ' → ' + fmt(M.totals.official2023) + '</b> official members in Flanders</span></div>' +
         '<div class="card"><table class="mv" id="memt" data-sort="4:-1"><thead><tr><th class="l"></th><th colspan="3" class="grp">Sep 2021</th><th colspan="3" class="grp">Dec 2023</th><th class="hide-sm"></th></tr><tr>' +
         '<th class="l">Club</th><th>Official</th><th class="hide-sm">Ours</th><th>Factor</th><th>Official</th><th class="hide-sm">Ours</th><th>Factor</th><th class="hide-sm">Ours 2026</th></tr></thead><tbody>' +
         rows.map(r => '<tr' + (r.club === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.club) + '</td><td>' + n0(r.o21) + '</td><td class="hide-sm">' + n0(r.b21) + '</td><td>' + x2(r.f21) + '</td><td>' + n0(r.o23) + '</td><td class="hide-sm">' + n0(r.b23) + '</td><td>' + x2(r.f23) + '</td><td class="hide-sm">' + n0(r.b26) + '</td></tr>').join('') +
-        '</tbody></table></div><div class="note">Ours = teams in the autumn standings of 2021-22 and 2023-24 (hockey.be) × players per team, plus the youngest and start-to-hockey members; Trimmers have no standings and are left out in every year, 2026 included, and teams shared by two clubs are left out. ' +
-        'Small or new clubs with few competition teams (e.g. Red Wings, Arcus, Rotselaar) show very high factors: most of their members play no league. Not in our census, so not shown: ' + esc(M.unmatched.join(', ')) + '. Only Flemish clubs: the French-speaking league publishes no member counts per club. Click a column header to sort.</div>';
+        '</tbody></table></div><div class="note">Small clubs with few competition teams show very high factors: most of their members play no league. Click a column header to sort.</div>';
       sortAll(el);
     }
 
@@ -2476,21 +2484,26 @@
       const rows = [...by.values()].sort((a, b) => b.pts - a.pts || a.club.localeCompare(b.club));
       const ol = years.slice().reverse().map(y => { const o = { y }; A.filter(a => a.club === 'Olympia' && a.year === y).forEach(a => { o[a.academy] = a.level; }); return o; });
       const lfh = A.some(a => a.league === 'LFH' && a.year === labYear);
-      el.innerHTML = '<div class="stbar" style="margin-bottom:10px"><select id="lab-year" title="Label year">' + years.map(y => '<option' + (y === labYear ? ' selected' : '') + '>' + y + '</option>').join('') + '</select></div>' +
-        '<div class="note" style="margin:0 0 14px">Hockey Academy labels: bronze, silver or gold per academy, awarded once a year. Flemish clubs: Hockey Vlaanderen, March assemblies 2021–2026 (Ethics from 2026). French-speaking clubs: LFH, season 2024-25 only (shown under 2025)' + (lfh ? '' : '; none for ' + labYear) + '. Club Manager = governance and club management, Coach = qualified coaches per youth member and courses, Umpire = club umpires and umpire training, Ethics = integrity, fair play and inclusion.</div>' +
-        '<div class="card"><table class="mv" id="labt" data-sort="5:-1"><thead><tr><th class="l">Club</th>' + ACAD.map(a => '<th>' + a + '</th>').join('') + '<th>Points</th></tr></thead><tbody>' +
+      // Design pass (Bart 22 Nov 2026): the year joins the filter row, one sentence on top, the area meanings on hover,
+      // Olympia's own years first and beside the table of all clubs on a computer.
+      $('lab-bar').innerHTML = '<select id="lab-year" title="Label year">' + years.map(y => '<option' + (y === labYear ? ' selected' : '') + '>' + y + '</option>').join('') + '</select>';
+      const ACAD_TIP = { 'Club Manager': 'Governance and club management', 'Coach': 'Qualified coaches per youth member, and courses', 'Umpire': 'Club umpires and umpire training', 'Ethics': 'Integrity, fair play and inclusion (from 2026)' };
+      const head = ACAD.map(a => '<th title="' + ACAD_TIP[a] + '">' + a + '</th>').join('');
+      el.innerHTML = '<div class="note" style="margin:0 0 14px">Hockey Academy labels: gold, silver or bronze in four areas, awarded once a year. French-speaking clubs: season 2024-25 only (shown under 2025)' + (lfh ? '' : '; none for ' + labYear) + '.</div>' +
+        '<div class="pair"><div><h2 class="sec">Olympia over the years</h2><div class="card"><table class="mv" data-st="olyears"><thead><tr><th class="l">Year</th>' + head + '</tr></thead><tbody>' +
+        ol.map(o => '<tr><td class="l">' + o.y + '</td>' + ACAD.map(a => '<td data-v="' + (MEDAL[o[a]] || 0) + '">' + medal(o[a]) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div></div>' +
+        '<div><h2 class="sec">All clubs, ' + labYear + '</h2><div class="card"><table class="mv" id="labt" data-sort="5:-1"><thead><tr><th class="l">Club</th>' + head + '<th>Points</th></tr></thead><tbody>' +
         rows.map(r => '<tr' + (r.club === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.club) + (r.league === 'LFH' ? ' <span class="sub">LFH</span>' : '') + '</td>' + ACAD.map(a => '<td data-v="' + (MEDAL[r[a]] || 0) + '">' + medal(r[a]) + '</td>').join('') + '<td>' + r.pts + '</td></tr>').join('') +
-        '</tbody></table></div><div class="note">' + rows.filter(r => r.pts).length + ' clubs with at least one label in ' + labYear + '. Points: gold 3, silver 2, bronze 1. Click a column header to sort. The French-speaking league pays €5,000 per gold, €3,000 per silver and €2,000 per bronze label (minutes, June 2025).</div>' +
-        '<h2 class="sec">Olympia over the years</h2><div class="card"><table class="mv" data-st="olyears"><thead><tr><th class="l">Year</th>' + ACAD.map(a => '<th>' + a + '</th>').join('') + '</tr></thead><tbody>' +
-        ol.map(o => '<tr><td class="l">' + o.y + '</td>' + ACAD.map(a => '<td data-v="' + (MEDAL[o[a]] || 0) + '">' + medal(o[a]) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>';
+        '</tbody></table></div><div class="note">' + rows.filter(r => r.pts).length + ' clubs with at least one label in ' + labYear + '. Points: gold 3, silver 2, bronze 1. Click a column header to sort. The French-speaking league pays €5,000 per gold, €3,000 per silver and €2,000 per bronze label (minutes, June 2025).</div></div></div>';
       sortAll(el);
     }
-    $('v-labels').addEventListener('change', e => { if (e.target.id === 'lab-year') { labYear = +e.target.value; drawLabels(); } });
+    $('lab-bar').addEventListener('change', e => { if (e.target.id === 'lab-year') { labYear = +e.target.value; drawLabels(); } });
 
     // Change log in the Keep a Changelog format (Bart, 21 Nov 2026: "use market standards"): newest release first, a
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.13.0', '2026-11-22', { Changed: ['Club pitches: one full-width chart with the average written on each line; the table that repeated those averages is gone.', 'Choices in one row above the page everywhere: no side column; Season moves, Catchment (bike and car) and Membership evolution (clubs compared) moved into that row.', 'Charts: values only at the end of a line, names in text colour; the average is light grey everywhere (green means good on this site).', 'Wide tables: group headers without colour, so orange stays Olympia, green good and red bad.', 'Town names in normal case; small labels in normal case.', 'Labels: the year in the filter row, one sentence on top, Olympia’s own years first and beside all clubs; the four areas explained on hover.', 'Official members and Umpires: one sentence on top, the figures in one line instead of tiles, the method moved to Definitions (new cards: Official members, Umpires).', 'Round names in plain words everywhere: Autumn 2025-26, Spring 2025-26.', 'Club evolution: tables as wide as their columns.'] }],
       ['2.12.0', '2026-11-22', { Changed: ['Long tables (Clubs overview, Strength clubs, Fees per club, Catchment ranking): the top 20 and Olympia, with Show all; a search still shows every match.', 'Computer screens: side by side where it fits: Season moves’ two Olympia tables, Fees per category and per club, the Pitches chart and its table.', 'Dotted underline only on column names; codes in cells still explain on hover.', 'One date per page: the standings date sits only in the source line.', 'Section headings in normal case at 14 px.'] }],
       ['2.11.0', '2026-11-22', { Changed: ['Five sections instead of eight: Clubs, Strength, Olympia, Club detail, Catchment. Unsorted is gone: its pages moved to the section they belong to; old links still work. Short page names. Definitions is a link at the end of the menu.', 'Any page: pick a club in the header to open its club page.', 'Club detail: one line of figures instead of seven tiles; first-team strength shows “27th of 89” (the score on hover); on a computer it sits beside the teams by age band.', 'Season moves and Umpires: Olympia first, the tables for all clubs fold open. Team strength: the top 20 and Olympia’s teams, with Show all.', 'Olympia membership evolution: the charts name Olympia, the average and the two highest and two lowest clubs; other names on hover. Charts drawn at their real width, so the text is readable on a phone.', 'Club map: light, like the catchment maps.', 'Plain words: autumn and spring instead of H1 and H2, Start to Hockey instead of S2H, Recreational (R2C), “Compared with: the 40 largest clubs”.', 'Column names 13 px in normal case, chart text 13 px, notes 14 px.', 'A source and date line under every page, with a link to its definition; the date in the header is gone.', 'Faster: the two data files load at the same time, and a repeat visit reuses them when they did not change.'], Added: ['A Chart / Table switch on every chart.', 'Home: the version and a link to what changed.', 'Definitions: Season moves.'] }],
       ['2.10.0', '2026-11-22', { Added: ['Computer screens: column names stay on screen under the menu while a long table scrolls.', 'Computer screens: hover a column name or a division code (R1 · B, VHL 1) to see what it means.', 'Computer screens: Download data (CSV) under every chart.'], Changed: ['Computer screens: tables as wide as their columns instead of the whole page; notes at most about 90 characters per line.', 'Computer screens: on the Club pitches, Club strength chart and Catchment chart pages the choices sit in a column beside the chart.', 'Computer screens: Catchment areas shows the list of clubs beside the map.', 'Keyboard focus clearly outlined.'] }],
@@ -2533,7 +2546,7 @@
       const U = D.umpires, el = $('v-umpires');
       if (!U) { el.innerHTML = '<div class="note">No umpire data in this version.</div>'; return; }
       const nat = U.lists.find(l => l.level === 'national');
-      const kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+      const kpi = (v, l) => '<span><b>' + v + '</b> ' + l + '</span>';   // one line of figures, as on Club detail
       const half = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
       const plural = (n, w) => half(n) + ' ' + w + (n === 1 ? '' : 's');
       // a ratio cell: umpires per team, red below 1, the counts on hover
@@ -2555,10 +2568,12 @@
       const sLabel = s => listOf(s, 'VHL') && listOf(s, 'LFH') ? 'both leagues' : listOf(s, 'LFH') ? 'French-speaking only' : 'Flemish only';
       const vb = both && listOf(both, 'VHL'), lb = both && listOf(both, 'LFH'), lfhNew = U.lists.filter(l => l.league === 'LFH').sort((a, b) => b.asOf.localeCompare(a.asOf))[0];
       const olNone = !SEASONS.some(s => (NS[s].Olympia || {}).clubUmpire >= 1);
-      el.innerHTML = '<div class="note" style="margin:0 0 14px">Umpires per club against the teams that need them, each from the same season. Need: teams whose matches require appointed national umpires, or club umpires at Club Umpire level; all other matches can be umpired by someone with only the theory exam, or by anyone. Counts only. Click a column header to sort.</div>' +
-        '<div class="kpis">' + kpi(fmt(nat.total), 'national officials, ' + Object.keys(nat.clubs).length + ' clubs (list of ' + nat.asOf + ')') +
-        kpi(shortN + ' of ' + rankedN.length, 'clubs with fewer national officials than teams that need them, 2026-27') +
-        (both ? kpi(fmt(vb.total) + ' / ' + fmt(lb.total), 'club umpires ' + both + ', Flemish / French-speaking lists') + kpi(shortC + ' of ' + rankedC.length, 'clubs with fewer club umpires than teams that need them, ' + both) : '') + '</div>' +
+      // Design pass (Bart 22 Nov 2026): one sentence on top, the figures in two lines (national, club umpires), the rules on Definitions.
+      const isoDay = d => /^\d{4}-\d{2}-\d{2}$/.test(d) ? dateShort(d) : d;
+      el.innerHTML = '<div class="note" style="margin:0 0 10px">Umpires per club against the teams that need them, each from the same season.' + more('umpires', 'Which teams need them') + '</div>' +
+        '<div class="figline sm ump-all">National: ' + kpi(fmt(nat.total), 'officials in ' + Object.keys(nat.clubs).length + ' clubs (list of ' + isoDay(nat.asOf) + ')') +
+        kpi(shortN + ' of ' + rankedN.length, 'clubs have fewer than their teams need (2026-27)') + '</div>' +
+        (both ? '<div class="figline sm">Club umpires ' + both + ': ' + kpi(fmt(vb.total) + ' / ' + fmt(lb.total), 'Flemish / French-speaking') + kpi(shortC + ' of ' + rankedC.length, 'clubs have fewer than their teams need') + '</div>' : '') +
         '<h2 class="sec">National umpires now</h2>' +
         '<div class="card"><table class="mv" id="umpt" data-sort="3:1"><thead><tr><th class="l"></th><th colspan="3" class="grp">National</th><th class="grp">Club Umpire level</th></tr><tr><th class="l">Club</th><th>Officials<span class="sub">Mar 2026</span></th><th>Teams<span class="sub">2026-27</span></th><th>Per team</th><th>Teams<span class="sub">2026-27</span></th></tr></thead><tbody>' +
         now.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td><td>' + r.nat + '</td><td>' + half(r.needN) + '</td>' + perCell(r.nat, r.needN) + '<td>' + half(r.needC) + '</td></tr>').join('') +
@@ -2575,7 +2590,7 @@
       // Olympia first: its own figures in one line, the tables for all clubs fold open below.
       const olN = now.find(r => r.c === 'Olympia'), olC = cu.find(r => r.c === 'Olympia');
       const olS = olC && [...olC.s].reverse().find(x => x.l && x.t >= 1), olSeason = olS && SEASONS[olC.s.indexOf(olS)];
-      const kp = el.querySelector(':scope > .kpis');
+      const kp = el.querySelector(':scope > .ump-all');
       if (kp && (olN || olS)) kp.insertAdjacentHTML('beforebegin', '<div class="figline sm" id="ump-ol">Olympia: ' +
         (olN ? '<span><b>' + olN.nat + '</b> national officials for <b>' + half(olN.needN) + '</b> ' + (olN.needN === 1 ? 'team' : 'teams') + ' that need them (2026-27)</span>' : '') +
         (olS ? '<span><b>' + olS.u + '</b> club umpires for <b>' + half(olS.t) + '</b> ' + (olS.t === 1 ? 'team' : 'teams') + ' (' + olSeason + ')</span>' : '') + '</div>');
@@ -2748,6 +2763,16 @@
             'Trimmers = the Tuesday and Thursday trimmers (DI/DO) who play in no other team; trimmers who also play Gents or Junior Ladies count there.',
             'Olympiaantjes are under 6 and play no competition. Start to Hockey (S2H) is shown separately because that group is not a competition team; the Youth count of the member administration (599) does include S2H.',
             'Olympiaantjes and trimmers have no gender in this file, so they drop out when you filter on boys or girls.']],
+          ['umpires', 'Umpires', 'list', 'blue', 'Qualified umpires per club against the teams whose matches need them, each from the same season.', [
+            'Need: teams whose matches require appointed national umpires, or club umpires at Club Umpire level. All other matches can be umpired by someone with only the theory exam, or by anyone.',
+            'Counts only: someone on both the national and a club list counts once.']],
+          ['official', 'Official members', 'people', 'blue', 'Hockey Vlaanderen club files (Sep 2021, Dec 2023) against this site’s estimate for the same moment.', [
+            'Ours = teams in the autumn standings of 2021-22 and 2023-24 (hockey.be) × players per team, plus the youngest and start-to-hockey members at Olympia’s ratios.',
+            'Factor = official ÷ ours. The two are counted differently, so the official number does not replace ours: it shows how far the estimate sits from the federation’s count, club by club.',
+            'Trimmers have no standings and are left out in every year, 2026 included; teams shared by two clubs are left out.',
+            'Small or new clubs with few competition teams (e.g. Red Wings, Arcus, Rotselaar) show very high factors: most of their members play no league.',
+            D.members ? 'Not in this site’s census, so not shown: ' + esc(D.members.unmatched.join(', ')) + '.' : '',
+            'Only Flemish clubs: the French-speaking league publishes no member counts per club.'].filter(Boolean)],
           ['moves', 'Season moves', 'steps', 'green', 'Every U10–U19 team followed from the autumn half of the outdoor season to the spring half.', [
             'Up or down means a higher or lower division name in spring.',
             'The season and province filters apply to every part; the division filter to all but the national rules, the Reg. 1/2/3 comparison and the club part.',
@@ -2799,7 +2824,7 @@
     const SECTIONS = [
       { id: 'membership', title: 'Clubs', icon: 'people', tone: 'blue', pages: [
         { id: 'clubs', title: 'Overview', view: 'table', sub: 'table', filters: [...F_ALL, 'q'] },
-        { id: 'pitches', title: 'Pitches', view: 'table', sub: 'fields', side: true, filters: [...F_ALL, 'fc-mode', 'q'] },
+        { id: 'pitches', title: 'Pitches', view: 'table', sub: 'fields', filters: [...F_ALL, 'fc-mode', 'q'] },
         { id: 'map', title: 'Map', view: 'map', filters: F_ALL },
         { id: 'fees', title: 'Fees', view: 'table', sub: 'fees', filters: ['f-prov', 'q'] },   // fees hold for the whole club
         ...(D.members ? [{ id: 'members', title: 'Official members', view: 'members', filters: ['f-prov'] }] : []),
@@ -2807,7 +2832,7 @@
         ...(D.umpires ? [{ id: 'umpires', title: 'Umpires', view: 'umpires', filters: ['f-prov'] }] : [])] },
       { id: 'strength', title: 'Strength', icon: 'bars', tone: 'green', pages: [
         { id: 'clubs', title: 'Clubs', view: 'clubstr', sub: 'table', filters: ['f-prov', 'str-base', 'q'] },   // always boys, girls and both
-        { id: 'chart', title: 'Club chart', view: 'clubstr', sub: 'chart', side: true, filters: ['f-gender', 'f-prov', 'str-type', 'str-base', 'q'] },
+        { id: 'chart', title: 'Club chart', view: 'clubstr', sub: 'chart', filters: ['f-gender', 'f-prov', 'str-type', 'str-base', 'q'] },
         { id: 'club-evolution', title: 'Club evolution', view: 'clubstr', sub: 'evo', filters: ['str-base'] },
         { id: 'teams', title: 'Teams', view: 'sterkte', sub: 'teams' },   // its own age and gender selectors
         ...(D.moves ? [{ id: 'moves', title: 'Season moves', view: 'moves', filters: ['f-prov'] }] : [])] },
@@ -2842,9 +2867,9 @@
     const SRC = {
       'membership/clubs': [TEAMS_SRC, 'members'], 'membership/pitches': [TEAMS_SRC + ' · pitches from hockey.be matches and club websites', 'pitches'],
       'membership/map': [TEAMS_SRC + ' · locations via OpenStreetMap', 'members'], 'membership/fees': ['club websites', 'fees'],
-      'membership/members': [D.members ? 'Hockey Vlaanderen club files (' + Object.values(D.members.sources).map(t => (/\(([^)]*)\)/.exec(t) || [])[1] || t).map(t => t.replace(/^Hockey Vlaanderen,\s*/, '')).join(', ') + '), against this site’s estimate' : '', 'members'],
+      'membership/members': [D.members ? 'Hockey Vlaanderen club files (' + Object.values(D.members.sources).map(t => (/\(([^)]*)\)/.exec(t) || [])[1] || t).map(t => t.replace(/^Hockey Vlaanderen,\s*/, '')).join(', ') + '), against this site’s estimate' : '', 'official'],
       'membership/labels': [D.labels ? D.labels.leagues.join('; ') : '', null],
-      'membership/umpires': ['federation umpire lists (national officials of ' + (D.umpires ? (D.umpires.lists.find(l => l.level === 'national') || {}).asOf : '?') + '; club umpires 2020–2024) and hockey.be team lists', null],
+      'membership/umpires': ['federation umpire lists (national officials of ' + (D.umpires ? dS((D.umpires.lists.find(l => l.level === 'national') || {}).asOf) : '?') + '; club umpires 2020–2024) and hockey.be team lists', null],
       'strength/clubs': [TEAMS_SRC + ' · ' + STAND_SRC, 'first-team'], 'strength/chart': [TEAMS_SRC + ' · ' + STAND_SRC, 'first-team'],
       'strength/club-evolution': ['hockey.be standings, outdoor rounds of 2025-26 and 2026-27', 'rounds'], 'strength/teams': [STAND_SRC, 'ranking'],
       'strength/moves': ['hockey.be standings and federation files' + (D.moves ? ', outdoor ' + D.moves.seasons.map(x => x.season || x).join(', ') : ''), 'moves'],
@@ -2863,6 +2888,8 @@
       el.innerHTML = 'Source: ' + esc(src[0]) + '.' + (src[1] ? more(src[1], 'How it is counted') : '');
     }
 
+    // One filter row (design rule, Bart 22 Nov 2026): the club selection of Membership evolution moves into it.
+    { const f = $('fsel'); f.dataset.view = 'flow'; f.hidden = true; $('pagebar').appendChild(f); }
     // ----- Desktop layer (2026-11-22) -----
     // The header's height, so table headers can stay on screen just under it.
     { const head = document.querySelector('header'), set = () => document.documentElement.style.setProperty('--hdrh', head.offsetHeight + 'px');
@@ -2993,6 +3020,7 @@
       const v = r.home ? 'home' : r.page.view, sub = r.home ? null : r.page.sub, shown = r.home ? [] : r.page.filters || [];
       for (const k of VIEWS) $('v-' + k).hidden = k !== v;
       for (const id of BAR) $(id).hidden = !shown.includes(id);
+      for (const el of $('pagebar').children) el.hidden = el.dataset.view !== v;   // a page's own choices, in the same row as the filters
       $('filterbar').hidden = !shown.length;
       strView = v === 'clubstr'; flowView = v === 'flow'; ledenView = v === 'leden';
       if (v === 'table') {
@@ -3020,8 +3048,8 @@
       if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
       if (v === 'flow') drawFlow();
-      document.body.classList.toggle('side', !r.home && !!r.page.side && shown.length > 0);
       srcLine(r);   // desktop: the choices beside the chart
+      $('filterbar').hidden = !shown.length && ![...$('pagebar').children].some(el => !el.hidden);
       document.title = (r.home ? '' : (v === 'club' ? r.arg || 'Olympia' : r.page.title) + ' · ') + 'Clubs and teams';
     }
     function route() {
