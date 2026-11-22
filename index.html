@@ -407,8 +407,6 @@
   #catch-t th.on { color:var(--text); }
   #catch-t td.bar { background-size:calc(100% - 12px) 60%; background-position:6px 50%; background-repeat:no-repeat; }   /* also in Olympia's row, where the page resets the background */
   #catch-t td.g-bike.bar { background-image:linear-gradient(90deg, rgba(122,223,176,.20) var(--w), transparent var(--w)); }
-  .catch-kpis .kpi.bike { border-color:rgba(122,223,176,.35); } .catch-kpis .kpi.car { border-color:rgba(58,163,255,.35); }
-  .catch-kpis .kpi .l { font-size:12px; }
   #catch-charts { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
   .catch-wrap { position:relative; } .catch-wrap svg { display:block; touch-action:pan-y; }
   .catch-wrap svg text { fill:var(--muted); font-size:11px; } .catch-wrap svg text.sc-label { fill:var(--text); font-size:12px; font-weight:600; paint-order:stroke; stroke:#171a21; stroke-width:3px; stroke-linejoin:round; }
@@ -419,9 +417,9 @@
   #catch-ct th { position:static; cursor:default; } #catch-ct td.l b { font-weight:600; }
   #catch-ct i, #catch-legend i.box { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:7px; vertical-align:-1px; }
   #catch-legend i.box { height:12px; }
-  #catch-near { margin-top:10px; } #catch-near p { margin:6px 0; color:var(--muted); font-size:13px; line-height:1.6; } #catch-near b { color:var(--text); font-weight:600; }
-  .catch-near-n { grid-template-columns:repeat(4, minmax(0, 1fr)); max-width:560px; margin-bottom:0; } .catch-near-n .kpi { padding:10px 14px; } .catch-near-n .kpi.car { border-color:rgba(58,163,255,.45); }
-  .catch-near-n .kpi .v { font-size:21px; } .catch-near-n .kpi .l { font-size:12px; }
+  #catch-ct tr.num td { border-bottom:none; padding-bottom:3px; }
+  #catch-ct tr.who td { text-align:left; white-space:normal; color:var(--muted); font-size:12.5px; line-height:1.6; padding-top:0; padding-left:31px; }
+  #catch-ct tr.who a.clublink { color:var(--text); }
   /* Catchment areas: several clubs on one map */
   #catch-abar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin-bottom:12px; } #catch-abar .seg button { white-space:nowrap; }
   .catch-abtns { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; } .catch-abtns button { padding:6px 14px; }
@@ -446,10 +444,8 @@
     #catch-t tr:not(.ghead) th { white-space:normal; vertical-align:bottom; line-height:1.25; font-size:10.5px; letter-spacing:0; }
     #catch-t td.l { text-overflow:ellipsis; }
     #catch-t td.rk, #catch-t th.rk { padding-left:6px; padding-right:0; } #catch-t td:last-child, #catch-t th:last-child { padding-right:8px; }
-    .catch-kpis { grid-template-columns:1fr 1fr; gap:8px; } .catch-kpis .kpi { padding:11px 12px; } .catch-kpis .kpi .v { font-size:21px; }
-    .catch-kpis .kpi.wide { grid-column:1 / -1; }
-    .catch-near-n { gap:6px; } .catch-near-n .kpi { padding:9px 8px; } .catch-near-n .kpi .v { font-size:19px; } .catch-near-n .kpi .l { font-size:11px; }
     #catch-ct { font-size:13px; } #catch-ct th, #catch-ct td { padding:7px 5px; white-space:normal; } #catch-ct td.l { white-space:nowrap; padding-left:10px; }
+    #catch-ct tr.num td { padding-bottom:2px; } #catch-ct tr.who td { padding-left:29px; font-size:12px; }
     #catch-map { height:58vh; min-height:300px; }
     #catch-amap { height:60vh; min-height:320px; } #catch-abar { gap:8px; margin-bottom:10px; } #catch-abar .seg { flex:1 1 100%; } #catch-abar .seg button { padding:9px 4px; }
     .catch-abtns button { flex:1; padding:8px 6px; }
@@ -919,13 +915,13 @@
   const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord } = X;
   ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
   const GREEN = '#7adfb0', BLUE = '#3aa3ff';
-  const REACH = [['Bike', 15, GREEN], ['Bike', 20, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE]];   // the order of every array in C
-  let bike = 15, car = 15, split = false, sortKey = 'cKids', sortDir = -1, sub = 'rank', club = 'Olympia', map = null, layer = null, built = false;
+  const REACH = [['Bike', 15, GREEN], ['Bike', 20, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE], ['Car', 30, BLUE]];   // the order of every array in C; Car 30 is in the club table only
+  let bike = 15, car = 15, split = false, sortKey = 'cKids', sortDir = -1, sub = 'rank', map = null, built = false;
   const bi = () => bike === 15 ? 0 : 1, ci = () => car === 15 ? 2 : 3;
   const rate1 = v => v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const short = n => n >= 99500 ? Math.round(n / 1000) + 'k' : n >= 9950 ? (n / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) + 'k' : fmt(n);
   const num = n => '<span class="catch-lg">' + fmt(n) + '</span><span class="catch-sm">' + short(n) + '</span>';
-  const reachHref = name => '#/unsorted/catchment-club/' + encodeURIComponent(name);
+  const reachHref = name => clubHref(name) + '?at=reach';   // the club's Club detail page, scrolled to its catchment
   const reachLink = name => '<a class="clublink" href="' + reachHref(name) + '">' + esc(name) + '</a>';
   const median = a => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return !s.length ? null : s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
@@ -938,7 +934,9 @@
     // an adults-only club on the same pitch (Langeveld at Leopold) does not compete for children.
     const drive = c.drive.map(([k, min]) => [C.names[k], min]).filter(([o]) => youthOf(o) > 0);
     const per = list => list.map(k => k > 0 ? youth / k * 1000 : null);
-    return { club: n, prov: provinceOf(n), nl: c.country === 'NL', youth, allKids: c.kids, splitKids: c.shared, people: c.people, km2: c.km2, drive,
+    // by bike: the clubs with youth teams whose pitch lies inside the area (Bike 15, Bike 20)
+    const near = (c.near || []).map(list => list.map(k => C.names[k]).filter(o => youthOf(o) > 0));
+    return { club: n, prov: provinceOf(n), nl: c.country === 'NL', youth, allKids: c.kids, splitKids: c.shared, people: c.people, km2: c.km2, drive, near,
       allRate: per(c.kids), splitRate: per(c.shared) };
   });
   const within = (r, min) => r.drive.filter(d => d[1] <= min).length;
@@ -954,34 +952,13 @@
   // The typical club: the median over the ranked clubs, whatever the province filter says.
   const MEDS = [false, true].map(s => ({ rate: REACH.map((_, i) => median(ROWS.filter(r => RT(r, i, s) != null).map(r => RT(r, i, s)))),
     kids: REACH.map((_, i) => median(ROWS.map(r => K(r, i, s)))) }));
-  const MED = i => MEDS[+split].rate[i], MEDKIDS = i => MEDS[+split].kids[i];
-  const MEDNEAR = { 15: median(ROWS.map(r => within(r, 15))), 20: median(ROWS.map(r => within(r, 20))) };
+  const MED = i => MEDS[+split].rate[i];
   const placeOf = (name, f) => {
     const s = ROWS.slice().sort((a, b) => f(b) - f(a));
     let place = 0, out = null;
     s.forEach((r, i) => { if (!i || Math.abs(f(s[i - 1]) - f(r)) >= 1e-9) place = i + 1; if (r.club === name) out = place; });
     return out;
   };
-  const tile = (v, l, s, cls) => '<div class="kpi ' + cls + '"><div><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div></div>';
-  // The five tiles of one club: children in reach and youth players per 1,000 of them, by bike and by car, and the
-  // number of clubs within the chosen drive time.
-  function tiles(name) {
-    const r = ALLROWS.find(x => x.club === name);
-    if (!r) return '';
-    const ranked = ROWS.includes(r), n = within(r, car), next = r.drive.filter(d => d[1] > car)[0];
-    return [[bi(), 'bike'], [ci(), 'car']].map(([i, cls]) => {
-      const how = REACH[i][1] + ' min by ' + cls, place = (f, v) => !ranked || v == null ? '' : ord(placeOf(name, f)) + ' of ' + ROWS.length + ' clubs';
-      // the small line ends with the same figure under the other choice, so both are always in view
-      const kids = K(r, i), other = K(r, i, !split), otherRate = RT(r, i, !split);
-      return tile(kids == null ? '–' : fmt(kids), 'Children within ' + how + (split ? ', split between clubs' : ''),
-          [place(x => neg(K(x, i)), kids), 'typical club ' + fmt(Math.round(MEDKIDS(i))), other == null ? '' : fmt(other) + (split ? ' before the split' : ' after the split')].filter(Boolean).join(' · '), cls) +
-        tile(rate1(RT(r, i)), 'Youth players per 1,000 children' + (split ? ', split' : ''),
-          [place(x => neg(RT(x, i)), RT(r, i)), 'typical club ' + rate1(MED(i)), otherRate == null ? '' : rate1(otherRate) + (split ? ' before the split' : ' after the split')].filter(Boolean).join(' · '), cls);
-    }).join('') +
-      tile(n, (n === 1 ? 'Other club' : 'Other clubs') + ' within ' + car + ' min drive',
-        (n ? r.drive.slice(0, Math.min(n, 4)).map(d => esc(d[0]) + ' ' + Math.round(d[1])).join(', ') + ' min' + (n > 4 ? ' and ' + (n - 4) + ' more' : '') : next ? 'nearest: ' + esc(next[0]) + ', ' + Math.round(next[1]) + ' min' : 'none within 30 min') +
-        ' · typical club ' + MEDNEAR[car], 'car wide');
-  }
 
   function skeleton() {
     built = true;
@@ -995,8 +972,7 @@
         '<div class="catch-wrap" id="catch-' + m + 'wrap"><svg id="catch-' + m + 'sc" width="100%"></svg><div class="sc-tip" id="catch-' + m + 'tip" hidden></div></div></div>').join('') + '</div>' +
         '<div class="flowlegend"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Typical club</span></div>' +
         '<div class="note" id="catch-cnote"></div></div>' +
-      '<div id="catch-club" hidden></div>' +
-      '<div id="catch-areas" hidden><div id="catch-abar"><div class="seg" id="catch-areach">' + REACH.map(([m, t], i) => '<button type="button" data-v="' + i + '">' + m + ' ' + t + '<span class="catch-lg"> min</span></button>').join('') + '</div></div>' +
+      '<div id="catch-areas" hidden><div id="catch-abar"><div class="seg" id="catch-areach">' + REACH.slice(0, 4).map(([m, t], i) => '<button type="button" data-v="' + i + '">' + m + ' ' + t + '<span class="catch-lg"> min</span></button>').join('') + '</div></div>' +
         '<div id="catch-amap"></div>' +
         '<div class="catch-abtns"><button type="button" id="catch-areset" title="Olympia and the clubs within 20 minutes by car of it">Reset</button><button type="button" id="catch-aall">All</button><button type="button" id="catch-anone">None</button></div>' +
         '<div class="catch-chips" id="catch-chips"></div>' +
@@ -1149,59 +1125,58 @@
       'A name that does not fit is left out; ' + (window.matchMedia('(max-width: 600px)').matches ? 'tap' : 'point at') + ' a dot for any club.';
   }
 
-  // ----- One club: its four areas on a map, and the numbers. -----
+  // ----- One club, at the bottom of its Club detail page (Bart, 22 Nov 2026): the four areas on a map, then one
+  // table with a row per travel time: children in reach, youth players per 1,000 of them, the rank on that, and the
+  // other clubs in reach, named on the line below. By car those are the clubs within that drive time, pitch to pitch;
+  // by bike the clubs whose pitch lies inside the area. Children count in full here; the Catchment ranking can split
+  // them. Car 30 is in the table only: its area would zoom the map out too far to read. -----
   const decode = s => { const pts = []; let i = 0, lat = 0, lon = 0;
     while (i < s.length) { for (let k = 0; k < 2; k++) { let r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32);
       const d = r & 1 ? ~(r >> 1) : r >> 1; if (k) lon += d; else lat += d; } pts.push([lat / 1e5, lon / 1e5]); }
     return pts; };
-  function drawClub(name) {
-    if (name) club = name;
-    const c = C.clubs[club], r = ALLROWS.find(x => x.club === club), names = Object.keys(C.clubs).sort((a, b) => a.localeCompare(b));
-    const picker = '<label class="pick">Club <select id="catch-pick">' + (c ? '' : '<option selected disabled>Choose a club</option>') +
-      names.map(n => '<option' + (n === club ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label>';
-    let html = '<div class="clubtop"><h2 class="ptitle">' + (club === 'Olympia' ? '<img src="olympia-logo.png" alt="" />' : '') + esc(c ? club : 'Club not found') + '</h2>' +
-      (r ? '<span class="where">' + esc(provLabel(r.prov)) + ' · <a class="clublink" href="' + clubHref(club) + '">club page</a></span>' : '') + picker + '</div>';
-    if (!c || !r) { $('catch-club').innerHTML = html + '<div class="note">There is no reach for a club called “' + esc(club) + '”. Choose a club from the list.</div>'; map = null; $('catch-pick').onchange = e => go(reachHref(e.target.value)); return; }
-    const shade = [.30, .16, .14, .07];
-    html += '<div class="kpis catch-kpis">' + tiles(club) + '</div>' +
-      '<h2 class="sec">Reach on the map</h2><div id="catch-map"></div>' +
-      '<div class="flowlegend" id="catch-legend">' + REACH.map(([m, t, col], i) => '<span><i class="box" style="background:' + col + ';opacity:' + (i % 2 ? .45 : .9) + '"></i>' + m + ' ' + t + ' min</span>').join('') +
+  const OP = [.9, .45, .9, .45, .25];   // the swatch of each travel time: the shorter one full, the longer one lighter
+  function clubInto(host, name) {
+    if (map) { try { map.remove(); } catch (e) { /* its container went with the previous club */ } map = null; }
+    const c = C.clubs[name], r = ALLROWS.find(x => x.club === name);
+    if (!host || !c || !r) return;
+    const ranked = ROWS.includes(r), shade = [.30, .16, .14, .07];
+    const who = i => i < 2 ? (r.near[i] || []).map(o => [o, null]) : r.drive.filter(d => d[1] <= REACH[i][1]);
+    const sw = i => '<i style="background:' + REACH[i][2] + ';opacity:' + OP[i] + '"></i>';
+    host.insertAdjacentHTML('beforeend', '<div id="club-reach"><h2 class="sec">Catchment</h2><div id="catch-map"></div>' +
+      '<div class="flowlegend" id="catch-legend">' + [0, 1, 2, 3].map(i => '<span><i class="box" style="background:' + REACH[i][2] + ';opacity:' + OP[i] + '"></i>' + REACH[i][0] + ' ' + REACH[i][1] + ' min</span>').join('') +
         '<span><i class="box" style="background:#8b93a3;border-radius:50%"></i>Other clubs</span></div>' +
-      '<h2 class="sec">The numbers</h2><div class="card"><table id="catch-ct"><thead><tr><th class="l">Reach</th><th class="hide-sm">Area</th><th class="hide-sm">Residents</th><th>Children</th><th>Players per 1,000</th><th>Rank</th></tr></thead><tbody>' +
-      REACH.map(([m, t, col], i) => '<tr><td class="l"><i style="background:' + col + ';opacity:' + (i % 2 ? .45 : .9) + '"></i><b>' + m + ' ' + t + ' min</b></td>' +
-        '<td class="hide-sm">' + fmt(Math.round(r.km2[i])) + ' km²</td><td class="hide-sm">' + fmt(r.people[i]) + '</td><td>' + (K(r, i) == null ? '–' : num(K(r, i))) + '</td><td class="total">' + rate1(RT(r, i)) + '</td>' +
-        '<td>' + (!ROWS.includes(r) || RT(r, i) == null ? '–' : ord(placeOf(club, x => neg(RT(x, i)))) + '<span class="catch-lg"> of ' + ROWS.length + '</span>') + '</td></tr>').join('') +
+      '<h2 class="sec">In reach</h2><div class="card"><table id="catch-ct"><thead><tr><th class="l">Reach</th><th class="hide-sm">Area</th><th class="hide-sm">Residents</th>' +
+        '<th>Children</th><th>Players per 1,000</th><th>Rank</th><th>Other clubs</th></tr></thead><tbody>' +
+      REACH.map((R, i) => { const list = who(i), kids = K(r, i, false), rate = RT(r, i, false);
+        return '<tr class="num"><td class="l">' + sw(i) + '<b>' + R[0] + ' ' + R[1] + ' min</b></td>' +
+          '<td class="hide-sm">' + fmt(Math.round(r.km2[i])) + ' km²</td><td class="hide-sm">' + fmt(r.people[i]) + '</td>' +
+          '<td>' + (kids == null ? '–' : num(kids)) + '</td><td class="total">' + rate1(rate) + '</td>' +
+          '<td>' + (!ranked || rate == null ? '–' : ord(placeOf(name, x => neg(RT(x, i, false)))) + '<span class="catch-lg"> of ' + ROWS.length + '</span>') + '</td>' +
+          '<td>' + list.length + '</td></tr>' +
+          '<tr class="who"><td colspan="7">' + (list.length ? list.map(([o, min]) => reachLink(o) + (min == null ? '' : ' ' + Math.round(min))).join(' · ') : 'None') + '</td></tr>'; }).join('') +
       '</tbody></table></div>' +
-      // The other clubs by drive time from this club's pitch: how many within 10, 15, 20 and 30 minutes, and which.
-      '<h2 class="sec">Other clubs by drive time</h2><div class="kpis catch-near-n">' + [10, 15, 20, 30].map(t =>
-        '<div class="kpi' + (t === car ? ' car' : '') + '"><div class="v">' + within(r, t) + '</div><div class="l">within ' + t + ' min</div></div>').join('') + '</div>' +
-      '<div id="catch-near">' + [[0, 10], [10, 15], [15, 20], [20, 30]].map(([lo, hi]) => { const list = r.drive.filter(d => d[1] > lo && d[1] <= hi);
-        return list.length ? '<p><b>' + (lo ? lo + ' to ' + hi : 'Up to ' + hi) + ' min:</b> ' + list.map(d => reachLink(d[0]) + ' ' + Math.round(d[1])).join(' · ') + '</p>' : ''; }).join('') +
-        (r.drive.length ? '' : '<p>No other club with youth teams within 30 minutes by car.</p>') + '</div>' +
-      '<div class="note">' + esc(club) + ' has ' + fmt(Math.round(r.youth)) + ' estimated youth players (U7–U19). Rank = place on players per 1,000 children among ' + ROWS.length + ' clubs; 1st has the most players for its children. ' +
-        (split ? 'Children are divided equally between the clubs that reach them. ' : '') +
-        'Drive times are from pitch to pitch, without traffic; only clubs with youth teams are counted. ' +
-        (ROWS.includes(r) ? '' : 'This club has no youth teams in the Belgian competition, so it has no rank. ') +
-        (c.country === 'LU' ? 'For this club, residents of Luxembourg count too. ' : '') + 'The pin is the main pitch according to hockey.be.</div>';
-    $('catch-club').innerHTML = html;
-    $('catch-pick').onchange = e => go(reachHref(e.target.value));
+      '<div class="note">' + esc(name) + ' has ' + fmt(Math.round(r.youth)) + ' estimated youth players (U7–U19). Children = residents under 15 within that travel time of the main pitch; ' +
+        'a child within reach of several clubs counts for each (the <a href="#/catchment/ranking">Catchment ranking</a> can split them). ' +
+        (ranked ? 'Rank = place on players per 1,000 children among ' + ROWS.length + ' clubs; 1st has the most players for its children. ' : 'This club has no youth teams in the Belgian competition, so it has no rank. ') +
+        'Other clubs, by car: within that drive time from pitch to pitch, without traffic (minutes after the name). By bike: the clubs whose main pitch lies inside the area. Only clubs with youth teams count. ' +
+        'Car 30 is not drawn on the map. ' + (c.country === 'LU' ? 'For this club, residents of Luxembourg count too. ' : '') + 'The pin is the main pitch according to hockey.be.</div></div>');
     if (!window.L) { $('catch-map').textContent = 'The map library could not load. Check your internet connection.'; return; }
     map = L.map('catch-map', { zoomSnap: 0.25, scrollWheelZoom: false });
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
-    layer = L.layerGroup().addTo(map);
+    const layer = L.layerGroup().addTo(map);
     let bounds = null;
-    for (const i of [3, 2, 1, 0]) {   // widest first, so the smaller areas lie on top
-      const rings = c.shape[i].map(decode), on = i === bi() || i === ci();
-      const poly = L.polygon(rings, { color: REACH[i][2], weight: on ? 2.5 : 1.2, opacity: on ? .95 : .6, dashArray: i % 2 ? '6 5' : null, fillColor: REACH[i][2], fillOpacity: shade[i], interactive: false }).addTo(layer);
+    for (const i of [3, 2, 1, 0]) {   // widest first, so the smaller areas lie on top; the 15-minute lines are the bold ones
+      const on = i === 0 || i === 2;
+      const poly = L.polygon(c.shape[i].map(decode), { color: REACH[i][2], weight: on ? 2.5 : 1.2, opacity: on ? .95 : .6, dashArray: i % 2 ? '6 5' : null, fillColor: REACH[i][2], fillOpacity: shade[i], interactive: false }).addTo(layer);
       if (i === 3) bounds = poly.getBounds();
     }
-    for (const n of names) {
-      if (n === club) continue;
+    for (const n of Object.keys(C.clubs)) {
+      if (n === name) continue;
       L.circleMarker(C.clubs[n].pin, { radius: 4.5, color: '#171a21', weight: 1.5, fillColor: '#aeb5c2', fillOpacity: .95 })
         .bindTooltip(esc(n)).on('click', () => go(reachHref(n))).addTo(layer);
     }
-    const here = c.pin;   // the pins travel with the catchment data: the page's own pins date from its last build with the password
-    if (here) L.circleMarker(here, { radius: 7.5, color: '#fff', weight: 2.5, fillColor: club === 'Olympia' ? '#ffb86b' : '#e6e8ec', fillOpacity: 1 }).bindTooltip(esc(club), { permanent: false }).addTo(layer);
+    // the pins travel with the catchment data: the page's own pins date from its last build with the password
+    L.circleMarker(c.pin, { radius: 7.5, color: '#fff', weight: 2.5, fillColor: name === 'Olympia' ? '#ffb86b' : '#e6e8ec', fillOpacity: 1 }).bindTooltip(esc(name)).addTo(layer);
     if (bounds) map.fitBounds(bounds, { padding: [14, 14] });
   }
 
@@ -1292,20 +1267,27 @@
 
   function redraw() {
     for (const [id, v] of [['catch-bike', bike], ['catch-car', car], ['catch-split', +split]]) for (const b of $(id).children) b.classList.toggle('active', +b.dataset.v === v);
-    for (const k of ['rank', 'chart', 'club', 'areas']) $('catch-' + k).hidden = k !== sub;
+    for (const k of ['rank', 'chart', 'areas']) $('catch-' + k).hidden = k !== sub;
     $('catch-bar').hidden = sub === 'areas';   // that page has its own choice of travel time, and no overlap choice
-    if (map) { map.remove(); map = null; }
-    if (sub === 'rank') drawRank(); else if (sub === 'chart') drawCharts(); else if (sub === 'areas') drawAreas(); else drawClub();
+    if (sub === 'rank') drawRank(); else if (sub === 'chart') drawCharts(); else drawAreas();
   }
   return {
-    // Three pages for the Unsorted section (Bart, 21 Nov 2026: "publish this under unsorted for now").
+    // The pages of the Catchment section, after Club detail (Bart, 22 Nov 2026).
     pages: [
-      { id: 'catchment-ranking', title: 'Catchment ranking', view: 'catch', sub: 'rank', filters: ['f-prov', 'q'] },
-      { id: 'catchment-chart', title: 'Catchment chart', view: 'catch', sub: 'chart', filters: ['f-prov', 'q'] },
-      { id: 'catchment-club', title: 'Catchment club map', view: 'catch', sub: 'club', href: '#/unsorted/catchment-club/Olympia' },
-      { id: 'catchment-areas', title: 'Catchment areas', view: 'catch', sub: 'areas' }],
-    // showPage calls this with the part and, for the club map, the club in the address.
-    draw(part, arg) { if (!built) skeleton(); sub = part || 'rank'; if (sub === 'club') club = arg || 'Olympia'; redraw(); },
+      { id: 'ranking', title: 'Catchment ranking', view: 'catch', sub: 'rank', filters: ['f-prov', 'q'] },
+      { id: 'chart', title: 'Catchment chart', view: 'catch', sub: 'chart', filters: ['f-prov', 'q'] },
+      { id: 'areas', title: 'Catchment areas', view: 'catch', sub: 'areas' }],
+    // showPage calls this with the part.
+    draw(part) { if (!built) skeleton(); sub = part || 'rank'; redraw(); },
+    // drawClubPage calls this after it has drawn the club: the catchment block goes at the bottom.
+    clubInto,
+    // An address from before 22 Nov 2026 -> where that page lives now, or null.
+    moved(hash) {
+      const m = /^#\/unsorted\/catchment-(ranking|chart|areas|club)(?:\/([^?]*))?/.exec(hash || '');
+      if (!m) return null;
+      let n = 'Olympia'; try { if (m[2]) n = decodeURIComponent(m[2]); } catch (e) { /* keep Olympia */ }
+      return m[1] === 'club' ? reachHref(n) : '#/catchment/' + m[1];
+    },
   };
 }
 
@@ -2364,6 +2346,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.8.0', '2026-11-22', { Added: ['Catchment section after Club detail, with Catchment ranking, Catchment chart and Catchment areas (moved from Unsorted).', 'Club detail: the club\'s travel-time areas on a map at the bottom, and one table for Bike 15 and 20, Car 15, 20 and 30 minutes: children in reach, youth players per 1,000, rank, and the other clubs in reach by name.'], Removed: ['Catchment club map page and its tiles; old links forward to the new places.'] }],
       ['2.7.0', '2026-11-22', { Changed: ['Catchment pages: bike reach is now 15 or 20 minutes (was 10 or 15), on every page and map.'] }],
       ['2.6.1', '2026-11-22', { Changed: ['Catchment ranking: sorted on children within reach by car, most first. The Olympia tiles above the table are gone; Olympia stays highlighted in the table.', 'Catchment chart: children on a straight scale from zero instead of doubling steps. Named on the chart: the five clubs closest to Olympia on it, and six clubs that stand out (many youth players for few children, or the other way around).'] }],
       ['2.6.0', '2026-11-21', { Added: ['Umpires: the French-speaking club-umpire list of 2020-21, so both leagues can be compared in the same season.'], Changed: ['Umpires: each list is compared with the teams of its own season; national officials and club umpires each get their own per-team figure instead of one combined figure.'] }],
@@ -2493,6 +2476,7 @@
       }
       $('v-club').innerHTML = html;
       $('club-pick').onchange = e => go(clubHref(e.target.value));
+      if (catchView) catchView.clubInto($('v-club'), name);   // catchment: the club's travel-time areas and the clubs in reach, at the bottom
     }
 
     // ----- Definitions (second pass): one card per topic, with a pictogram. The line "in short" always shows; a tap
@@ -2650,6 +2634,7 @@
         { id: '', title: 'Evolution', view: 'flow', filters: ['f-gender', 'f-prov'] }] },   // spans all ages by design
       { id: 'club', title: 'Club detail', icon: 'search', tone: 'purple', pages: [
         { id: '', title: 'Club page', view: 'club', href: '#/club/Olympia' }] },
+      ...(catchView ? [{ id: 'catchment', title: 'Catchment', icon: 'reach', tone: 'blue', pages: catchView.pages }] : []),   // catchment: ranking, chart, areas
       { id: 'definitions', title: 'Definitions', icon: 'book', tone: 'grey', pages: [
         { id: '', title: 'Definitions', view: 'defs' }] },
       { id: 'unsorted', title: 'Unsorted', icon: 'tray', tone: 'grey', wide: true, pages: [   // not placed yet: one strip under the others
@@ -2660,7 +2645,6 @@
         ...(D.members ? [{ id: 'members', title: 'Official members', view: 'members', filters: ['f-prov'] }] : []),
         ...(D.labels ? [{ id: 'labels', title: 'Club labels', view: 'labels', filters: ['f-prov'] }] : []),
         ...(D.umpires ? [{ id: 'umpires', title: 'Umpires', view: 'umpires', filters: ['f-prov'] }] : []),
-        ...(catchView ? catchView.pages : []),   // catchment: ranking, chart and club map
         { id: 'changes', title: 'Changes and updates', view: 'changes' }] },   // preview builds only until Bart publishes it
     ];
     for (const s of SECTIONS) for (const p of s.pages) { p.sec = s; p.href = p.href || '#/' + s.id + (p.id ? '/' + p.id : ''); }
@@ -2717,6 +2701,8 @@
       document.title = (r.home ? '' : (v === 'club' ? r.arg || 'Olympia' : r.page.title) + ' · ') + 'Clubs and teams';
     }
     function route() {
+      const moved = catchView && catchView.moved(location.hash);   // catchment: addresses from before 22 Nov 2026
+      if (moved) { location.replace(moved); return; }
       const r = resolve();
       nav.key = location.hash;
       for (const a of $('secnav').children) a.classList.toggle('active', !r.home && a.dataset.sec === r.sec.id);
@@ -2728,6 +2714,10 @@
       for (const el of [$('secnav').querySelector('.active'), $('subnav').querySelector('.active')]) if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       // A click on a link starts the page at the top; back and forward return to where the reader was.
       window.scrollTo(0, Date.now() - nav.clicked < 1000 ? 0 : nav.pos[nav.key] || 0);
+      if (!r.home && r.q.get('at') === 'reach' && $('club-reach')) {   // catchment: a link to a club's reach, its heading just under the sticky header
+        const head = document.querySelector('header');
+        window.scrollTo(0, $('club-reach').getBoundingClientRect().top + window.scrollY - (head ? head.offsetHeight : 0) - 8);
+      }
       nav.clicked = 0;
     }
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
