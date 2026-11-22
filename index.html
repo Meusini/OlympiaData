@@ -919,9 +919,9 @@
   const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord } = X;
   ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
   const GREEN = '#7adfb0', BLUE = '#3aa3ff';
-  const REACH = [['Bike', 10, GREEN], ['Bike', 15, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE]];   // the order of every array in C
+  const REACH = [['Bike', 15, GREEN], ['Bike', 20, GREEN], ['Car', 15, BLUE], ['Car', 20, BLUE]];   // the order of every array in C
   let bike = 15, car = 15, split = false, sortKey = 'cKids', sortDir = -1, sub = 'rank', club = 'Olympia', map = null, layer = null, built = false;
-  const bi = () => bike === 10 ? 0 : 1, ci = () => car === 15 ? 2 : 3;
+  const bi = () => bike === 15 ? 0 : 1, ci = () => car === 15 ? 2 : 3;
   const rate1 = v => v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const short = n => n >= 99500 ? Math.round(n / 1000) + 'k' : n >= 9950 ? (n / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) + 'k' : fmt(n);
   const num = n => '<span class="catch-lg">' + fmt(n) + '</span><span class="catch-sm">' + short(n) + '</span>';
@@ -987,7 +987,7 @@
     built = true;
     const seg = (id, opts) => '<div class="seg" id="' + id + '">' + opts.map(o => '<button type="button" data-v="' + o + '">' + o + '</button>').join('') + '</div>';
     $('v-catch').innerHTML =
-      '<div id="catch-bar"><span class="cb bike">Bike' + seg('catch-bike', [10, 15]) + '<span class="unit">min</span></span>' +
+      '<div id="catch-bar"><span class="cb bike">Bike' + seg('catch-bike', [15, 20]) + '<span class="unit">min</span></span>' +
         '<span class="cb car">Car' + seg('catch-car', [15, 20]) + '<span class="unit">min</span></span>' +
         '<span class="cb">Overlap<div class="seg" id="catch-split"><button type="button" data-v="0">Count all</button><button type="button" data-v="1">Split</button></div></span></div>' +
       '<div id="catch-rank"><div class="card"><table id="catch-t"><colgroup id="catch-cols"></colgroup><thead></thead><tbody></tbody></table></div><div class="note" id="catch-tnote"></div></div>' +
@@ -2364,6 +2364,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.7.0', '2026-11-22', { Changed: ['Catchment pages: bike reach is now 15 or 20 minutes (was 10 or 15), on every page and map.'] }],
       ['2.6.1', '2026-11-22', { Changed: ['Catchment ranking: sorted on children within reach by car, most first. The Olympia tiles above the table are gone; Olympia stays highlighted in the table.', 'Catchment chart: children on a straight scale from zero instead of doubling steps. Named on the chart: the five clubs closest to Olympia on it, and six clubs that stand out (many youth players for few children, or the other way around).'] }],
       ['2.6.0', '2026-11-21', { Added: ['Umpires: the French-speaking club-umpire list of 2020-21, so both leagues can be compared in the same season.'], Changed: ['Umpires: each list is compared with the teams of its own season; national officials and club umpires each get their own per-team figure instead of one combined figure.'] }],
       ['2.5.0', '2026-11-21', { Added: ['Umpires: qualified umpires per team that needs them, to rank clubs; someone on both the national and a club list counts once.'] }],
