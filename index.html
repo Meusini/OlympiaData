@@ -2088,7 +2088,7 @@
       $('str-evo').innerHTML = (D.history ? '<label class="pick"><input type="checkbox" id="evo-hist"' + (evoHist ? ' checked' : '') + '> Show earlier seasons (from 2018-19)</label>' : '') + evoBlock('Olympia') +
         '<label class="pick">Compare with <select id="evo-club">' + options + '</select></label><div id="evo-other">' + evoBlock(evoClub) + '</div>' +
         '<div class="note">First-team strength (0–100) per outdoor round, with the place among the clubs in that round. This follows the club, not the same squads. Indoor is not included.' + more('rounds', 'How rounds work') +
-        (D.history ? ' Earlier seasons come from the federation&#39;s final standings, ranked the same way; spring 2019-20 (Covid) and 2020-21 are missing, and 2024-25 is not in the federation files.' : '') + '</div>';
+        (D.history ? ' Earlier seasons come from the federation&#39;s final standings, ranked the same way; spring 2019-20 (Covid) and 2020-21 are missing.' : '') + '</div>';
       $('evo-club').addEventListener('change', e => { evoClub = e.target.value; $('evo-other').innerHTML = evoBlock(evoClub); sortAll($('evo-other')); });
       if ($('evo-hist')) $('evo-hist').addEventListener('change', e => { evoHist = e.target.checked; drawClubEvo(); });
       sortAll($('str-evo'));
@@ -2280,7 +2280,7 @@
     // and the spring pools where teams that moved meet teams that stayed (only those say how movers compare).
     function mvPrep() {
       if (MVX || !D.moves) return MVX;
-      // seasons (21 Nov 2026): 2018-19, 2021-22, 2022-23, 2023-24 from the hockey.be files, 2025-26 from our archive; every key includes the season
+      // seasons: 2018-19, 2021-22, 2022-23, 2023-24 from the hockey.be files, 2024-25 (added 22 Nov 2026) from the hockey.be standings feed, 2025-26 from our archive; every key includes the season
       const pairs = D.moves.pairs.map(p => Object.assign({}, p, { se: p.se || '2025-26', club: mvClubOf(p.t), nr: mvNr(p.t), f1: mvFinish(p.k1, p.n1),
         sh1: p.n1 > 1 ? 1 - (p.k1 - 1) / (p.n1 - 1) : 0.5, sh2: p.n2 > 1 ? 1 - (p.k2 - 1) / (p.n2 - 1) : 0.5, pool: (p.se || '') + '|' + p.a + p.g + '|' + p.d2 + '|' + p.q2 }));
       const key = (se, a, g, lv) => se + '|' + a + g + '|' + lv;
@@ -2503,6 +2503,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.14.0', '2026-11-22', { Added: ['Season 2024-25 (outdoor, U10–U19), which was missing: in the earlier seasons of Club strength evolution and Olympia evolution, in Season moves, and as a 2024-25 column in Umpires (the French-speaking club-umpire list of that season against its teams). Source: the final standings of every group in the hockey.be results feed.'] }],
       ['2.13.0', '2026-11-22', { Changed: ['Club pitches: one full-width chart with the average written on each line; the table that repeated those averages is gone.', 'Choices in one row above the page everywhere: no side column; Season moves, Catchment (bike and car) and Membership evolution (clubs compared) moved into that row.', 'Charts: values only at the end of a line, names in text colour; the average is light grey everywhere (green means good on this site).', 'Wide tables: group headers without colour, so orange stays Olympia, green good and red bad.', 'Town names in normal case; small labels in normal case.', 'Labels: the year in the filter row, one sentence on top, Olympia’s own years first and beside all clubs; the four areas explained on hover.', 'Official members and Umpires: one sentence on top, the figures in one line instead of tiles, the method moved to Definitions (new cards: Official members, Umpires).', 'Round names in plain words everywhere: Autumn 2025-26, Spring 2025-26.', 'Club evolution: tables as wide as their columns.'] }],
       ['2.12.0', '2026-11-22', { Changed: ['Long tables (Clubs overview, Strength clubs, Fees per club, Catchment ranking): the top 20 and Olympia, with Show all; a search still shows every match.', 'Computer screens: side by side where it fits: Season moves’ two Olympia tables, Fees per category and per club, the Pitches chart and its table.', 'Dotted underline only on column names; codes in cells still explain on hover.', 'One date per page: the standings date sits only in the source line.', 'Section headings in normal case at 14 px.'] }],
       ['2.11.0', '2026-11-22', { Changed: ['Five sections instead of eight: Clubs, Strength, Olympia, Club detail, Catchment. Unsorted is gone: its pages moved to the section they belong to; old links still work. Short page names. Definitions is a link at the end of the menu.', 'Any page: pick a club in the header to open its club page.', 'Club detail: one line of figures instead of seven tiles; first-team strength shows “27th of 89” (the score on hover); on a computer it sits beside the teams by age band.', 'Season moves and Umpires: Olympia first, the tables for all clubs fold open. Team strength: the top 20 and Olympia’s teams, with Show all.', 'Olympia membership evolution: the charts name Olympia, the average and the two highest and two lowest clubs; other names on hover. Charts drawn at their real width, so the text is readable on a phone.', 'Club map: light, like the catchment maps.', 'Plain words: autumn and spring instead of H1 and H2, Start to Hockey instead of S2H, Recreational (R2C), “Compared with: the 40 largest clubs”.', 'Column names 13 px in normal case, chart text 13 px, notes 14 px.', 'A source and date line under every page, with a link to its definition; the date in the header is gone.', 'Faster: the two data files load at the same time, and a repeat visit reuses them when they did not change.'], Added: ['A Chart / Table switch on every chart.', 'Home: the version and a link to what changed.', 'Definitions: Season moves.'] }],
@@ -2566,7 +2567,7 @@
         .map(c => ({ c, s: SEASONS.map(s => { const l = listOf(s, LG[c]), t = (NS[s][c] || {}).clubUmpire || 0; return { l, t, u: l ? l.clubs[c] || 0 : null }; }) }));
       const rankedC = both ? cu.map(r => r.s[SEASONS.indexOf(both)]).filter(x => x.l && x.t >= 1) : [], shortC = rankedC.filter(x => x.u < x.t).length;
       const sLabel = s => listOf(s, 'VHL') && listOf(s, 'LFH') ? 'both leagues' : listOf(s, 'LFH') ? 'French-speaking only' : 'Flemish only';
-      const vb = both && listOf(both, 'VHL'), lb = both && listOf(both, 'LFH'), lfhNew = U.lists.filter(l => l.league === 'LFH').sort((a, b) => b.asOf.localeCompare(a.asOf))[0];
+      const vb = both && listOf(both, 'VHL'), lb = both && listOf(both, 'LFH');
       const olNone = !SEASONS.some(s => (NS[s].Olympia || {}).clubUmpire >= 1);
       // Design pass (Bart 22 Nov 2026): one sentence on top, the figures in two lines (national, club umpires), the rules on Definitions.
       const isoDay = d => /^\d{4}-\d{2}-\d{2}$/.test(d) ? dateShort(d) : d;
@@ -2585,7 +2586,7 @@
         cu.map(r => '<tr' + (r.c === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.c) + '</td>' + r.s.map(x => (x.l ? '<td class="gs">' + x.u + '</td>' : '<td class="gs" data-v=""><span class="none">–</span></td>') + '<td>' + half(x.t) + '</td>' + (x.l ? perCell(x.u, x.t) : none)).join('') + '</tr>').join('') +
         '</tbody></table></div><div class="note">Each league&#39;s club-umpire list against the teams of its own season that need Club Umpire level: the autumn&#39;s U14, U16 and U19 teams in the national divisions below the top one (the top one gets national umpires). ' +
         (both ? both + ' is the only season with a list from both leagues, so it is the fair ranking across them. ' : '') + 'A dash under Umpires: no list for that club&#39;s league in that season. ' +
-        'The newest French-speaking list (' + lfhNew.asOf + ', ' + fmt(lfhNew.total) + ' umpires, for 2024-25) has no season of team data to go with it, and there is no Flemish list after 2020. Only clubs with at least one such team in these seasons are shown' + (olNone ? '; Olympia had none.' : '.') + '</div>';
+        'There is no Flemish list after 2020. Only clubs with at least one such team in these seasons are shown' + (olNone ? '; Olympia had none.' : '.') + '</div>';
       sortAll(el);
       // Olympia first: its own figures in one line, the tables for all clubs fold open below.
       const olN = now.find(r => r.c === 'Olympia'), olC = cu.find(r => r.c === 'Olympia');
@@ -2776,7 +2777,7 @@
           ['moves', 'Season moves', 'steps', 'green', 'Every U10–U19 team followed from the autumn half of the outdoor season to the spring half.', [
             'Up or down means a higher or lower division name in spring.',
             'The season and province filters apply to every part; the division filter to all but the national rules, the Reg. 1/2/3 comparison and the club part.',
-            'Spring 2019-20 (stopped by Covid after about 2 matches) and 2020-21 (not played) are left out, and 2024-25 is not in the federation files.',
+            'Spring 2019-20 (stopped by Covid after about 2 matches) and 2020-21 (not played) are left out.',
             'Click a column header to sort.']],
           ...(catchView ? [catchView.def] : []),   // catchment: how the Catchment pages and the club's catchment are counted
         ];
