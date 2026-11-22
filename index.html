@@ -454,6 +454,57 @@
     .catch-chip { padding:8px 12px 8px 9px; font-size:13.5px; } #catch-at { font-size:13px; } #catch-at th, #catch-at td { padding:8px 5px; } #catch-at td.l { padding-left:10px; }
     .catch-lg { display:none; } .catch-sm { display:inline; }
   }
+
+  /* ===== Desktop layer (2026-11-22, Bart: "do all the desktop improvements"). Phones are untouched: every rule
+     that changes the layout sits behind a min-width. ===== */
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }   /* the keyboard focus, clearly visible on the dark page */
+  .seg button:focus-visible, .tabs a:focus-visible { outline-offset:1px; }
+  .gtip { position:fixed; z-index:50; pointer-events:none; max-width:320px; background:var(--panel2); color:var(--text); border:1px solid #3a4150;
+    border-radius:8px; padding:7px 10px; font-size:12.5px; line-height:1.45; box-shadow:0 6px 20px rgba(0,0,0,.45); }
+  .dlrow { display:none; }
+  @media (hover: hover) and (min-width: 900px) {
+    [data-tip] { text-decoration:underline dotted rgba(139,147,163,.75); text-underline-offset:3px; text-decoration-thickness:1px; cursor:help; }
+    th[data-tip].sortable, #clubs th[data-tip], #catch-t th[data-tip] { cursor:pointer; }
+  }
+  @media (min-width: 900px) {
+    /* a download of the data behind a chart */
+    .dlrow { display:flex; justify-content:flex-end; margin-top:8px; }
+    .dlrow button { font-size:12px; padding:4px 11px; color:var(--muted); }
+    .dlrow button:hover { color:var(--text); }
+    /* text: lines of at most about 90 characters */
+    .note, .typeline, .defhead p, #v-moves > p, #v-changes > p, .hov { max-width:75ch; }
+    /* tables as wide as their columns, not the page; a small table no longer floats in a wide card */
+    .card { width:fit-content; max-width:100%; }
+    table { width:auto; }
+    th.st-team, td.st-team { width:auto; }
+    th, td { padding-left:11px; padding-right:11px; }
+    #clubs th, #clubs td, #clubstr th, #clubstr td, #catch-t th, #catch-t td, .projt th, .projt td { padding-left:8px; padding-right:8px; }
+    #v-moves ul.mvrules, #v-changes ul.mvrules { max-width:80ch; }
+    table.mx th, table.mx td { padding:3px 9px; }
+    #club-str th.row, #club-str td.row, #st-evo th.l, #st-evo td.l { width:auto; }   /* a 1% column would stretch the table to the page */
+    /* the evolution charts fit the screen */
+    .charts svg { max-height:calc(100vh - var(--hdrh, 140px) - 110px); }
+    /* Catchment areas: the list of clubs beside the map */
+    .catch-agrid { display:grid; grid-template-columns:minmax(0, 1fr) 230px; gap:16px; align-items:start; }
+    .catch-aside { max-height:min(66vh, 640px); overflow:auto; }
+    .catch-aside .catch-abtns { margin-top:0; }
+    .catch-aside .catch-chips { flex-direction:column; align-items:stretch; }
+    .catch-aside .catch-chip { justify-content:flex-start; }
+  }
+  @media (min-width: 1200px) {
+    /* column names stay on screen under the header while a long table scrolls */
+    .card { overflow:clip; } .card.wide { overflow:auto; }   /* a table wider than the page still scrolls sideways */
+    .card.wide thead { position:static; }   /* inside its own scroll box the header would drift down */
+    thead { position:sticky; top:var(--hdrh, 0px); z-index:3; background:var(--panel); }
+    thead th { position:static !important; }
+    thead tr:last-child th { box-shadow:inset 0 -1px 0 var(--line); }
+    /* chart pages: the choices in a column beside the chart, as on Our World in Data */
+    body.side .filterbar { position:fixed; z-index:4; top:calc(var(--hdrh, 140px) + 18px); left:var(--gut); width:220px; padding:0;
+      display:flex; flex-direction:column; gap:8px; }
+    body.side .filters { display:flex; flex-direction:column; gap:8px; }
+    body.side .filterbar select, body.side .filterbar input { width:100%; }
+    body.side main { padding-left:calc(var(--gut) + 244px); }
+  }
 </style>
 </head>
 <body>
@@ -914,7 +965,7 @@
   }
 
   function catchmentView(X) {
-  const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more } = X;
+  const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData } = X;
   ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
   // Map colours (palette check on the light map, 22 Nov 2026: orange #c46a12, blue #1f6fe0, magenta #b8338f all pass).
   // On the dark page the same meaning in lighter shades: BIKE_UI and CAR_UI.
@@ -978,9 +1029,9 @@
         '<div class="flowlegend"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Typical club</span></div>' +
         '<div class="note" id="catch-cnote"></div></div>' +
       '<div id="catch-areas" hidden><div id="catch-abar"><div class="seg" id="catch-areach">' + REACH.slice(0, 4).map(([m, t], i) => '<button type="button" data-v="' + i + '">' + m + ' ' + t + '<span class="catch-lg"> min</span></button>').join('') + '</div></div>' +
-        '<div id="catch-amap"></div>' +
+        '<div class="catch-agrid"><div id="catch-amap"></div><div class="catch-aside">' +
         '<div class="catch-abtns"><button type="button" id="catch-areset" title="Olympia and the clubs within 20 minutes by car of it">Reset</button><button type="button" id="catch-aall">All</button><button type="button" id="catch-anone">None</button></div>' +
-        '<div class="catch-chips" id="catch-chips"></div>' +
+        '<div class="catch-chips" id="catch-chips"></div></div></div>' +
         '<h2 class="sec">Clubs on the map</h2><div class="card"><table id="catch-at"></table></div><div class="note" id="catch-anote"></div></div>';
     $('catch-bike').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { bike = +b.dataset.v; redraw(); } });
     $('catch-car').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { car = +b.dataset.v; redraw(); } });
@@ -1100,6 +1151,8 @@
     }
     el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
     $('catch-' + mode + 'title').innerHTML = '<span style="color:' + (mode === 'b' ? BIKE_UI : CAR_UI) + '">By ' + REACH[i][0].toLowerCase() + ' · ' + REACH[i][1] + ' min</span>';
+    if (chartData) chartData('catch-' + mode + 'sc', 'catchment_' + REACH[i][0].toLowerCase() + '_' + REACH[i][1] + 'min', ['Club', 'Children within ' + REACH[i][1] + ' min by ' + REACH[i][0].toLowerCase(), 'Youth players', 'Youth players per 1,000 children'],
+      pts.slice().sort((a, b) => a.club.localeCompare(b.club)).map(p => [p.club, Math.round(p.x), Math.round(p.y), p.rate == null ? '' : Math.round(p.rate * 10) / 10]));
     dotChart(el, $('catch-' + mode + 'tip'), pts, W, p => [px(p.x), py(p.y)],
       p => ' · ' + short(p.x) + ' children · ' + fmt(Math.round(p.y)) + ' youth players · ' + rate1(p.rate) + ' per 1,000');
     return pts.length;
@@ -1126,7 +1179,7 @@
     const ranked = ROWS.includes(r);
     const who = i => i < 2 ? (r.near[i] || []).map(o => [o, null]) : r.drive.filter(d => d[1] <= REACH[i][1]);
     host.insertAdjacentHTML('beforeend', '<div id="club-reach"><h2 class="sec">Catchment</h2><div id="catch-map"></div><div class="flowlegend" id="catch-legend"></div>' +
-      '<div class="card"><table id="catch-ct"><thead><tr><th class="l">Reach</th><th>Children</th><th>Players per 1,000</th><th>Rank</th></tr></thead><tbody>' +
+      '<div class="card"><table id="catch-ct"><thead><tr><th class="l">Reach</th><th>Children</th><th>Players per 1,000</th><th title="Place on players per 1,000 among the clubs with youth teams (1st = most)">Rank</th></tr></thead><tbody>' +
       REACH.map((R, i) => { const list = who(i), rate = RT(r, i, false);
         return '<tr class="num" data-i="' + i + '"><td class="l"><i style="background:' + R[2] + '"></i><b>' + R[0] + ' ' + R[1] + ' min</b></td>' +
           '<td>' + short(K(r, i, false)) + '</td><td class="total">' + rate1(rate) + '</td><td>' + (!ranked || rate == null ? '–' : ord(placeOf(name, x => neg(RT(x, i, false))))) + '</td></tr>' +
@@ -1241,6 +1294,7 @@
       amap = L.map('catch-amap', { zoomSnap: 1, scrollWheelZoom: false });
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(amap);
       alayer = L.layerGroup().addTo(amap); aFit = true;
+      new ResizeObserver(() => amap.invalidateSize()).observe($('catch-amap'));   // the map beside the club list follows its column width
     } else amap.invalidateSize();
     alayer.clearLayers();
     let bounds = null;
@@ -1280,7 +1334,7 @@
     // The pages of the Catchment section, after Club detail (Bart, 22 Nov 2026).
     pages: [
       { id: 'ranking', title: 'Ranking', view: 'catch', sub: 'rank', filters: ['f-prov', 'q'] },
-      { id: 'chart', title: 'Chart', view: 'catch', sub: 'chart', filters: ['f-prov', 'q'] },
+      { id: 'chart', title: 'Chart', view: 'catch', sub: 'chart', side: true, filters: ['f-prov', 'q'] },
       { id: 'areas', title: 'Areas', view: 'catch', sub: 'areas' }],
     // The card for the Definitions section: everything the pages used to explain under their tables.
     def,
@@ -1587,6 +1641,9 @@
     function lineChart(id, labels, clubSeries, avg, ol, dashLast) {
       const W = 900, H = Math.max(440, Math.round((clubSeries.length + 2) * 12.5 + 48)), L = 42, R = 170, T = 14, B = 34, svg = $(id);
       svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      const r1 = v => isFinite(v) ? Math.round(v) : '';   // the data behind the chart, for the download
+      chartData(id, id === 'ch1' ? 'evolution_chart1_players_per_youth_stage' : 'evolution_chart2_players_per_age_group', ['Club', ...labels],
+        [...(ol ? [['Olympia', ...ol.vals.map(r1)]] : []), ...(avg ? [['Average of the clubs shown', ...avg.map(r1)]] : []), ...clubSeries.map(c => [c.club, ...c.vals.map(r1)])]);
       // Scale on the youth points only when the last point is the adults total, else it flattens the curve.
       const scaled = v => dashLast ? v.slice(0, -1) : v;
       // Scale to the 90th percentile of the club points (plus average and Olympia) so a few small
@@ -1877,6 +1934,8 @@
       el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('height', H); el.innerHTML = svg;
       $('sc-title').textContent = 'Youth players U10+ against first-team strength · ' + { A: 'boys + girls', M: 'boys', F: 'girls' }[g];
       $('sc-note').innerHTML = pts.length + ' clubs shown' + (noScore ? '; ' + noScore + ' club(s) without a score not shown' : '') + '. Each dot is a club. Youth players = estimated U10+ players, without recreational R2C teams.' + more('first-team', 'First-team strength');
+      chartData('sc', 'club_strength_chart_' + { A: 'boys_girls', M: 'boys', F: 'girls' }[g], ['Club', 'Youth players U10+ (estimate)', 'First-team strength (0-100)', 'Rank', 'Of'],
+        pts.slice().sort((a, b) => b.y - a.y).map(p => [p.club, Math.round(p.x), Math.round(p.y), p.rank, p.of]));
       dotChart(el, $('sc-tip'), pts, W, p => [px(p.x), py(p.y)],
         p => ' · ' + TYPE_SHORT[p.type] + ' · ' + fmt(Math.round(p.x)) + ' players · strength ' + Math.round(p.y) + ' (#' + p.rank + ' of ' + p.of + ')');
     }
@@ -2032,6 +2091,8 @@
       $('fc-note').innerHTML = (ol ? 'Olympia: ' + fmt(Math.round(ol.total)) + (all ? ' members' : ' youth members') + ' on ' + ol.x + (ol.x === 1 ? ' pitch, ' : ' pitches, ') + fmt(Math.round(ol.y)) + ' per pitch. ' : '') +
         'Each dot is a club; within a column the dots are spread out only to keep them readable. ' +
         'Not included: ' + (guests ? guests + ' club(s) without a pitch of their own and ' : '') + 'the Dutch clubs. ' + (showNC() ? '' : 'With these filters Pre U7 and S2H drop out.') + more('pitches', 'How pitches are counted');
+      chartData('fc', all ? 'pitches_members_per_pitch' : 'pitches_youth_members_per_pitch', ['Club', 'Pitches', all ? 'Members (estimate)' : 'Youth members (estimate)', 'Per pitch'],
+        pts.slice().sort((a, b) => b.y - a.y).map(p => [p.club, p.x, Math.round(p.total), Math.round(p.y)]));
       dotChart(el, $('fc-tip'), pts, W, p => [dotX(p), py(p.y)],
         p => ' · ' + fmt(Math.round(p.total)) + (all ? ' members' : ' youth members') + ' on ' + p.x + (p.x === 1 ? ' pitch' : ' pitches') + ' · ' + fmt(Math.round(p.y)) + ' per pitch');
     }
@@ -2353,6 +2414,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.10.0', '2026-11-22', { Added: ['Computer screens: column names stay on screen under the menu while a long table scrolls.', 'Computer screens: hover a column name or a division code (R1 · B, VHL 1) to see what it means.', 'Computer screens: Download data (CSV) under every chart.'], Changed: ['Computer screens: tables as wide as their columns instead of the whole page; notes at most about 90 characters per line.', 'Computer screens: on the Club pitches, Club strength chart and Catchment chart pages the choices sit in a column beside the chart.', 'Computer screens: Catchment areas shows the list of clubs beside the map.', 'Keyboard focus clearly outlined.'] }],
       ['2.9.0', '2026-11-22', { Changed: ['Catchment maps: light map like Google Maps (green parks, blue water); bike is magenta, car blue.', 'Club detail catchment: two areas on the map (one by bike, one by car), a tap on a table row changes them, Car 30 included; table cut to Reach, Children, Players per 1,000, Rank.', 'Catchment: numbers rounded (children in thousands); notes cut to one line; How this is counted moved to Definitions; page names Ranking, Chart, Areas; chart titles shorter.'], Removed: ['Catchment: the Count all / Split switch; a child counts in full for every club that reaches it.'] }],
       ['2.8.0', '2026-11-22', { Added: ['Catchment section after Club detail, with Catchment ranking, Catchment chart and Catchment areas (moved from Unsorted).', 'Club detail: the club\'s travel-time areas on a map at the bottom, and one table for Bike 15 and 20, Car 15, 20 and 30 minutes: children in reach, youth players per 1,000, rank, and the other clubs in reach by name.'], Removed: ['Catchment club map page and its tiles; old links forward to the new places.'] }],
       ['2.7.0', '2026-11-22', { Changed: ['Catchment pages: bike reach is now 15 or 20 minutes (was 10 or 15), on every page and map.'] }],
@@ -2624,16 +2686,16 @@
     // (the container v-...), the part of that view and the filters that apply to it; the others are hidden. -----
     const F_ALL = ['f-age', 'f-gender', 'f-prov'];
     // Catchment (catchment_view.js): its pages exist only when the data came with extras.json or a preview build.
-    const catchView = D.catchment ? catchmentView({ D, C: D.catchment, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more }) : null;
+    const catchView = D.catchment ? catchmentView({ D, C: D.catchment, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData }) : null;
     const SECTIONS = [
       { id: 'membership', title: 'Club membership', icon: 'people', tone: 'blue', pages: [
         { id: 'clubs', title: 'Club overview', view: 'table', sub: 'table', filters: [...F_ALL, 'q'] },
-        { id: 'pitches', title: 'Club pitches', view: 'table', sub: 'fields', filters: [...F_ALL, 'fc-mode', 'q'] },
+        { id: 'pitches', title: 'Club pitches', view: 'table', sub: 'fields', side: true, filters: [...F_ALL, 'fc-mode', 'q'] },
         { id: 'map', title: 'Club map', view: 'map', filters: F_ALL },
         { id: 'fees', title: 'Club fees', view: 'table', sub: 'fees', filters: ['f-prov', 'q'] }] },   // fees hold for the whole club
       { id: 'strength', title: 'Club and team strength', icon: 'bars', tone: 'green', pages: [
         { id: 'clubs', title: 'Club strength table', view: 'clubstr', sub: 'table', filters: ['f-prov', 'str-base', 'q'] },   // always boys, girls and both
-        { id: 'chart', title: 'Club strength chart', view: 'clubstr', sub: 'chart', filters: ['f-gender', 'f-prov', 'str-type', 'str-base', 'q'] },
+        { id: 'chart', title: 'Club strength chart', view: 'clubstr', sub: 'chart', side: true, filters: ['f-gender', 'f-prov', 'str-type', 'str-base', 'q'] },
         { id: 'teams', title: 'Team strength table', view: 'sterkte', sub: 'teams' }] },   // its own age and gender selectors
       { id: 'olympia', title: 'Olympia strength', icon: 'star', tone: 'ol', pages: [
         { id: 'overview', title: 'Olympia club overview', view: 'sterkte', sub: 'club' },
@@ -2659,6 +2721,87 @@
     for (const s of SECTIONS) for (const p of s.pages) { p.sec = s; p.href = p.href || '#/' + s.id + (p.id ? '/' + p.id : ''); }
     const VIEWS = ['catch', 'home', 'table', 'map', 'flow', 'leden', 'sterkte', 'olteams', 'club', 'defs', 'stats', 'clubstr', 'moves', 'members', 'labels', 'umpires', 'changes'];
     const BAR = [...F_ALL, 'fc-mode', 'str-type', 'str-base', 'q'];
+
+    // ----- Desktop layer (2026-11-22) -----
+    // The header's height, so table headers can stay on screen just under it.
+    { const head = document.querySelector('header'), set = () => document.documentElement.style.setProperty('--hdrh', head.offsetHeight + 'px');
+      new ResizeObserver(set).observe(head); set(); }
+    // Hover explanations. A column header or a code gets its meaning from the Definitions page, shown at once on hover
+    // (computers only; a phone keeps the Definitions link). Headers that already carry a title keep their own text.
+    const GLOSS = {
+      'S2H': 'Start to Hockey: a group without competition teams, estimated as Olympia’s ratio × U9–U14 players.',
+      'Pre U7': 'Under 6, no competition (at Olympia the Olympiaantjes); estimated from U7–U8 players.',
+      'Total members': 'Estimated players + Pre U7 + Start to Hockey.',
+      'Pitches': 'Pitches the club plays its home matches on. 0 = it plays on another club’s pitch.',
+      'Younger youth': 'U7 + U8 + U9.', 'Middle youth': 'U10 + U11 + U12.', 'Older youth': 'U14 + U16 + U19 (the 7 birth years U13–U19).',
+      'Youth': 'Teams with an age category, U7 to U19.', 'Adults': 'All teams without an age category.',
+      'Division': 'Level and pool: R = regional, N = national; R1 · B = Regional 1, pool B.',
+      'In pool': 'Place in the pool / teams in the pool.',
+      'Per match': 'Goal difference ÷ matches played.',
+      'Goal difference': 'Goals for minus goals against.',
+      'Dominance': 'How far a team stands above its own pool: goal difference per match minus the pool average, divided by the pool’s spread.',
+      'Percentile': '100 × (1 − (position − 1) ÷ number of teams), among all teams of that age and gender.',
+      'Band': 'Position ÷ number of teams, rounded up to the next 10%.',
+      'First team': 'The strongest team of a club in that age; usually Team 1.',
+      'Children': 'Residents under 15 (EU census 2021) within that travel time of the club’s main pitch.',
+      'Per 1,000': 'Youth players per 1,000 children in reach.',
+      'Players per 1,000': 'Youth players per 1,000 children in reach.',
+    };
+    const CODE = { N: 'National', R: 'Regional', 'Reg.': 'Regional', 'Nat.': 'National' };
+    const codeTip = t => {   // a division code in a cell: R1 · B, N2, Reg. 1, VHL 1 · 6/6
+      let m = /^(N|R)(\d)(?:\s*·\s*([A-Z])\b)?/.exec(t);
+      if (m) return CODE[m[1]] + ' ' + m[2] + (m[3] ? ', pool ' + m[3] : '') + '.';
+      if ((m = /^(VHL|LFH|HV)(?:\/\w+)?\s*(\d)/.exec(t))) return 'Regional ' + m[2] + ' (last season’s name for the regional divisions).';
+      if (/^R2C\b/.test(t)) return 'Recreational teams; they do not count in the level score.';
+      if (/^H1\b/.test(t)) return 'H1 = the first half of the outdoor season.';
+      return null;
+    };
+    const tipText = el => (el.textContent || '').replace(/[▲▼]/g, '').trim();
+    function glossary(root) {
+      if (!matchMedia('(hover: hover) and (min-width: 900px)').matches) return;
+      for (const th of root.querySelectorAll('th')) {
+        if (th.dataset.tip) continue;
+        if (th.title) { th.dataset.tip = th.title; th.removeAttribute('title'); continue; }
+        const g = GLOSS[tipText(th)]; if (g) th.dataset.tip = g;
+      }
+      for (const td of root.querySelectorAll('td')) {
+        if (td.dataset.tip || td.children.length > 2) continue;
+        const own = [...td.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
+        const t = codeTip(own); if (t) td.dataset.tip = t;
+      }
+    }
+    { const tip = document.createElement('div'); tip.className = 'gtip'; tip.hidden = true; document.body.appendChild(tip);
+      document.addEventListener('mouseover', e => {
+        const el = e.target.closest && e.target.closest('[data-tip]');
+        if (!el) { tip.hidden = true; return; }
+        tip.textContent = el.dataset.tip; tip.hidden = false;
+        const b = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+        const x = Math.min(Math.max(8, b.left + b.width / 2 - w / 2), innerWidth - w - 8);
+        tip.style.left = x + 'px'; tip.style.top = (b.bottom + 6 + h > innerHeight ? b.top - h - 6 : b.bottom + 6) + 'px';
+      });
+      window.addEventListener('scroll', () => { tip.hidden = true; }, { passive: true }); }
+    // A card whose table is wider than the page keeps its sideways scroll (its column names then do not stay on screen).
+    function fitCards() { for (const c of $('main').querySelectorAll('.card')) { if (c.offsetParent === null) continue; c.classList.remove('wide'); if (c.scrollWidth > c.clientWidth + 1) c.classList.add('wide'); } }
+    window.addEventListener('resize', fitCards);
+    // Every redraw of the page content gets the explanations; one pass per frame.
+    { let queued = false; new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; glossary($('main')); fitCards(); }); })
+        .observe($('main'), { childList: true, subtree: true }); }
+    // Download the data behind a chart (computers only). A chart registers its rows when it is drawn; the button sits
+    // under the chart and saves a CSV that opens in Excel.
+    const CHART_DATA = {};
+    function chartData(id, file, head, rows) {
+      CHART_DATA[id] = { file, head, rows };
+      const box = $(id) && $(id).closest('.chart');
+      if (box && !box.querySelector('.dlrow[data-for="' + id + '"]')) box.insertAdjacentHTML('beforeend', '<div class="dlrow" data-for="' + id + '"><button type="button" data-dl="' + id + '">Download data (CSV)</button></div>');
+    }
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('button[data-dl]'); if (!b) return;
+      const d = CHART_DATA[b.dataset.dl]; if (!d) return;
+      const cell = v => { const s = v === null || v === undefined ? '' : typeof v === 'number' ? String(Math.round(v * 100) / 100) : String(v); return /[",;\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+      const csv = '﻿' + [d.head, ...d.rows].map(r => r.map(cell).join(',')).join('\r\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = d.file + '.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
 
     $('secnav').innerHTML = SECTIONS.map(s => '<a href="' + s.pages[0].href + '" data-sec="' + s.id + '">' + s.title + '</a>').join('');
     // Home (Bart, second pass 2026-11-19): a card is the section with its pictogram and its pages, each a row to tap. Nothing else.
@@ -2707,6 +2850,7 @@
       if (v === 'stats') openStatsFrame();
       if (v === 'map') { if (!map) initMap(); else map.invalidateSize(); }
       if (v === 'flow') drawFlow();
+      document.body.classList.toggle('side', !r.home && !!r.page.side && shown.length > 0);   // desktop: the choices beside the chart
       document.title = (r.home ? '' : (v === 'club' ? r.arg || 'Olympia' : r.page.title) + ' · ') + 'Clubs and teams';
     }
     function route() {
@@ -2720,6 +2864,7 @@
       $('subnav').innerHTML = pages.map(p => '<a href="' + p.href + '"' + (p === r.page ? ' class="active"' : '') + '>' + p.title + '</a>').join('');
       $('subrow').classList.toggle('nopages', !pages.length);
       showPage(r);
+      requestAnimationFrame(() => { fitCards(); glossary($('main')); });   // desktop layer: cards and hover explanations of the page just shown
       for (const el of [$('secnav').querySelector('.active'), $('subnav').querySelector('.active')]) if (el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       // A click on a link starts the page at the top; back and forward return to where the reader was.
       window.scrollTo(0, Date.now() - nav.clicked < 1000 ? 0 : nav.pos[nav.key] || 0);
