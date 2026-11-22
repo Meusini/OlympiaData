@@ -357,7 +357,12 @@
   .figline b { color:var(--text); font-size:20px; font-weight:700; margin-right:3px; font-variant-numeric:tabular-nums; }
   .figline.sm { font-size:13.5px; gap:4px 14px; } .figline.sm b { font-size:15px; }
   .pair > div > h2.sec { margin-top:30px; }
-  @media (min-width: 1000px) { .pair { display:flex; flex-wrap:wrap; gap:0 28px; align-items:flex-start; } }
+  @media (min-width: 1000px) { .pair { display:flex; flex-wrap:wrap; gap:0 28px; align-items:flex-start; } .pair > .grow { flex:1 1 0; min-width:0; } .pair > div:not(.grow) { flex:none; max-width:100%; }
+    .pair > div:not(.grow) > .note, .pair > div:not(.grow) > h2.sec { width:0; min-width:100%; }   /* notes and headings follow the table width instead of widening the column */
+    #fee-cats th, #fee-cats td, #fee-clubs th, #fee-clubs td { padding-left:8px; padding-right:8px; } }
+  .pair > .grow > .chart + h2.sec { margin-top:30px; }
+  #ov-fees > .pair > div:first-child > h2.sec { margin-top:4px; }
+  @media (min-width: 1000px) { #ov-fees > .pair > div > h2.sec { margin-top:4px; } #ov-fields > .pair > div > h2.sec { margin-top:0; } }
   .kpi.pic { display:flex; align-items:center; gap:14px; } .kpi .s { margin-top:3px; color:var(--muted); font-size:11.5px; }
   .card.pad { padding:12px 16px 14px; }
   #v-club .kpis { margin-bottom:0; }
@@ -477,6 +482,7 @@
 
   /* ===== Readability (2026-11-22, both phone and computer): column names 13 px in normal case, chart text 13 px, notes 14 px. ===== */
   th { font-size:13px; }
+  h2.sec, .chart h2.sec { text-transform:none; letter-spacing:0; font-size:14px; }   /* section headings in normal case (Bart 22 Nov 2026) */
   tr.ghead th, #clubs tr.ghead th, #clubstr tr.ghead th, #catch-t tr.ghead th { text-transform:none; letter-spacing:0; font-size:12.5px; }
   #sc text, #fc text, .catch-wrap svg text { font-size:13px; } #sc text.sc-label, #fc text.sc-label, .catch-wrap svg text.sc-label { font-size:13px; } .catch-wrap svg text.sc-label.sc-name { font-size:12.5px; }
   .note { font-size:14px; line-height:1.5; }
@@ -491,7 +497,8 @@
   .ctswitch { margin:0 0 10px; } .ctswitch button { padding:4px 12px; font-size:12.5px; }
   .ctable .card { max-height:70vh; overflow:auto; } .ctable th { white-space:normal; vertical-align:bottom; }
   @media (hover: hover) and (min-width: 900px) {
-    [data-tip] { text-decoration:underline dotted rgba(139,147,163,.75); text-underline-offset:3px; text-decoration-thickness:1px; cursor:help; }
+    [data-tip] { cursor:help; }
+    th[data-tip] { text-decoration:underline dotted rgba(139,147,163,.75); text-underline-offset:3px; text-decoration-thickness:1px; }   /* only column names; codes in cells explain on hover without a line */
     th[data-tip].sortable, #clubs th[data-tip], #catch-t th[data-tip] { cursor:pointer; }
   }
   @media (min-width: 900px) {
@@ -992,7 +999,7 @@
       '<div class="stbar" id="st-bar"><div class="stbar" id="st-filters"><select id="st-age" title="Age">' + AGES.map(a => '<option value="' + a + '">U' + a + '</option>').join('') + '</select>' +
       '<select id="st-gender" title="Gender"><option value="M">Boys</option><option value="F">Girls</option></select>' +
       '<input id="st-q" type="search" placeholder="Search club…" /></div></div>' +
-      '<div class="note" id="st-asof">Standings of ' + (asOf ? new Date(asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '?') + ', ' + Math.min(...played) + ' to ' + Math.max(...played) + ' matches played.</div>' +
+      '<div class="note" id="st-asof">' + Math.min(...played) + ' to ' + Math.max(...played) + ' matches played.</div>' +
       '<div id="st-main"></div>' +
       '<div class="note" id="st-note" style="margin-top:14px"></div>';
     // A new age or gender is a new address, so a refresh comes back to it; the marked team goes.
@@ -1003,7 +1010,7 @@
   }
 
   function catchmentView(X) {
-  const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData } = X;
+  const { C, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData, topRows, gapRow, showAllAfter } = X;
   ICONS.reach = '<path d="M12 21s-6.5-5.7-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.3 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>';
   // Map colours (palette check on the light map, 22 Nov 2026: orange #c46a12, blue #1f6fe0, magenta #b8338f all pass).
   // On the dark page the same meaning in lighter shades: BIKE_UI and CAR_UI.
@@ -1121,8 +1128,10 @@
     const max = { bRate: Math.max(1e-9, ...list.map(val.bRate)), cRate: Math.max(1e-9, ...list.map(val.cRate)) };
     const cell = (r, k) => k === 'rank' ? r.rank : k === 'club' ? reachLink(r.club) : k === 'prov' ? esc(provLabel(r.prov)) : k === 'youth' ? fmt(Math.round(r.youth)) :
       k === 'bKids' ? num(K(r, b)) : k === 'cKids' ? num(K(r, c)) : k === 'bRate' ? rate(RT(r, b)) : k === 'cRate' ? rate(RT(r, c)) : within(r, car);
-    $('catch-t').tBodies[0].innerHTML = shown.map(r => '<tr class="' + (r.club === 'Olympia' ? 'st-ours' : '') + '">' + COLS.map(([k, , g, cl], i) =>
+    const top = topRows('catch', shown, r => r.club === 'Olympia', !!q);
+    $('catch-t').tBodies[0].innerHTML = top.rows.map(({ it: r, gap }) => (gap ? gapRow(COLS.length) : '') + '<tr class="' + (r.club === 'Olympia' ? 'st-ours' : '') + '">' + COLS.map(([k, , g, cl], i) =>
       '<td class="' + cl + ' ' + gcls(g, i) + (k in max ? ' total bar" style="--w:' + Math.round(Math.max(0, val[k](r)) / max[k] * 100) + '%' : '') + '">' + cell(r, k) + '</td>').join('') + '</tr>').join('');
+    showAllAfter($('catch-t'), 'catch', top, drawRank);
     $('catch-tnote').innerHTML = shown.length + ' clubs; ' + (small ? 'tap' : 'click') + ' a column to sort, a club for its catchment.' + more('catchment', 'How this is counted');
   }
 
@@ -1391,6 +1400,23 @@
 }
 
   function render(D) {
+    // Long tables (Bart 22 Nov 2026, as Team strength): the top 20 and Olympia, a gap row where rows are left out, and
+    // "Show all". A search shows every match; a table of 25 rows or fewer is shown whole. SHOW_ALL remembers the choice.
+    const SHOW_ALL = new Set();
+    function topRows(key, list, ours, searching) {
+      const short = !SHOW_ALL.has(key) && !searching && list.length > 25, out = [];
+      let last = -1;
+      list.forEach((it, i) => { if (!short || i < 20 || ours(it)) { out.push({ it, gap: short && out.length > 0 && i > last + 1 }); last = i; } });
+      return { rows: out, short, n: list.length };
+    }
+    const gapRow = cols => '<tr class="st-gap"><td colspan="' + cols + '">…</td></tr>';
+    function showAllAfter(table, key, t, redraw) {
+      const card = table.closest('.card'), next = card.nextElementSibling;
+      if (next && next.classList.contains('showall')) next.remove();
+      if (!t.short) return;
+      card.insertAdjacentHTML('afterend', '<button type="button" class="showall">Show all ' + t.n + ' clubs</button>');
+      card.nextElementSibling.onclick = () => { SHOW_ALL.add(key); redraw(); };
+    }
     // A combined team ("Ping/Well M-1") arrives once per club with share 0.5 and half the players.
     const ALL = D.teams.map(([club, town, code, age, gender, comp, division, group, size, kind, share]) =>
       ({ club, town, code, age, gender, comp, division, group, size, kind, share }));
@@ -1536,12 +1562,12 @@
       // Club overview (Bart, second pass): the club table only. The explanations are on the Definitions page.
       '<div id="ov-table"><div class="card"><table id="clubs"><thead></thead><tbody></tbody></table></div>' +
       '<div class="note">Players and members are estimates: teams × squad size, plus Pre U7 and Start to Hockey. Click a club name for its club page.' + more('members', 'How members are counted') + '</div></div>' +
-      '<div id="ov-fees" hidden><h2 class="sec" style="margin-top:0">Membership fee per category (euro per season)</h2><div class="card"><table id="fee-cats"></table></div>' +
-        '<h2 class="sec">Per club</h2><div class="card"><table id="fee-clubs"><thead></thead><tbody></tbody></table></div><div class="note" id="fee-note"></div></div>' +
-      '<div id="ov-fields" hidden><div class="chart"><h2 class="sec" id="fc-title"></h2>' +
+      '<div id="ov-fees" hidden><div class="pair"><div><h2 class="sec">Fee per category (euro per season)</h2><div class="card"><table id="fee-cats"></table></div></div>' +
+        '<div><h2 class="sec">Per club</h2><div class="card"><table id="fee-clubs"><thead></thead><tbody></tbody></table></div><div class="note" id="fee-note"></div></div></div></div>' +
+      '<div id="ov-fields" hidden><div class="pair"><div class="grow"><div class="chart"><h2 class="sec" id="fc-title"></h2>' +
         '<div class="flowlegend" style="padding-top:0"><span><i style="background:' + SC_OL + '"></i>Olympia</span><span><i style="background:' + SC_HIT + '"></i>Search result</span><span><i style="background:' + SC_BASE + '"></i>Other clubs</span><span><i style="background:var(--text)"></i>Average</span></div>' +
-        '<div id="fcwrap"><svg id="fc" width="100%"></svg><div class="sc-tip" id="fc-tip" hidden></div></div></div>' +
-        '<h2 class="sec">By number of pitches</h2><div class="card"><table id="fc-table"></table></div><div class="note" id="fc-note"></div></div></div>' +
+        '<div id="fcwrap"><svg id="fc" width="100%"></svg><div class="sc-tip" id="fc-tip" hidden></div></div></div></div>' +
+        '<div><h2 class="sec">By number of pitches</h2><div class="card"><table id="fc-table"></table></div><div class="note" id="fc-note"></div></div></div></div></div>' +
       '<div id="v-map" hidden><div id="map"></div><div class="note" id="mapnote"></div></div>' +
       '<div id="v-leden" hidden><div class="kpis" id="ledenkpis"></div><div class="card"><table id="ledent"></table></div><div class="note" id="ledennote"></div></div>' +
       '<div id="v-sterkte" hidden></div>' +
@@ -2073,9 +2099,11 @@
         '<th colspan="' + (narrow ? 1 : 2) + '" class="grp-comp gstart">' + (narrow ? 'Level' : 'Competition level') + helpBtn('level') + '</th>' +
         '<th colspan="3" class="grp-sterkte gstart">' + (narrow ? 'Strength' : 'First-team strength (0–100)') + helpBtn('first') + '</th></tr>' +
         '<tr>' + STR_COLS.map(([k, t, cl], i) => '<th data-k="' + k + '" class="c-' + k + ' ' + (cl || '') + ' ' + gcls(k, i) + '">' + (narrow && NARROW_T[k] || t) + (k === strKey ? (strDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
-      $('clubstr').tBodies[0].innerHTML = list.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' +
+      const top = topRows('clubstr', list, c => c.club === 'Olympia', !!q);
+      $('clubstr').tBodies[0].innerHTML = top.rows.map(({ it: c, gap }) => (gap ? gapRow(STR_COLS.length) : '') + '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' +
         STR_COLS.map(([k, , cl], i) => '<td class="c-' + k + ' ' + (cl || '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
           (k === 's1A' && isFinite(+firstTeamOf(c.club, k)) && firstTeamOf(c.club, k) !== null ? ' bar" style="--w:' + Math.max(0, Math.min(100, Math.round(+firstTeamOf(c.club, k)))) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
+      showAllAfter($('clubstr'), 'clubstr', top, drawStrength);
     }
     $('str-base').addEventListener('change', e => { strBase = e.target.value; drawStrength(); });
     $('str-type').addEventListener('change', drawStrength);
@@ -2165,11 +2193,13 @@
         if (y === null || y === undefined) return -1;
         return (typeof x === 'string' ? x.localeCompare(y) : x - y) * feeDir; });
       $('fee-clubs').tHead.innerHTML = '<tr>' + FEE_COLS.map(([k, t, cl]) => '<th data-k="' + k + '" class="' + (cl || '') + '">' + t + (k === feeKey ? (feeDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
-      $('fee-clubs').tBodies[0].innerHTML = rowsF.map(c => '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' + FEE_COLS.map(([k, , cl]) => {
+      const top = topRows('fees', rowsF, c => c.club === 'Olympia', !!q);
+      $('fee-clubs').tBodies[0].innerHTML = top.rows.map(({ it: c, gap }) => (gap ? gapRow(FEE_COLS.length) : '') + '<tr' + (c.club === 'Olympia' ? ' class="st-ours"' : '') + '>' + FEE_COLS.map(([k, , cl]) => {
         if (k === 'club') return '<td class="l">' + (CLUBS_ALL.has(c.club) ? clubLink(c.club) : esc(c.club)) + (c.out ? ' *' : '') + '</td>';
         if (k === 'season') return '<td class="l">' + esc(c.season || '?') + '</td>';
         if (k === 'source') return '<td class="l">' + (c.source ? '<a class="src" href="' + esc(c.source) + '" target="_blank" rel="noopener">link ↗</a>' : '–') + '</td>';
         return '<td>' + feeNum(c[k]) + '</td>'; }).join('') + '</tr>').join('');
+      showAllAfter($('fee-clubs'), 'fees', top, drawFees);
       // The long explanation (what a fee includes, what it leaves out) is on the Definitions page.
       $('fee-note').innerHTML = D.fees.length + ' of 111 clubs publish their membership fee. Amount = regular competition member. * = not in the comparison.' + more('fees', 'What a fee includes');
     }
@@ -2366,7 +2396,7 @@
       const nC = k => CP.filter(p => p.m === k).length, won = CP.filter(p => p.k2 === 1);
       h += '<!--CLUB--><h2 class="sec">Club</h2><div class="stbar" style="margin-bottom:10px"><select id="mv-club" title="Club">' +
         clubs.map(c => '<option value="' + esc(c) + '"' + (c === mvClub ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></div>';
-      h += '<h2 class="sec" style="margin-top:6px">' + esc(mvClub) + ' in ' + oneSeason + '</h2>' + (CP.length ? '<div class="card"><table class="mv" data-st="club"><thead><tr><th class="l">Team</th><th class="l">Autumn</th><th class="l">Spring</th><th class="l">Move</th></tr></thead><tbody>' +
+      h += '<div class="pair"><div><h2 class="sec">' + esc(mvClub) + ' in ' + oneSeason + '</h2>' + (CP.length ? '<div class="card"><table class="mv" data-st="club"><thead><tr><th class="l">Team</th><th class="l">Autumn</th><th class="l">Spring</th><th class="l">Move</th></tr></thead><tbody>' +
         CP.map(p => '<tr><td class="l" data-v="' + (p.a * 100 + (p.g === 'F' ? 0 : 50) + p.nr) + '">' + tn(p) + '</td><td class="l" data-v="' + (p.l1 * 100 + p.k1) + '">' + esc(p.d1) + ' · ' + p.k1 + '/' + p.n1 + '</td><td class="l" data-v="' + (p.l2 * 100 + p.k2) + '">' + esc(p.d2) + ' · ' + p.k2 + '/' + p.n2 + '</td><td class="l mv-' + p.m + '" data-v="' + MOVE_ORDER[p.m] + '">' + ARROW[p.m] + '</td></tr>').join('') +
         '</tbody></table></div><div class="note">' + CP.length + ' teams in both halves: ' + nC('up') + ' moved up, ' + nC('down') + ' moved down. ' + (won.length ? won.length + ' won their spring pool: ' + won.map(tn).join(', ') + '. ' : 'None won its spring pool. ') + 'Place = place in the pool / teams in the pool.</div>'
         : '<div class="note">No U10–U19 team of this club played both halves of 2025-26.</div>');
@@ -2383,12 +2413,12 @@
         return { up: up == null ? '–' : Math.round(100 * up) + '%', down: down == null ? '–' : Math.round(100 * down) + '%', upN: up || 0, downN: down || 0 };
       };
       const asOf = Math.max(0, ...nowPools.map(p => Date.parse(p.fetchedAt) || 0));
-      h += '<h2 class="sec">' + esc(mvClub) + ' now: what the past says</h2>' + (NOW.length ? '<div class="card"><table class="mv" data-st="now"><thead><tr><th class="l">Team</th><th class="l">Now</th><th>Up</th><th>Down</th></tr></thead><tbody>' +
+      h += '</div><div><h2 class="sec">' + esc(mvClub) + ' now: what the past says</h2>' + (NOW.length ? '<div class="card"><table class="mv" data-st="now"><thead><tr><th class="l">Team</th><th class="l">Now</th><th>Up</th><th>Down</th></tr></thead><tbody>' +
         NOW.map(t => { const o = odds(t); return '<tr><td class="l" data-v="' + (t.a * 100 + (t.g === 'F' ? 0 : 50) + t.nr) + '">' + tn({ a: t.a, g: t.g, nr: t.nr }) + '</td><td class="l" data-v="' + (t.lv * 100 + t.k) + '">' + esc(t.division) + ' · ' + t.k + '/' + t.n + '</td><td' + (o.upN >= 0.5 ? ' class="hi"' : '') + '>' + o.up +
           '</td><td' + (o.downN >= 0.5 ? ' class="lo"' : '') + '>' + o.down + '</td></tr>'; }).join('') + '</tbody></table></div>'
         : '<div class="note">This club has no U10–U19 team in the current outdoor standings.</div>') +
         '<div class="note">Place in the autumn standings of ' + (asOf ? new Date(asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '?') +
-        ' (the autumn is not over), with the share of teams of the same age and place that moved in ' + (mvSeason === 'all' ? 'the ' + X.seasons.length + ' seasons' : mvSeason) + ', all provinces. A place counts the same in a pool of 5 or of 10. An indication, not a forecast: rules and pool sizes can change.</div>';
+        ' (the autumn is not over), with the share of teams of the same age and place that moved in ' + (mvSeason === 'all' ? 'the ' + X.seasons.length + ' seasons' : mvSeason) + ', all provinces. A place counts the same in a pool of 5 or of 10. An indication, not a forecast: rules and pool sizes can change.</div></div></div>';
       // The chosen club first (Olympia unless another is picked); the figures for all clubs fold open below (Bart 22 Nov 2026).
       const [head, rest] = h.split('<!--LEAGUE-->'), [league, club] = rest.split('<!--CLUB-->');
       el.innerHTML = head + club + '<details class="fold" id="mv-fold"' + (mvOpen ? ' open' : '') + '><summary>All clubs: how teams move between autumn and spring</summary>' + league + '</details>';
@@ -2461,6 +2491,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.12.0', '2026-11-22', { Changed: ['Long tables (Clubs overview, Strength clubs, Fees per club, Catchment ranking): the top 20 and Olympia, with Show all; a search still shows every match.', 'Computer screens: side by side where it fits: Season moves’ two Olympia tables, Fees per category and per club, the Pitches chart and its table.', 'Dotted underline only on column names; codes in cells still explain on hover.', 'One date per page: the standings date sits only in the source line.', 'Section headings in normal case at 14 px.'] }],
       ['2.11.0', '2026-11-22', { Changed: ['Five sections instead of eight: Clubs, Strength, Olympia, Club detail, Catchment. Unsorted is gone: its pages moved to the section they belong to; old links still work. Short page names. Definitions is a link at the end of the menu.', 'Any page: pick a club in the header to open its club page.', 'Club detail: one line of figures instead of seven tiles; first-team strength shows “27th of 89” (the score on hover); on a computer it sits beside the teams by age band.', 'Season moves and Umpires: Olympia first, the tables for all clubs fold open. Team strength: the top 20 and Olympia’s teams, with Show all.', 'Olympia membership evolution: the charts name Olympia, the average and the two highest and two lowest clubs; other names on hover. Charts drawn at their real width, so the text is readable on a phone.', 'Club map: light, like the catchment maps.', 'Plain words: autumn and spring instead of H1 and H2, Start to Hockey instead of S2H, Recreational (R2C), “Compared with: the 40 largest clubs”.', 'Column names 13 px in normal case, chart text 13 px, notes 14 px.', 'A source and date line under every page, with a link to its definition; the date in the header is gone.', 'Faster: the two data files load at the same time, and a repeat visit reuses them when they did not change.'], Added: ['A Chart / Table switch on every chart.', 'Home: the version and a link to what changed.', 'Definitions: Season moves.'] }],
       ['2.10.0', '2026-11-22', { Added: ['Computer screens: column names stay on screen under the menu while a long table scrolls.', 'Computer screens: hover a column name or a division code (R1 · B, VHL 1) to see what it means.', 'Computer screens: Download data (CSV) under every chart.'], Changed: ['Computer screens: tables as wide as their columns instead of the whole page; notes at most about 90 characters per line.', 'Computer screens: on the Club pitches, Club strength chart and Catchment chart pages the choices sit in a column beside the chart.', 'Computer screens: Catchment areas shows the list of clubs beside the map.', 'Keyboard focus clearly outlined.'] }],
       ['2.9.0', '2026-11-22', { Changed: ['Catchment maps: light map like Google Maps (green parks, blue water); bike is magenta, car blue.', 'Club detail catchment: two areas on the map (one by bike, one by car), a tap on a table row changes them, Car 30 included; table cut to Reach, Children, Players per 1,000, Rank.', 'Catchment: numbers rounded (children in thousands); notes cut to one line; How this is counted moved to Definitions; page names Ranking, Chart, Areas; chart titles shorter.'], Removed: ['Catchment: the Count all / Split switch; a child counts in full for every club that reaches it.'] }],
@@ -2762,7 +2793,7 @@
     // (the container v-...), the part of that view and the filters that apply to it; the others are hidden. -----
     const F_ALL = ['f-age', 'f-gender', 'f-prov'];
     // Catchment (catchment_view.js): its pages exist only when the data came with extras.json or a preview build.
-    const catchView = D.catchment ? catchmentView({ D, C: D.catchment, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData }) : null;
+    const catchView = D.catchment ? catchmentView({ D, C: D.catchment, $, esc, fmt, CLUBS_ALL, provinceOf, provLabel, clubHref, go, dotChart, ICONS, SC_OL, SC_HIT, SC_BASE, ord, more, chartData, topRows, gapRow, showAllAfter }) : null;
     // Five sections (Bart, 22 Nov 2026: Unsorted emptied, Olympia in one section, short page names). Definitions is a
     // link at the end of the menu, not a section. Old addresses forward (OLD_ADDR below).
     const SECTIONS = [
@@ -3045,9 +3076,11 @@
         (k === sortKey ? (sortDir < 0 ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>';
       const barMax = Math.max(1, ...list.map(c => +sortVal(c, 'members') || 0));
       const barW = c => Math.round((+sortVal(c, 'members') || 0) / barMax * 100);
-      $('clubs').tBodies[0].innerHTML = list.map(c => '<tr class="club' + (c.club === 'Olympia' ? ' st-ours' : '') + '" data-c="' + esc(c.club) + '">' +
+      const top = topRows('clubs', list, c => c.club === 'Olympia', !!q);
+      $('clubs').tBodies[0].innerHTML = top.rows.map(({ it: c, gap }) => (gap ? gapRow(COLS.length) : '') + '<tr class="club' + (c.club === 'Olympia' ? ' st-ours' : '') + '" data-c="' + esc(c.club) + '">' +
         COLS.map(([k, , cl], i) => '<td class="' + (cl || '') + (k === 'players' ? ' total' : '') + (k === 'town' || k === 'prov' ? ' sec2' : '') + ' ' + gcls(k, i) +
           (k === 'members' ? ' bar" style="--w:' + barW(c) + '%' : '') + '">' + cell(c, k) + '</td>').join('') + '</tr>').join('');
+      showAllAfter($('clubs'), 'clubs', top, draw);
     }
     // A click on a column header sorts. The club name is a link to the club page, which took over the team list
     // that used to open under the row.
