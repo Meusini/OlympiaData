@@ -671,7 +671,8 @@
       if (s.evolution && s.evolution.rounds) data.evolution = s.evolution;
       data.strengthAsOf = s.asOf;
     } else console.warn('strength refresh not loaded, showing the built-in tables', st.reason);
-    if (ex.status === 'fulfilled') { const x = ex.value; for (const k of ['moves', 'history', 'members', 'labels', 'umpires', 'catchment']) if (x[k] && !data[k]) data[k] = x[k]; }
+    if (ex.status === 'fulfilled') { const x = ex.value; for (const k of ['moves', 'history', 'members', 'labels', 'umpires', 'catchment']) if (x[k] && !data[k]) data[k] = x[k];
+      if (x.fees && x.fees.length) data.fees = x.fees; }   // fee corrections made after the last password build (2.14.1)
     else console.warn('extra pages not loaded', ex.reason);
     render(data);   // outside the try: a page bug must not look like a wrong password
   }
@@ -2503,6 +2504,7 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.14.1', '2026-11-23', { Fixed: ['Braxgata fees, re-read from the club fee page: U7 and U8 priced separately, a 40 euro clubhouse charge per player added as a yearly charge, and Adults = Sportief I (1 training + coaching). U7–U12 482 → 513, U14–U19 545 → 585, Adults 565 → 560, Gents/Ladies 420 → 460, Trimmers 310 → 350.'] }],
       ['2.14.0', '2026-11-22', { Added: ['Season 2024-25 (outdoor, U10–U19), which was missing: in the earlier seasons of Club strength evolution and Olympia evolution, in Season moves, and as a 2024-25 column in Umpires (the French-speaking club-umpire list of that season against its teams). Source: the final standings of every group in the hockey.be results feed.'] }],
       ['2.13.0', '2026-11-22', { Changed: ['Club pitches: one full-width chart with the average written on each line; the table that repeated those averages is gone.', 'Choices in one row above the page everywhere: no side column; Season moves, Catchment (bike and car) and Membership evolution (clubs compared) moved into that row.', 'Charts: values only at the end of a line, names in text colour; the average is light grey everywhere (green means good on this site).', 'Wide tables: group headers without colour, so orange stays Olympia, green good and red bad.', 'Town names in normal case; small labels in normal case.', 'Labels: the year in the filter row, one sentence on top, Olympia’s own years first and beside all clubs; the four areas explained on hover.', 'Official members and Umpires: one sentence on top, the figures in one line instead of tiles, the method moved to Definitions (new cards: Official members, Umpires).', 'Round names in plain words everywhere: Autumn 2025-26, Spring 2025-26.', 'Club evolution: tables as wide as their columns.'] }],
       ['2.12.0', '2026-11-22', { Changed: ['Long tables (Clubs overview, Strength clubs, Fees per club, Catchment ranking): the top 20 and Olympia, with Show all; a search still shows every match.', 'Computer screens: side by side where it fits: Season moves’ two Olympia tables, Fees per category and per club, the Pitches chart and its table.', 'Dotted underline only on column names; codes in cells still explain on hover.', 'One date per page: the standings date sits only in the source line.', 'Section headings in normal case at 14 px.'] }],
@@ -2703,7 +2705,7 @@
             'Province = postcode of the main pitch.'],
             ol && D.leden && olF && olF[0] > 0 ? 'Olympia: ' + fmt(Math.round(ol.members)) + ' members on ' + olF[0] + (olF[0] === 1 ? ' pitch' : ' pitches') + ' = ' + fmt(Math.round(ol.members / olF[0])) + ' per pitch.' : ''],
           ['fees', 'Fees', 'euro', 'blue', 'What a regular competition member pays, in euro per season.', [
-            'At the early-bird rate if the club has two rates. Mandatory yearly contributions are added (Antwerp 140, Dragons 90, Oree 135).',
+            'At the early-bird rate if the club has two rates. Mandatory yearly contributions are added (Antwerp 140, Dragons 90, Oree 135, Braxgata 40).',
             'Not included: one-off joining fees, deposits, bar credit, indoor, training-only members, G-hockey, students and non-playing members.',
             'Youth amounts are the average over the ages. Top youth = separate rate for first or performance teams.',
             'Not everything is comparable: many clubs include the federation contribution, others do not mention it, so differences under 25 euro mean little. Some clubs still show an older season.',
