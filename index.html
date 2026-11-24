@@ -121,6 +121,8 @@
   #v-moves th.s-on, #v-members th.s-on, #v-labels th.s-on, #v-umpires th.s-on, #str-evo th.s-on, #st-evo th.s-on { color:var(--text); }
   #v-members th.grp, #v-umpires th.grp { text-align:center; color:var(--text); border-bottom:none; }
   #v-members tr.ol td, #v-labels tr.ol td, #v-umpires tr.ol td { background:rgba(208,126,42,.14); font-weight:600; }
+  #v-members tfoot td { font-weight:700; border-top:1.5px solid var(--text); } #v-members .pick { margin:0 0 10px; }
+  #club-hist a { color:var(--accent); text-decoration:none; white-space:nowrap; } #club-hist a:hover { text-decoration:underline; }
   #v-umpires td.lo { color:var(--bad); font-weight:600; } #umpcu .gs { border-left:1px solid var(--line); } #v-umpires th .sub, #v-umpires td .sub, #v-labels td .sub { display:block; font-size:11px; color:var(--muted); font-weight:400; }
   .medal { display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px; color:#1b1b1b; }
   .medal.gold { background:#e2b740; } .medal.silver { background:#c9ced6; } .medal.bronze { background:#c98a52; }
@@ -2460,7 +2462,8 @@
       rows.sort((a, b) => (b.o23 || 0) - (a.o23 || 0));
       const S = M.summary, kpi = (v, l) => '<div class="kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
       // Design pass (Bart 22 Nov 2026): one sentence on top, the three summary figures in one line, the method on Definitions.
-      el.innerHTML = '<div class="note" style="margin:0 0 10px">Official member counts of the Flemish clubs against this site’s estimate; factor = official ÷ ours.' + more('official', 'How they compare') + '</div>' +
+      // 2.15.0: the members of every club per season come first; the official comparison follows under its own heading.
+      el.innerHTML = memHistory(M) + (M.history ? '<h2 class="sec">Official counts against ours</h2>' : '') + '<div class="note" style="margin:0 0 10px">Official member counts of the Flemish clubs against this site’s estimate; factor = official ÷ ours.' + more('official', 'How they compare') + '</div>' +
         '<div class="figline sm"><span><b>' + x2(S.factor2021.median) + '</b> median factor, Sep 2021</span><span><b>' + x2(S.factor2023.median) + '</b> median factor, Dec 2023</span><span><b>' + fmt(M.totals.official2021) + ' → ' + fmt(M.totals.official2023) + '</b> official members in Flanders</span></div>' +
         '<div class="card"><table class="mv" id="memt" data-sort="4:-1"><thead><tr><th class="l"></th><th colspan="3" class="grp">Sep 2021</th><th colspan="3" class="grp">Dec 2023</th><th class="hide-sm"></th></tr><tr>' +
         '<th class="l">Club</th><th>Official</th><th class="hide-sm">Ours</th><th>Factor</th><th>Official</th><th class="hide-sm">Ours</th><th>Factor</th><th class="hide-sm">Ours 2026</th></tr></thead><tbody>' +
@@ -2468,6 +2471,29 @@
         '</tbody></table></div><div class="note">Small clubs with few competition teams show very high factors: most of their members play no league. Click a column header to sort.</div>';
       sortAll(el);
     }
+    // Members per season (Bart 24 Nov 2026: the full member history on the site, on the existing pages). From members.py:
+    // the same count every season since 2018-19, trimmers left out. 2024-25 and 2025-26 have standings for U10-U19 only,
+    // so those two columns show only under U10-U19. Gone clubs keep their province through history.prov.
+    let memKey = 'total';
+    const MEM_KEYS = [['total', 'All members'], ['youth', 'Youth'], ['adults', 'Adults'], ['u1019', 'U10–U19']];
+    function memHistory(M) {
+      const Hh = M.history; if (!Hh) return '';
+      const k = Hh.keys.indexOf(memKey) + 1, NS = Hh.seasons.length, p = $('f-prov').value;
+      const provH = c => { const v = provinceOf(c); return v === 'Onbekend' ? (Hh.prov || {})[c] || v : v; };
+      const cols = Hh.seasons.map((s, i) => i).filter(i => memKey === 'u1019' || Hh.full[i]), first = cols[0], last = cols[cols.length - 1];
+      const rows = Hh.clubs.filter(r => (!p || provH(r[0]) === p) && r[k].some(v => v != null)).map(r => ({ club: r[0], v: r[k] }));
+      const sum = i => rows.reduce((t, r) => t + (r.v[i] || 0), 0), sg = d => (d > 0 ? '+' : '') + fmt(d);
+      const chg = v => v[first] != null && v[last] != null ? ['' + (v[last] - v[first]), sg(v[last] - v[first])] : v[last] != null ? ['', 'new'] : ['', 'stopped'];
+      const hs = i => i === first || i === last ? '' : ' class="hide-sm"';   // phones: first and last season and the change
+      return '<h2 class="sec">Members per season</h2><div class="note" style="margin:0 0 10px">This site’s estimate for every season from ' + Hh.seasons[first] + ', counted the same way each year; trimmers left out, as there are no old lists.' +
+        (memKey === 'u1019' ? '' : ' 2024-25 and 2025-26 have U10–U19 only: choose U10–U19 for all ' + NS + ' seasons.') + more('members', 'How members are counted') + '</div>' +
+        '<label class="pick">Show <select id="mem-key">' + MEM_KEYS.map(([v, l]) => '<option value="' + v + '"' + (v === memKey ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></label>' +
+        '<div class="card"><table class="mv" id="memh-' + memKey + '" data-sort="' + cols.length + ':-1"><thead><tr><th class="l">Club</th>' + cols.map(i => '<th' + hs(i) + '>' + Hh.seasons[i] + '</th>').join('') + '<th>Change</th></tr></thead><tbody>' +
+        rows.map(r => { const c = chg(r.v); return '<tr' + (r.club === 'Olympia' ? ' class="ol"' : '') + '><td class="l">' + esc(r.club) + '</td>' + cols.map(i => '<td' + hs(i) + '>' + n0(r.v[i]) + '</td>').join('') + '<td data-v="' + c[0] + '">' + c[1] + '</td></tr>'; }).join('') +
+        '</tbody><tfoot><tr><td class="l">' + (p ? esc(provLabel(p)) : 'All clubs') + ' (' + rows.length + ')</td>' + cols.map(i => '<td' + hs(i) + '>' + fmt(sum(i)) + '</td>').join('') + '<td>' + sg(sum(last) - sum(first)) + '</td></tr></tfoot></table></div>' +
+        '<div class="note" style="margin-bottom:22px">Change = ' + Hh.seasons[last] + ' against ' + Hh.seasons[first] + '. Click a column header to sort.</div>';
+    }
+    $('v-members').addEventListener('change', e => { if (e.target.id === 'mem-key') { memKey = e.target.value; drawMembers(); } });
 
     let labYear = null;
     const MEDAL = { gold: 3, silver: 2, bronze: 1 };
@@ -2504,6 +2530,8 @@
     // semantic version and an ISO date per release, changes grouped as Added / Changed / Deprecated / Removed / Fixed /
     // Security. Add a release here with every site change.
     const CHANGES = [
+      ['2.15.0', '2026-11-24', { Added: ['Members per season for every club from 2018-19 to 2026-27, on Clubs › Members (was Official members): all members, youth, adults or U10–U19, with the change since 2018-19 and a total for the province. Each club page shows its members then and now.'],
+        Changed: ['U7 and U8 teams count 6 players in the seasons they played 4 v 4 (U7 until 2019-20, U8 until 2020-21). Figures from 2021-22 on are unchanged.'] }],
       ['2.14.1', '2026-11-23', { Fixed: ['Braxgata fees, re-read from the club fee page: U7 and U8 priced separately, a 40 euro clubhouse charge per player added as a yearly charge, and Adults = Sportief I (1 training + coaching). U7–U12 482 → 513, U14–U19 545 → 585, Adults 565 → 560, Gents/Ladies 420 → 460, Trimmers 310 → 350.'] }],
       ['2.14.0', '2026-11-22', { Added: ['Season 2024-25 (outdoor, U10–U19), which was missing: in the earlier seasons of Club strength evolution and Olympia evolution, in Season moves, and as a 2024-25 column in Umpires (the French-speaking club-umpire list of that season against its teams). Source: the final standings of every group in the hockey.be results feed.'] }],
       ['2.13.0', '2026-11-22', { Changed: ['Club pitches: one full-width chart with the average written on each line; the table that repeated those averages is gone.', 'Choices in one row above the page everywhere: no side column; Season moves, Catchment (bike and car) and Membership evolution (clubs compared) moved into that row.', 'Charts: values only at the end of a line, names in text colour; the average is light grey everywhere (green means good on this site).', 'Wide tables: group headers without colour, so orange stays Olympia, green good and red bad.', 'Town names in normal case; small labels in normal case.', 'Labels: the year in the filter row, one sentence on top, Olympia’s own years first and beside all clubs; the four areas explained on hover.', 'Official members and Umpires: one sentence on top, the figures in one line instead of tiles, the method moved to Definitions (new cards: Official members, Umpires).', 'Round names in plain words everywhere: Autumn 2025-26, Spring 2025-26.', 'Club evolution: tables as wide as their columns.'] }],
@@ -2637,6 +2665,10 @@
         html += '<div class="figline" id="club-size"><span><b>' + fmt(Math.round(c.members)) + '</b> ' + (D.leden ? 'members' : 'players') + '</span><span><b>' + fmt1(c.youthP) + '</b> youth</span><span><b>' + fmt1(c.adultP) + '</b> adults</span>' +
           '<span><b>' + pitches + '</b> ' + (f && f[0] === 1 ? 'pitch' : 'pitches') + (f && f[0] === 0 && f[2] ? ' (plays at ' + esc(f[2]) + ')' : '') + '</span></div>' +
           '<div class="figline sm" id="club-rank">Size among ' + N + ' clubs: <span><b>' + pl(c.members, x => x.members) + '</b> overall</span><span><b>' + pl(c.youthP, x => x.youthP) + '</b> youth</span><span><b>' + pl(c.adultP, x => x.adultP) + '</b> adults</span></div>';
+        // 2.15.0: members over time, same count every season (Clubs > Members), so without trimmers.
+        const MH = D.members && D.members.history, hr = MH && MH.clubs.find(r => r[0] === name);
+        if (hr) { const v = hr[1], fi = v.findIndex(x => x != null), li = v.length - 1;
+          if (fi >= 0 && fi < li && v[li] != null) html += '<div class="figline sm" id="club-hist">Members over time, without trimmers: <span><b>' + fmt(v[fi]) + ' → ' + fmt(v[li]) + '</b> ' + MH.seasons[fi] + ' → ' + MH.seasons[li] + '</span><a href="#/membership/members">every season ›</a></div>'; }
       }
       // Teams by age band and level: beside First-team strength when the club has ranked teams, else on its own.
       function bandsBlock() {
@@ -2684,7 +2716,9 @@
         const DEFS = [
           ['members', 'Members and players', 'people', 'blue', 'Estimates from the teams in the competition, not official member counts.', [
             'Players = teams × squad size: U7–U8 5 · U9 9 · U10–U12 11 · U14–U19 16 · Men, Women, Junior Ladies and Junior Boys 20 · Gents and Ladies 11 · Trimmers 25 · 45+ and R2C 16.',
+            'Earlier seasons: U7 played 4 v 4 until 2019-20 and U8 until 2020-21 (3 v 3 after), so a U7 or U8 team counts 6 players in those seasons (Hockey Vlaanderen, June 2020).',
             'Total members = players + Pre U7 + Start to Hockey.',
+            'Members per season (Clubs › Members): the same count for every season from 2018-19, from the autumn outdoor standings, without trimmers (no old lists). 2024-25 and 2025-26 have standings for U10–U19 only. Noorderkempen is shown as REDZ.',
             'Only outdoor competition teams count. Players without a team (U6, coaches, non-playing members) are missing; players in two teams count twice.',
             'A joint team (e.g. Ping/Well) counts as half a team for each club.',
             'For comparison: Hockey Belgium counts just over 63,000 registered members in 111–113 clubs (2026, BX1 / DH). This estimate covers about 78% of them, 73% without Pre U7 and Start to Hockey.'],
@@ -2830,7 +2864,7 @@
         { id: 'pitches', title: 'Pitches', view: 'table', sub: 'fields', filters: [...F_ALL, 'fc-mode', 'q'] },
         { id: 'map', title: 'Map', view: 'map', filters: F_ALL },
         { id: 'fees', title: 'Fees', view: 'table', sub: 'fees', filters: ['f-prov', 'q'] },   // fees hold for the whole club
-        ...(D.members ? [{ id: 'members', title: 'Official members', view: 'members', filters: ['f-prov'] }] : []),
+        ...(D.members ? [{ id: 'members', title: D.members.history ? 'Members' : 'Official members', view: 'members', filters: ['f-prov'] }] : []),   // 2.15.0: members per season + official counts
         ...(D.labels ? [{ id: 'labels', title: 'Labels', view: 'labels', filters: ['f-prov'] }] : []),
         ...(D.umpires ? [{ id: 'umpires', title: 'Umpires', view: 'umpires', filters: ['f-prov'] }] : [])] },
       { id: 'strength', title: 'Strength', icon: 'bars', tone: 'green', pages: [
